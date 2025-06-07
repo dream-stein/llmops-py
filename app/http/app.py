@@ -1,12 +1,20 @@
-from flask import Flask
+#!/usr/bin/eny python
+# -*- coding: utf-8 -*-
+"""
+@Time    :2025/6/7 15:12
+#Author  :Emcikem
+@File    :app.py
+"""
+from injector import Injector
 
-app = Flask(__name__)
+from internal.router import Router
+from internal.server import Http
 
+injector = Injector()
 
-@app.route('/')
-def hello_world():  # put application's code here
-    return 'Hello World!'
-
-
-if __name__ == '__main__':
-    app.run()
+app = Http(
+    __name__,
+    router=injector.get(Router),
+)
+if __name__ == "__main__":
+    app.run(debug=True)
