@@ -9,7 +9,10 @@ from injector import Injector
 
 from internal.router import Router
 from internal.server import Http
+import dotenv
 
+# 将env加载到环境变量中
+dotenv.load_dotenv()
 injector = Injector()
 
 app = Http(
