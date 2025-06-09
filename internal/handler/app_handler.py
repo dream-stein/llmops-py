@@ -46,6 +46,5 @@ class AppHandler:
         return success_json({"content": content})
 
     def ping(self):
-        return success_json({
-            "pong": 'success',
-        })
+        raise FailException("数据未找到")
+        # return {"ping": "pong"}
