@@ -6,7 +6,7 @@
 @File    :app.py
 """
 import dotenv
-from flask_sqlalchemy import SQLAlchemy
+from pkg.sqlalchemy import SQLAlchemy
 
 from config import Config
 from internal.router import Router
