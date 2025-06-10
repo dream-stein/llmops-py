@@ -14,7 +14,7 @@ from internal.exception import CustomException
 from internal.model import App
 from internal.router import Router
 from pkg.response import Response, json, HttpCode
-from flask_sqlalchemy import SQLAlchemy
+from pkg.sqlalchemy import SQLAlchemy
 
 class Http(Flask):
     """Http服务引擎"""
