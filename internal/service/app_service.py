@@ -27,3 +27,17 @@ class AppService:
         self.db.session.commit()
         return app
 
+    def get_app(self, id: uuid.UUID) -> App:
+        return self.db.session.query(App).get(id)
+
+    def update_app(self, id: uuid.UUID) -> App:
+        app = self.get_app(id)
+        app.name = "慕课网"
+        self.db.session.commit()
+        return app
+
+    def delete_app(self, id: uuid.UUID) -> App:
+        app = self.get_app(id)
+        self.db.session.delete(app)
+        self.db.session.commit()
+        return app
