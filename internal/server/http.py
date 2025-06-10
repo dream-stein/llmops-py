@@ -8,6 +8,7 @@
 import os
 
 from flask import Flask
+from flask_migrate import Migrate
 
 from config import Config
 from internal.exception import CustomException
@@ -23,8 +24,10 @@ class Http(Flask):
                  *args,
                  conf: Config,
                  db: SQLAlchemy,
+                 migrate: Migrate,
                  router: Router,
-                 **kwargs):
+                 **kwargs,
+                 ):
         # 1.调用父类构造函数初始化
         super().__init__(*args, **kwargs)
 
@@ -36,6 +39,7 @@ class Http(Flask):
 
         # 4. 初始化flask扩展
         db.init_app(self)
+        migrate.init_app(self, db, directory="internal/migration")
         with self.app_context():
             _ = App()
             db.create_all()
