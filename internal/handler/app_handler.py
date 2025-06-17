@@ -5,6 +5,7 @@
 #Author  :Emcikem
 @File    :app_handler.py
 """
+import os
 import uuid
 from dataclasses import dataclass
 
@@ -16,7 +17,9 @@ from internal.exception import FailException
 from internal.schema.app_schema import CompletionReq
 from internal.service import AppService
 from pkg.response import success_json, validate_error_json, success_message
-import os
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+from langchain_core.output_parsers import StrOutputParser
 
 @inject
 @dataclass
@@ -47,24 +50,19 @@ class AppHandler:
         req = CompletionReq()
         if not req.validate():
             return validate_error_json(req.errors)
-        query = request.json.get("query")
+
+        prompt = ChatPromptTemplate.from_template("{query}")
 
         # 2.构建OpenAI客户端，并发起请求
-        client = OpenAI(
-            api_key=os.getenv("OPENAI_API_KEY"),
-            base_url=os.getenv("OPENAI_API_BASE"),
-        )
+        llm = ChatOpenAI(model="deepseek-chat")
 
         # 3.得到请求相应，然后将OpenAPI的相应传递给前端
-        completion = client.chat.completions.create(
-            model="deepseek-chat",
-            messages=[
-                {"role": "system", "content": "你是openai开发的聊天机器人，请根据用户输入回复对应的信息"},
-                {"role": "user", "content": query},
-            ]
-        )
+        ai_message = llm.invoke(prompt.invoke({"query": req.query.data}))
 
-        content = completion.choices[0].message.content
+        parser = StrOutputParser()
+
+        # 4.解析响应内容
+        content = parser.invoke(ai_message)
 
         return success_json({"content": content})
 
