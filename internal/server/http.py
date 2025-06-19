@@ -8,6 +8,7 @@
 import os
 
 from flask import Flask
+from flask_cors import CORS
 from flask_migrate import Migrate
 
 from config import Config
@@ -37,9 +38,19 @@ class Http(Flask):
         # 3.注册绑定异常错误处理
         self.register_error_handler(Exception, self._register_error_handler)
 
-        # 4. 初始化flask扩展
+        # 4.初始化flask扩展
         db.init_app(self)
         migrate.init_app(self, db, directory="internal/migration")
+
+        # 5.解决前后端跨域问题
+        CORS(self, resources={
+            r"/*": {
+                "origins": "*",
+                "supports_credentials": True,
+                "methods": ["GET", "POST"],
+                "allow_headers": ["Content-Type"],
+            }
+        })
 
         # 5.注册应用路由
         router.register_router(self)
