@@ -9,7 +9,6 @@ from datetime import datetime
 import uuid
 from sqlalchemy import (
     Column,
-    UUID,
     String,
     Text,
     DateTime,

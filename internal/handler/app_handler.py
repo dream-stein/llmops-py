@@ -68,7 +68,7 @@ class AppHandler:
             input_key="query",
             output_key="output",
             return_messages=True,
-            # chat_memory=FileChatMessageHistory("./storage/memory/chat_history.txt"),
+            # chat_memory=FileChatMessageHistory("storage/memory/chat_history.txt"),
         )
 
         # 3.创建llm
