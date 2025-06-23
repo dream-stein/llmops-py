@@ -9,10 +9,13 @@ import os
 import uuid
 from dataclasses import dataclass
 from operator import itemgetter
+from typing import Any
 
 from flask import request, jsonify
 from flask_migrate import history
 from injector import inject
+from langchain_core.memory import BaseMemory
+from langchain_core.tracers import Run
 from openai import OpenAI
 from uuid import UUID
 
@@ -25,7 +28,8 @@ from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 from langchain.memory import ConversationBufferWindowMemory
 from langchain_community.chat_message_histories import FileChatMessageHistory
-from langchain_core.runnables import RunnablePassthrough, RunnableLambda
+from langchain_core.runnables import RunnablePassthrough, RunnableLambda, RunnableConfig
+
 
 @inject
 @dataclass
@@ -49,6 +53,24 @@ class AppHandler:
     def delete_app(self, id: uuid.UUID):
         app = self.app_service.delete_app(id)
         return success_message(f"应用已经成功删除，id为:{app.id}")
+
+    @classmethod
+    def _load_memory_variables(cls, input: dict[str, Any], config: RunnableConfig) -> dict[str, Any]:
+        """加载记忆变量信息"""
+        # 1.从config中获取configurable
+        configurable = config.get("configurable", {})
+        configurable_memory = configurable.get("memory", None)
+        if configurable_memory is not None and isinstance(configurable_memory, BaseMemory):
+            return configurable_memory.load_memory_variables(input)
+        return {"history": []}
+
+    @classmethod
+    def _save_context(cls, run_obj: Run, config: RunnableConfig) -> None:
+        """存储对应的上下文信息到记忆实体中"""
+        configurable = config.get("configurable", {})
+        configurable_memory = configurable.get("memory", None)
+        if configurable_memory is not None and isinstance(configurable_memory, BaseMemory):
+            configurable_memory.save_context(run_obj.inputs, run_obj.outputs)
 
     def debug(self, app_id: UUID):
         """聊天接口"""
@@ -75,14 +97,13 @@ class AppHandler:
         llm = ChatOpenAI(model="deepseek-chat")
 
         # 4.创建链应用
-        chain = RunnablePassthrough.assign(
-            history=RunnableLambda(memory.load_memory_variables) | itemgetter("history")
-        ) | prompt | llm | StrOutputParser()
+        chain = (RunnablePassthrough.assign(
+            history=RunnableLambda(self._load_memory_variables) | itemgetter("history")
+        ) | prompt | llm | StrOutputParser()).with_listeners(on_end=self._save_context)
 
         # 5.调用链得到结果
         chain_input = {"query": req.query.data}
-        content = chain.invoke(chain_input)
-        memory.save_context(chain_input, {"output": content})
+        content = chain.invoke(chain_input, config={"configurable": {"memory": memory}})
 
         return success_json({"content": content})
 
