@@ -1,7 +1,7 @@
 #!/usr/bin/eny python
 # -*- coding: utf-8 -*-
 """
-@Time    :2025/6/11 00:29
+@Time    :2025/6/11 00:29-文档加载器
 #Author  :Emcikem
 @File    :migrate_extension.py
 """
