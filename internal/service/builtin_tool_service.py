@@ -7,6 +7,9 @@
 """
 from injector import inject
 from dataclasses import dataclass
+
+from pydantic import BaseModel
+
 from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
 
 @inject
@@ -28,13 +31,33 @@ class BuiltinToolService:
                 **provider_entity.model_dump(exclude={"icon"}),
                 "tools": [],
             }
+            # 3.循环遍历提取提供者的所有工具实体
             for tool_entity in provider.get_tool_entities():
+                # 4.构建工具实体信息
                 tool_dict = {
                     **tool_entity.model_dump(),
                     "inputs": []
                 }
-        # 3.除了工具实体，还需要提取工具的inputs代表大语言模型的输入参数信息
-        # 4.组装提取所有的信息为list，并返回
+                # 5.从提供者中获取工具函数
+                tool = provider.get_tool(tool_entity.name)
+
+                # 6.检测下工具是否有args_schema这个属性，并且是BaseModel的子类
+                if hasattr(tool, "args_schema") and issubclass(tool.args_schema, BaseModel):
+                    inputs = []
+                    # todo: 啥意思
+                    for field_name, model_field in tool.args_schema.__fields__.items():
+                        inputs.append({
+                            "name": field_name,
+                            "description": model_field.field_info.description or "",
+                            "required": model_field.required,
+                            "type": model_field.outer_type_.__name__,
+                        })
+                    tool_dict["inputs"] = inputs
+                builtin_tool["tools"].append(tool_dict)
+
+            builtin_tools.append(builtin_tool)
+
+        return builtin_tools
 
     def get_provider_tool(self, provider_name: str, tool_name: str) -> dict:
         """根据传递的提供者名字+工具名字获取指定工具信息"""
