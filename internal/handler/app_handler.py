@@ -11,15 +11,11 @@ from dataclasses import dataclass
 from operator import itemgetter
 from typing import Any
 
-from flask import request, jsonify
-from flask_migrate import history
 from injector import inject
 from langchain_core.memory import BaseMemory
 from langchain_core.tracers import Run
-from openai import OpenAI
 from uuid import UUID
 
-from internal.exception import FailException
 from internal.schema.app_schema import CompletionReq
 from internal.service import AppService
 from pkg.response import success_json, validate_error_json, success_message
@@ -29,6 +25,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain.memory import ConversationBufferWindowMemory
 from langchain_community.chat_message_histories import FileChatMessageHistory
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda, RunnableConfig
+from internal.core.tools.builtin_tools.providers import ProviderFactory
 
 
 @inject
@@ -36,6 +33,7 @@ from langchain_core.runnables import RunnablePassthrough, RunnableLambda, Runnab
 class AppHandler:
     """应用控制器"""
     app_service: AppService
+    provider_factory: ProviderFactory
 
     def create_app(self):
         """调用服务创建新的APP记录"""
@@ -108,5 +106,6 @@ class AppHandler:
         return success_json({"content": content})
 
     def ping(self):
-        raise FailException("数据未找到")
-        # return {"ping": "pong"}
+        google_serper = self.provider_factory.get_tool("google", "google_serper")()
+        print(google_serper)
+        return success_json()
