@@ -25,7 +25,6 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain.memory import ConversationBufferWindowMemory
 from langchain_community.chat_message_histories import FileChatMessageHistory
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda, RunnableConfig
-from internal.core.tools.builtin_tools.providers import ProviderFactory
 
 
 @inject
@@ -33,7 +32,6 @@ from internal.core.tools.builtin_tools.providers import ProviderFactory
 class AppHandler:
     """应用控制器"""
     app_service: AppService
-    provider_factory: ProviderFactory
 
     def create_app(self):
         """调用服务创建新的APP记录"""
@@ -106,5 +104,4 @@ class AppHandler:
         return success_json({"content": content})
 
     def ping(self):
-        providers = self.provider_factory.get_provider_entities()
-        return success_json({"providers": [provider.dict() for provider in providers]})
+        return success_json()
