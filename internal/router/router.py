@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from injector import inject
 from flask import Flask, Blueprint
 
-from internal.handler import AppHandler, BuiltinToolHandler, ApiToolHandler
+from internal.handler import AppHandler, BuiltinToolHandler, ApiToolHandler, api_tool_handler
 
 
 @inject
@@ -58,6 +58,10 @@ class Router:
             "/api-tools",
             methods=["POST"],
             view_func=self.api_tool_handler.create_api_tool
+        )
+        bp.add_url_rule(
+            "/api-tools/<uuid:provider_id>",
+            view_func=self.api_tool_handler.get_api_tool_provider
         )
 
         # 5. 在应用上去注册蓝图

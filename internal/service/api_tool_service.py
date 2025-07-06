@@ -6,11 +6,12 @@
 @File    :api_tool_service.py
 """
 import json
+from uuid import UUID
 
 from injector import inject
 from dataclasses import dataclass
 
-from internal.exception import ValidateErrorException
+from internal.exception import ValidateErrorException, NotFoundException
 from internal.core.tools.api_tools.entities import OpenAPISchema
 from internal.schema.api_tool_schema import CreateApiToolReq
 from pkg.sqlalchemy import SQLAlchemy
@@ -35,7 +36,7 @@ class ApiToolService:
         # 2.查询当前登录的账号是否已经创建了同名的工具提供者，如果是则抛出异常
         api_tool_provider = self.db.session.query(ApiToolProvider).filter_by(
             account_id=account_id,
-            name=req.name
+            name=req.name.data,
         ).one_or_none()
         if api_tool_provider:
             raise ValidateErrorException(f"该工具提供者名字{req.name.data}已存在")
@@ -80,3 +81,17 @@ class ApiToolService:
             raise ValidateErrorException("传递数据必须符合OpenAPI规范的JSON字符串")
 
         return OpenAPISchema(**data)
+
+    def get_api_tool_provider(self, provider_id: UUID) -> ApiToolProvider:
+        """"根据传递的provider_id获取API工具提供者信息"""
+        # todo:等待授权认证模块
+        account_id = "b8434b9c-ee56-4bfd-bd24-84d3caef5599"
+
+        # 1.查询数据库获取对应的数据
+        api_tool_provider = self.db.session.query(ApiToolProvider).get(provider_id)
+
+        # 2.校验数据是否为空，并且判断该数据是否属于当且账号
+        if api_tool_provider is None or str(api_tool_provider.account_id) != account_id:
+            raise NotFoundException("该工具提供者不存在")
+
+        return api_tool_provider
