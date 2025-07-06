@@ -12,7 +12,7 @@ class ListField(Field):
     data : list = None
 
     def process_formdata(self, valuelist):
-        if valuelist is not None and issubclass(valuelist, list):
+        if valuelist is not None and isinstance(valuelist, list):
             self.data = valuelist
 
     def _value(self):

@@ -62,7 +62,7 @@ class ApiToolService:
                         provider_id=api_tool_provider.id,
                         name=method_item.get("operationId"),
                         description=method_item.get("description"),
-                        url=f"{openai_schema.service}{path}",
+                        url=f"{openai_schema.server}{path}",
                         method=method,
                         parameters=method_item.get("parameters", []),
                     )

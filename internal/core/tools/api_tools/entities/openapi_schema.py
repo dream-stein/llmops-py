@@ -28,11 +28,11 @@ class ParameterIn(str, Enum):
 class OpenAPISchema(BaseModel):
     """OpenAPI规范的数据结构"""
     description: str = Field(default="", validate_default=True, description="工具提供者的服务基础地址")
-    service: str = Field(default="", validate_default=True, description="工具提供者的描述信息")
+    server: str = Field(default="", validate_default=True, description="工具提供者的描述信息")
     paths: dict[str, dict] = Field(default_factory=dict, validate_default=True, description="工具提供者的路径参数字典")
 
 
-    @field_validator("service", mode="before")
+    @field_validator("server", mode="before")
     def validate_server(cls, server: str) -> str:
         """检验server数据"""
         if server is None or server == "":
