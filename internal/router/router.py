@@ -35,11 +35,11 @@ class Router:
 
         # 3.内置插件广场模块
         bp.add_url_rule(
-            "/builtin-tools/<string:provider_name>/tools/<string:tool_name>",
-            view_func=self.builtin_tool_handler.get_provider_tool,
+            "/builtin-tools",
+            view_func=self.builtin_tool_handler.get_builtin_tools,
         )
         bp.add_url_rule(
-            "/builtin-tools/<string:provider>/tools/<string:tool>",
+            "/builtin-tools/<string:provider_name>/tools/<string:tool_name>",
             view_func=self.builtin_tool_handler.get_provider_tool)
         bp.add_url_rule(
             "/builtin-tools/<string:provider_name>/icon",
