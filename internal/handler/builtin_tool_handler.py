@@ -25,4 +25,5 @@ class BuiltinToolHandler:
 
     def get_provider_tool(self, provider: str, tool: str):
         """根据传递的提供商名字+工具名字获取指定工具的信息"""
-        pass
+        builtin_tool = self.builtin_tool_service.get_provider_tool(provider, tool)
+        return success_json(builtin_tool)

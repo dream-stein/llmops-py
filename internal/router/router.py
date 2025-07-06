@@ -34,7 +34,7 @@ class Router:
 
         # 3.内置插件广场模块
         bp.add_url_rule("/builtin_tools", view_func=self.builtin_tool_handler.get_builtin_tools)
-        bp.add_url_rule("/builtin_tools/<string:provider_name>/tools/<string:tool_name>",
+        bp.add_url_rule("/builtin_tools/<string:provider>/tools/<string:tool>",
                         view_func=self.builtin_tool_handler.get_provider_tool)
 
         # 4. 在应用上去注册蓝图
