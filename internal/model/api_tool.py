@@ -18,20 +18,20 @@ class ApiToolProvider(db.Model):
     )
 #
     id = Column(UUID, nullable=False, server_default=text('uuid_generate_v4()'))
-#     account_id = Column(UUID, nullable=False)
-#     name = Column(String(255), nullable=False, server_default=text("''::character varying"))
-#     icon = Column(String(255), nullable=False, server_default=text("''::character varying"))
-#     description = Column(Text, nullable=False, server_default=text("''::text"))
-#     openapi_schema = Column(Text, nullable=False, server_default=text("''::text"))
-#     headers = Column(Text, nullable=False, server_default=text("'[]'::text"))
-#     updated_at = Column(
-#         DateTime,
-#         nullable=False,
-#         server_default=text('CURRENT_TIMESTAMP(0)'),
-#         server_onupdate=text('CURRENT_TIMESTAMP(0)')
-#     )
-#     created_at = Column(DateTime, nullable=False, server_default=text('CURRENT_TIMESTAMP(0)'))
-#
+    account_id = Column(UUID, nullable=False)
+    name = Column(String(255), nullable=False, server_default=text("''::character varying"))
+    icon = Column(String(255), nullable=False, server_default=text("''::character varying"))
+    description = Column(Text, nullable=False, server_default=text("''::text"))
+    openapi_schema = Column(Text, nullable=False, server_default=text("''::text"))
+    headers = Column(Text, nullable=False, server_default=text("'[]'::text"))
+    updated_at = Column(
+        DateTime,
+        nullable=False,
+        server_default=text('CURRENT_TIMESTAMP(0)'),
+        server_onupdate=text('CURRENT_TIMESTAMP(0)')
+    )
+    created_at = Column(DateTime, nullable=False, server_default=text('CURRENT_TIMESTAMP(0)'))
+
 #     @property
 #     def tools(self) -> list["ApiTool"]:
 #         return db.session.query(ApiTool).filter_by(provider_id=self.id).all()
@@ -44,21 +44,21 @@ class ApiTool(db.Model):
     )
 
     id = Column(UUID, nullable=False, server_default=text('uuid_generate_v4()'))
-#     account_id = Column(UUID, nullable=False)
-#     provider_id = Column(UUID, nullable=False)
-#     name = Column(String(255), nullable=False, server_default=text("''::character varying"))
-#     description = Column(Text, nullable=False, server_default=text("''::text"))
-#     url = Column(String(255), nullable=False, server_default=text("''::character varying"))
-#     method = Column(String(255), nullable=False, server_default=text("''::character varying"))
-#     parameters = Column(text, nullable=False, server_default=text("'[]'::text"))
-#     updated_at = Column(
-#         DateTime,
-#         nullable=False,
-#         server_default=text('CURRENT_TIMESTAMP(0)'),
-#         server_onupdate=text('CURRENT_TIMESTAMP(0)')
-#     )
-#     created_at = Column(DateTime, nullable=False, server_default=text('CURRENT_TIMESTAMP(0)'))
-#
+    account_id = Column(UUID, nullable=False)
+    provider_id = Column(UUID, nullable=False)
+    name = Column(String(255), nullable=False, server_default=text("''::character varying"))
+    description = Column(Text, nullable=False, server_default=text("''::text"))
+    url = Column(String(255), nullable=False, server_default=text("''::character varying"))
+    method = Column(String(255), nullable=False, server_default=text("''::character varying"))
+    parameters = Column(Text, nullable=False, server_default=text("'[]'::text"))
+    updated_at = Column(
+        DateTime,
+        nullable=False,
+        server_default=text('CURRENT_TIMESTAMP(0)'),
+        server_onupdate=text('CURRENT_TIMESTAMP(0)')
+    )
+    created_at = Column(DateTime, nullable=False, server_default=text('CURRENT_TIMESTAMP(0)'))
+
 #     @property
 #     def provider(self) -> "ApiToolProvider":
 #         """只读属性，返回当前工具关联/归属的工具提供者信息"""
