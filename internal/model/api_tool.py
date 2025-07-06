@@ -5,6 +5,9 @@
 # #Author  :Emcikem
 # @File    :api_tool.py
 # """
+import uuid
+from datetime import datetime
+
 from sqlalchemy import (
     Column, UUID, String, Text, DateTime, PrimaryKeyConstraint, text, JSON
 )
@@ -17,20 +20,15 @@ class ApiToolProvider(db.Model):
         PrimaryKeyConstraint("id", name="pk_api_tool_provider_id"),
     )
 #
-    id = Column(UUID, nullable=False, server_default=text('uuid_generate_v4()'))
-    account_id = Column(UUID, nullable=False)
-    name = Column(String(255), nullable=False, server_default=text("''::character varying"))
-    icon = Column(String(255), nullable=False, server_default=text("''::character varying"))
-    description = Column(Text, nullable=False, server_default=text("''::text"))
-    openapi_schema = Column(Text, nullable=False, server_default=text("''::text"))
-    headers = Column(Text, nullable=False, server_default=text("'[]'::text"))
-    updated_at = Column(
-        DateTime,
-        nullable=False,
-        server_default=text('CURRENT_TIMESTAMP(0)'),
-        server_onupdate=text('CURRENT_TIMESTAMP(0)')
-    )
-    created_at = Column(DateTime, nullable=False, server_default=text('CURRENT_TIMESTAMP(0)'))
+    id = Column(String(36), nullable=False, default=uuid.uuid4)
+    account_id = Column(String(36), nullable=False)
+    name = Column(String(255), nullable=False, default="")
+    icon = Column(String(255), nullable=False, default="")
+    description = Column(Text, nullable=False, default="")
+    openapi_schema = Column(JSON, nullable=False, default="")
+    headers = Column(JSON, nullable=False, default="")
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+    created_at = Column(DateTime, default=datetime.now, nullable=False)
 
 #     @property
 #     def tools(self) -> list["ApiTool"]:
@@ -43,21 +41,17 @@ class ApiTool(db.Model):
         PrimaryKeyConstraint("id", name="pk_api_tool_id"),
     )
 
-    id = Column(UUID, nullable=False, server_default=text('uuid_generate_v4()'))
-    account_id = Column(UUID, nullable=False)
-    provider_id = Column(UUID, nullable=False)
-    name = Column(String(255), nullable=False, server_default=text("''::character varying"))
-    description = Column(Text, nullable=False, server_default=text("''::text"))
-    url = Column(String(255), nullable=False, server_default=text("''::character varying"))
-    method = Column(String(255), nullable=False, server_default=text("''::character varying"))
-    parameters = Column(Text, nullable=False, server_default=text("'[]'::text"))
-    updated_at = Column(
-        DateTime,
-        nullable=False,
-        server_default=text('CURRENT_TIMESTAMP(0)'),
-        server_onupdate=text('CURRENT_TIMESTAMP(0)')
-    )
-    created_at = Column(DateTime, nullable=False, server_default=text('CURRENT_TIMESTAMP(0)'))
+    id = Column(String(36), nullable=False, default=uuid.uuid4)
+    account_id = Column(String(36), nullable=False)
+    provider_id = Column(String(36), nullable=False)
+    name = Column(String(255), nullable=False, default="")
+    description = Column(Text, nullable=False, default="")
+    url = Column(String(255), nullable=False, default="")
+    method = Column(String(255), nullable=False, default="")
+    parameters = Column(JSON, nullable=False, default="")
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+    created_at = Column(DateTime, default=datetime.now, nullable=False)
+
 
 #     @property
 #     def provider(self) -> "ApiToolProvider":

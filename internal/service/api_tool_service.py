@@ -30,8 +30,8 @@ class ApiToolService:
         # todo:等待授权认证模块
         account_id = "b8434b9c-ee56-4bfd-bd24-84d3caef5599"
 
-        # 1.检验并提取openai_schema对应的数据
-        openai_schema = self.parse_openapi_schema(req.openapi_schema.data)
+        # 1.检验并提取openapi_schema对应的数据
+        openapi_schema = self.parse_openapi_schema(req.openapi_schema.data)
 
         # 2.查询当前登录的账号是否已经创建了同名的工具提供者，如果是则抛出异常
         api_tool_provider = self.db.session.query(ApiToolProvider).filter_by(
@@ -48,22 +48,22 @@ class ApiToolService:
                 account_id=account_id,
                 name=req.name.data,
                 icon=req.icon.data,
-                description=openai_schema.description,
-                openai_schema=req.openapi_schema.data,
+                description=openapi_schema.description,
+                openapi_schema=req.openapi_schema.data,
                 headers=req.headers.data,
             )
             self.db.session.add(api_tool_provider)
             self.db.session.flush()
 
             # 5.创建api工具并关联api_tool_provider
-            for path, path_item in openai_schema.paths.items():
+            for path, path_item in openapi_schema.paths.items():
                 for method, method_item in path_item.items():
                     api_tool = ApiTool(
                         account_id=account_id,
                         provider_id=api_tool_provider.id,
                         name=method_item.get("operationId"),
                         description=method_item.get("description"),
-                        url=f"{openai_schema.server}{path}",
+                        url=f"{openapi_schema.server}{path}",
                         method=method,
                         parameters=method_item.get("parameters", []),
                     )
