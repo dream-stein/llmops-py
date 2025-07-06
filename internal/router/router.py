@@ -38,13 +38,13 @@ class Router:
             view_func=self.builtin_tool_handler.get_provider_tool,
         )
         bp.add_url_rule(
-            "/builtin_tools/<string:provider>/tools/<string:tool>",
+            "/builtin-tools/<string:provider>/tools/<string:tool>",
             view_func=self.builtin_tool_handler.get_provider_tool)
         bp.add_url_rule(
-            "/builtin_tools/<string:provider_name>/icon",
+            "/builtin-tools/<string:provider_name>/icon",
             view_func=self.builtin_tool_handler.get_provider_icon)
         bp.add_url_rule(
-            "/builtin_tools/category",
+            "/builtin-tools/categories",
             view_func=self.builtin_tool_handler.get_categories)
 
         # 4. 在应用上去注册蓝图
