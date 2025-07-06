@@ -51,6 +51,6 @@ class ApiToolHandler:
             return validate_error_json(req.errors)
 
         # 2.调用服务并解析传递的数据
-        self.api_tool_service.parse_openapi_schema(req.openapi_schema)
+        self.api_tool_service.parse_openapi_schema(req.openapi_schema.data)
 
         return success_message("数据校验成功")
