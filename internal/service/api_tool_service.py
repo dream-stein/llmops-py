@@ -83,6 +83,29 @@ class ApiToolService:
 
         return api_tool
 
+    def delete_api_tool_provider(self, provider_id):
+        """根据传递的provider_name删除对应的工具提供商+工具的所有信息"""
+        # todo:等待授权认证模块
+        account_id = "b8434b9c-ee56-4bfd-bd24-84d3caef5599"
+
+        # 1.先查照数据，检测下provider_id对应的数据是否存在，权限是否正确
+        api_tool_provider = self.db.session.query(ApiToolProvider).get(provider_id)
+        if api_tool_provider is None or str(api_tool_provider.account_id) != account_id:
+            raise NotFoundException("该工具提供者不存在")
+
+        # 2.开启数据库的自动提交
+        with self.db.auto_commit():
+            # 3.先来删除提供者对应的工具信息
+            self.db.session.query(ApiTool).filter(
+                ApiTool.provider_id == provider_id,
+                ApiTool.account_id == account_id,
+            ).delete()
+
+            # 4.删除服务提供商
+            self.db.delete(api_tool_provider)
+
+        pass
+
     @classmethod
     def parse_openapi_schema(cls, openapi_schema_str: str) -> OpenAPISchema:
         """解析传递的openapi_schema字符串，如果出错则抛出错误"""

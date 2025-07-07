@@ -52,6 +52,12 @@ class ApiToolHandler:
 
         return success_json(resp.dump(api_tool_provider))
 
+    def delete_api_tool(self, provider_id: UUID):
+        """根据传递的provider_id删除对应的工具提供者信息"""
+        self.api_tool_service.delete_api_tool_provider(provider_id)
+
+        return success_message("删除自定义API插件成功")
+
     def validate_openapi_schema(self):
         """校验传递的openapi_schema字符串是否正确"""
         # 1.提取前端的数据并校验
