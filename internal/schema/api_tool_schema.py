@@ -10,7 +10,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField
 from wtforms.validators import DataRequired, Length, URL, ValidationError
 from .schema import ListField
-from internal.model import ApiToolProvider
+from internal.model import ApiToolProvider, ApiTool
 
 
 class ValidateOpenAPISchemaReq(FlaskForm):
@@ -63,3 +63,28 @@ class GetApiToolProviderResp(Schema):
             "created_at": int(data.created_at.timestamp()),
         }
 
+class GetApiToolResp(Schema):
+    """获取API根据参数详情响应"""
+    id = fields.UUID()
+    name = fields.String()
+    description = fields.String()
+    inputs = fields.List(fields.Dict, default=[])
+    provider = fields.Dict()
+
+    @pre_dump
+    def process_data(self, data: ApiTool, **kwargs):
+        provider = data.provider
+        return {
+            "id": data.id,
+            "name": data.name,
+            "description": data.description,
+            "inputs": [{k: v for k, v in parameter.items() if k != "in"} for parameter in data.parameters],
+            "provider": {
+                "id": provider.id,
+                "name": provider.name,
+                "icon": provider.icon,
+                "description": provider.description,
+                "headers": provider.headers,
+
+            }
+        }

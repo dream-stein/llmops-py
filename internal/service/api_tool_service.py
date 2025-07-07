@@ -17,7 +17,6 @@ from internal.schema.api_tool_schema import CreateApiToolReq
 from pkg.sqlalchemy import SQLAlchemy
 from internal.model import ApiToolProvider, ApiTool
 
-
 @inject
 @dataclass
 class ApiToolService:
@@ -69,6 +68,20 @@ class ApiToolService:
                     )
                     self.db.session.add(api_tool)
 
+    def get_api_tool(self, provider_id: UUID, tool_name: str) -> ApiTool:
+        """根据传递的provider_id + tool_name获取对应工具的详情消息"""
+        # todo:等待授权认证模块
+        account_id = "b8434b9c-ee56-4bfd-bd24-84d3caef5599"
+
+        api_tool = self.db.session.query(ApiTool).filter_by(
+            provider_id=provider_id,
+            name=tool_name,
+        ).one_or_none()
+
+        if api_tool is None or str(api_tool.account_id) != account_id:
+            raise NotFoundException("该工具不存在")
+
+        return api_tool
 
     @classmethod
     def parse_openapi_schema(cls, openapi_schema_str: str) -> OpenAPISchema:
