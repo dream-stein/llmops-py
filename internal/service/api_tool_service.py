@@ -73,6 +73,7 @@ class ApiToolService:
         # todo:等待授权认证模块
         account_id = "b8434b9c-ee56-4bfd-bd24-84d3caef5599"
 
+        # TODO:bug
         api_tool = self.db.session.query(ApiTool).filter_by(
             provider_id=provider_id,
             name=tool_name,
@@ -94,6 +95,7 @@ class ApiToolService:
             raise NotFoundException("该工具提供者不存在")
 
         # 2.开启数据库的自动提交
+        # TODO:bug
         with self.db.auto_commit():
             # 3.先来删除提供者对应的工具信息
             self.db.session.query(ApiTool).filter(
@@ -102,7 +104,7 @@ class ApiToolService:
             ).delete()
 
             # 4.删除服务提供商
-            self.db.delete(api_tool_provider)
+            self.db.session.delete(api_tool_provider)
 
         pass
 
