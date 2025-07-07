@@ -7,15 +7,19 @@
 """
 from uuid import UUID
 from injector import inject
+from flask import request
 from dataclasses import dataclass
 from internal.schema.api_tool_schema import (
     ValidateOpenAPISchemaReq,
     CreateApiToolReq,
     GetApiToolProviderResp,
     GetApiToolResp,
+    GetApiToolProvidersWithPageReq,
+    GetApiToolProviderWithPageResp,
 )
 from pkg.response import validate_error_json, success_message, success_json
 from internal.service import ApiToolService
+from pkg.paginator import PageModel
 
 
 @inject
@@ -23,6 +27,18 @@ from internal.service import ApiToolService
 class ApiToolHandler:
     """自定义API插件处理器"""
     api_tool_service: ApiToolService
+
+    def get_api_tool_providers_with_page(self):
+        """获取API根据提供者的列表信息，该接口支持分页"""
+        req = GetApiToolProvidersWithPageReq(request.args)
+        if not req.validate():
+            return validate_error_json(req.errors)
+
+        api_tool_providers, paginator = self.api_tool_service.get_api_tool_providers_with_page(req)
+
+        resp = GetApiToolProviderWithPageResp(many=True)
+
+        return success_json(PageModel(list=resp.dump(api_tool_providers), paginator=paginator))
 
     def create_api_tool(self):
         """创建自定义API"""

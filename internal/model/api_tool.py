@@ -30,10 +30,10 @@ class ApiToolProvider(db.Model):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
     created_at = Column(DateTime, default=datetime.now, nullable=False)
 
-#     @property
-#     def tools(self) -> list["ApiTool"]:
-#         return db.session.query(ApiTool).filter_by(provider_id=self.id).all()
-#
+    @property
+    def tools(self) -> list["ApiTool"]:
+        return db.session.query(ApiTool).filter_by(provider_id=self.id).all()
+
 class ApiTool(db.Model):
     """API工具表"""
     __tablename__ = "api_tool"

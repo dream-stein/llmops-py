@@ -6,14 +6,18 @@
 @File    :api_tool_service.py
 """
 import json
+from typing import Any
 from uuid import UUID
 
 from injector import inject
 from dataclasses import dataclass
 
+from sqlalchemy import desc
+
 from internal.exception import ValidateErrorException, NotFoundException
 from internal.core.tools.api_tools.entities import OpenAPISchema
-from internal.schema.api_tool_schema import CreateApiToolReq
+from internal.schema.api_tool_schema import CreateApiToolReq, GetApiToolProvidersWithPageReq
+from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
 from internal.model import ApiToolProvider, ApiTool
 
@@ -22,6 +26,26 @@ from internal.model import ApiToolProvider, ApiTool
 class ApiToolService:
     """自定义API插件服务"""
     db: SQLAlchemy
+
+    def get_api_tool_providers_with_page(self, req: GetApiToolProvidersWithPageReq) -> tuple[list[Any], Paginator]:
+        """获取自定义API工具服务提供者分页列表数据"""
+        # todo:等待授权认证模块
+        account_id = "b8434b9c-ee56-4bfd-bd24-84d3caef5599"
+
+        # 1.构建分页查询器
+        paginator = Paginator(db=self.db, req=req)
+
+        # 2.构建筛选器
+        filters = [ApiToolProvider.account_id == account_id]
+        if req.search_word.data:
+            filters.append(ApiToolProvider.name.ilike(f"%{req.search_word.data}%"))
+
+        # 3.执行分页并获取数量
+        api_tool_providers = paginator.paginate(
+            self.db.session.query(ApiToolProvider).filter(*filters).order_by(desc("created_at")),
+        )
+
+        return api_tool_providers, paginator
 
     def create_api_tool(self, req: CreateApiToolReq) -> None:
         """根据传递的请求创建自定义API工具"""
