@@ -41,7 +41,7 @@ class ApiToolHandler:
 
         return success_json(PageModel(list=resp.dump(api_tool_providers), paginator=paginator))
 
-    def create_api_tool(self):
+    def create_api_tool_provider(self):
         """创建自定义API"""
         # 1.提取请求的数据并校验
         req = CreateApiToolReq()
@@ -53,7 +53,7 @@ class ApiToolHandler:
 
         return success_message("创建自定义API插件成功")
 
-    def update_api_tool_provider(self):
+    def update_api_tool_provider(self, provider_id: UUID):
         """更新自定义API工具提供者信息"""
         req = UpdateApiToolProviderReq()
         if not req.validate():

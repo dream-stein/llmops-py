@@ -23,11 +23,12 @@ from internal.schema.api_tool_schema import (
 )
 from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
+from .base_service import BaseService
 from internal.model import ApiToolProvider, ApiTool
 
 @inject
 @dataclass
-class ApiToolService:
+class ApiToolService(BaseService):
     """自定义API插件服务"""
     db: SQLAlchemy
 
@@ -37,7 +38,7 @@ class ApiToolService:
         account_id = "b8434b9c-ee56-4bfd-bd24-84d3caef5599"
 
         # 1.根据传递的provider_id查找APPi工具提供者信息并校验
-        api_tool_provider = self.db.session.query(ApiToolProvider).get(provider_id)
+        api_tool_provider = self.get(ApiToolProvider, provider_id)
         if api_tool_provider is None or str(api_tool_provider.account_id) != account_id:
             raise ValidateErrorException("该工具提供者不存在")
 
@@ -61,25 +62,28 @@ class ApiToolService:
                 ApiTool.account_id == account_id,
             ).delete()
 
-            # 6.修改工具提供者信息
-            api_tool_provider.name = req.name.data
-            api_tool_provider.icon = req.icon.data
-            api_tool_provider.headers = req.headers.data
-            api_tool_provider.openapi_schema = req.openapi_schema.data
+        # 6.修改工具提供者信息
+        self.update(
+            api_tool_provider,
+            name=req.name.data,
+            icon=req.icon.data,
+            headers=req.headers.data,
+            openapi_schema=req.openapi_schema.data,
+        )
 
-            # 7.新增工具信息从而完成覆盖更新
-            for path, path_item in openapi_schema.paths.items():
-                for method, method_item in path_item.items():
-                    api_tool = ApiTool(
-                        account_id=account_id,
-                        provider_id=api_tool_provider.id,
-                        name=method_item.get("operationId"),
-                        description=method_item.get("description"),
-                        url=f"{openapi_schema.server}{path}",
-                        method=method,
-                        parameters=method_item.get("parameters", []),
-                    )
-                    self.db.session.add(api_tool)
+        # 7.新增工具信息从而完成覆盖更新
+        for path, path_item in openapi_schema.paths.items():
+            for method, method_item in path_item.items():
+                self.create(
+                    ApiTool,
+                    account_id=account_id,
+                    provider_id=api_tool_provider.id,
+                    name=method_item.get("operationId"),
+                    description=method_item.get("description"),
+                    url=f"{openapi_schema.server}{path}",
+                    method=method,
+                    parameters=method_item.get("parameters", []),
+                )
 
     def get_api_tool_providers_with_page(self, req: GetApiToolProvidersWithPageReq) -> tuple[list[Any], Paginator]:
         """获取自定义API工具服务提供者分页列表数据"""
@@ -118,33 +122,30 @@ class ApiToolService:
         if api_tool_provider:
             raise ValidateErrorException(f"该工具提供者名字{req.name.data}已存在")
 
-        # 3.开启数据库的自动提交
-        with self.db.auto_commit():
-            # 4.首先创建根据提供者，并获取根据提供者的id信息，然后再创建工具信息
-            api_tool_provider = ApiToolProvider(
-                account_id=account_id,
-                name=req.name.data,
-                icon=req.icon.data,
-                description=openapi_schema.description,
-                openapi_schema=req.openapi_schema.data,
-                headers=req.headers.data,
-            )
-            self.db.session.add(api_tool_provider)
-            self.db.session.flush()
+        # 3.首先创建根据提供者，并获取根据提供者的id信息，然后再创建工具信息
+        api_tool_provider = self.create(
+            ApiToolProvider,
+            account_id=account_id,
+            name=req.name.data,
+            icon=req.icon.data,
+            description=openapi_schema.description,
+            openapi_schema=req.openapi_schema.data,
+            headers=req.headers.data,
+        )
 
-            # 5.创建api工具并关联api_tool_provider
-            for path, path_item in openapi_schema.paths.items():
-                for method, method_item in path_item.items():
-                    api_tool = ApiTool(
-                        account_id=account_id,
-                        provider_id=api_tool_provider.id,
-                        name=method_item.get("operationId"),
-                        description=method_item.get("description"),
-                        url=f"{openapi_schema.server}{path}",
-                        method=method,
-                        parameters=method_item.get("parameters", []),
-                    )
-                    self.db.session.add(api_tool)
+        # 4.创建api工具并关联api_tool_provider
+        for path, path_item in openapi_schema.paths.items():
+            for method, method_item in path_item.items():
+                self.create(
+                    ApiTool,
+                    account_id=account_id,
+                    provider_id=api_tool_provider.id,
+                    name=method_item.get("operationId"),
+                    description=method_item.get("description"),
+                    url=f"{openapi_schema.server}{path}",
+                    method=method,
+                    parameters=method_item.get("parameters", []),
+                )
 
     def get_api_tool(self, provider_id: UUID, tool_name: str) -> ApiTool:
         """根据传递的provider_id + tool_name获取对应工具的详情消息"""
@@ -168,7 +169,7 @@ class ApiToolService:
         account_id = "b8434b9c-ee56-4bfd-bd24-84d3caef5599"
 
         # 1.先查照数据，检测下provider_id对应的数据是否存在，权限是否正确
-        api_tool_provider = self.db.session.query(ApiToolProvider).get(provider_id)
+        api_tool_provider = self.get(ApiToolProvider, provider_id)
         if api_tool_provider is None or str(api_tool_provider.account_id) != account_id:
             raise NotFoundException("该工具提供者不存在")
 
@@ -204,7 +205,7 @@ class ApiToolService:
         account_id = "b8434b9c-ee56-4bfd-bd24-84d3caef5599"
 
         # 1.查询数据库获取对应的数据
-        api_tool_provider = self.db.session.query(ApiToolProvider).get(provider_id)
+        api_tool_provider = self.get(ApiToolProvider, provider_id)
 
         # 2.校验数据是否为空，并且判断该数据是否属于当且账号
         if api_tool_provider is None or str(api_tool_provider.account_id) != account_id:
