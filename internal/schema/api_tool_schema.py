@@ -143,7 +143,7 @@ class GetApiToolProviderWithPageResp(Schema):
                 "id": tool.id,
                 "description": tool.description,
                 "name": tool.name,
-                "inputs": [{k: v for k, v in parameter.items() if k != "in"} for parameter in data.parameters],
+                "inputs": [{k: v for k, v in parameter.items() if k != "in"} for parameter in tool.parameters],
             } for tool in tools],
             "created_at": int(data.created_at.timestamp()),
         }

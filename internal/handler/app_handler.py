@@ -25,13 +25,14 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain.memory import ConversationBufferWindowMemory
 from langchain_community.chat_message_histories import FileChatMessageHistory
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda, RunnableConfig
-
+from internal.service import ApiToolService
 
 @inject
 @dataclass
 class AppHandler:
     """应用控制器"""
     app_service: AppService
+    api_tool_service: ApiToolService
 
     def create_app(self):
         """调用服务创建新的APP记录"""
@@ -104,4 +105,5 @@ class AppHandler:
         return success_json({"content": content})
 
     def ping(self):
-        return success_json()
+        return self.api_tool_service.api_tool_invoke()
+        # return success_json()

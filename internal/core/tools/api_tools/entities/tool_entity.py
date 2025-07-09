@@ -14,5 +14,5 @@ class ToolEntity(BaseModel):
     url: str = Field(default="", description="API工具发起请求的URL地址")
     method: str = Field(default="get", description="API工具发起请求的方法")
     description: str = Field(default="", description="API工具的描述信息")
-    headers: list[dict] = Field(default_factory=list, description="API工具的请求体信息")
+    headers: list[dict] = Field(default_factory=list, description="API工具的请求头信息")
     parameters: list[dict] = Field(default_factory=list, description="API工具的参数列表信息")

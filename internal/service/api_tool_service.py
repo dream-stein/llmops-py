@@ -25,12 +25,14 @@ from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
 from internal.model import ApiToolProvider, ApiTool
+from internal.core.tools.api_tools.providers import ApiProviderManager
 
 @inject
 @dataclass
 class ApiToolService(BaseService):
     """自定义API插件服务"""
     db: SQLAlchemy
+    api_provider_manager: ApiProviderManager
 
     def update_api_tool_provider(self, provider_id: UUID, req: UpdateApiToolProviderReq):
         """根据传递的provider_id+req更新的API工具提供者信息"""
@@ -212,3 +214,25 @@ class ApiToolService(BaseService):
             raise NotFoundException("该工具提供者不存在")
 
         return api_tool_provider
+
+    def api_tool_invoke(self):
+        provider_id = "f3f9bd94-7f93-444b-b693-9cbd68d55dde"
+        tool_name = "YoudaoSuggest"
+
+        api_tool = self.db.session.query(ApiTool).filter(
+            ApiTool.provider_id == provider_id,
+            ApiTool.name == tool_name,
+        ).one_or_none()
+        api_tool_provider = api_tool.provider
+
+        from internal.core.tools.api_tools.entities import ToolEntity
+        tool = self.api_provider_manager.get_tool(ToolEntity(
+            id=provider_id,
+            name=tool_name,
+            url=api_tool.url,
+            method=api_tool.method,
+            description=api_tool.description,
+            headers=api_tool_provider.headers,
+            parameters=api_tool.parameters,
+        ))
+        return tool.invoke({"q": "lvoe", "doctype": "json"})
