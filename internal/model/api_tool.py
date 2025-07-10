@@ -9,7 +9,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import (
-    Column, UUID, String, Text, DateTime, PrimaryKeyConstraint, text, JSON
+    Column, String, Text, DateTime, PrimaryKeyConstraint, text, JSON
 )
 from internal.extension.database_extension import db
 #
