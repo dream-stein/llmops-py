@@ -45,7 +45,7 @@ class CosService:
         bucket = self._get_bucket()
 
         # 3.生成一个随机的名字
-        random_filename = str(uuid.uuid4()) + "." + filename
+        random_filename = str(uuid.uuid4()) + "." + extension
         now = datetime.now()
         upload_filename = f"{now.year}/{now.month:02d}/{now.day:02d}/{random_filename}"
 
@@ -76,6 +76,18 @@ class CosService:
 
         client.download_file(bucket, key, target_file_path)
 
+    @classmethod
+    def get_file_url(cls, key:str) -> str:
+        """根据传递的cos云端key获取图片的实际URL地址"""
+        cos_domain = os.getenv("COS_DOMAIN")
+
+        if not cos_domain:
+            bucket = os.getenv("COS_BUCKET")
+            scheme = os.getenv("COS_SCHEME")
+            region = os.getenv("COS_REGION")
+            cos_domain = f"{scheme}://{bucket}.cos.{region}.myqcloud.com"
+
+        return f"{cos_domain}/{key}"
 
     @classmethod
     def _get_client(cls) -> CosS3Client:
@@ -85,7 +97,7 @@ class CosService:
             SecretId=os.getenv("COS_SECRET_ID"),
             SecretKey=os.getenv("COS_SECRET_KEY"),
             Token=None,
-            Scheme=os.getenv("COS_SCHEMA", "https"),
+            Scheme=os.getenv("COS_SCHEME", "https"),
         )
         return CosS3Client(conf)
 
