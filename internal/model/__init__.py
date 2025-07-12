@@ -5,13 +5,14 @@
 #Author  :Emcikem
 @File    :__init__.py.py
 """
-from .app import App
+from .app import App, AppDatasetJoin
 from .api_tool import ApiToolProvider, ApiTool
 from .upload_file import UploadFile
+from .dataset import Dataset, Document, Segment, KeywordTable, DatasetQuery, ProcessRule
 
 __all__ = [
-    "App",
-    "ApiToolProvider",
-    "ApiTool",
+    "App", "AppDatasetJoin",
+    "ApiTool", "ApiToolProvider",
     "UploadFile",
+    "Dataset", "Document", "Segment", "KeywordTable", "DatasetQuery", "ProcessRule",
 ]

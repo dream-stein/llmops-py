@@ -36,4 +36,14 @@ class App(db.Model):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
     created_at = Column(DateTime, default=datetime.now, nullable=False)
 
-
+class AppDatasetJoin(db.Model):
+    """应用知识库关联表模型"""
+    __tablename__ = "app_dataset_join"
+    __table_args__ = (
+        PrimaryKeyConstraint("id", name="pk_app_dataset_join_id"),
+    )
+    id = Column(String(36), default=uuid.uuid4, nullable=False)
+    app_id = Column(String(36), nullable=False)
+    dataset_id = Column(String(36), nullable=False)
+    updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+    created_at = Column(DateTime, default=datetime.now, nullable=False)
