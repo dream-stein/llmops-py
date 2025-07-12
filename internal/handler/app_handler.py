@@ -26,6 +26,7 @@ from langchain.memory import ConversationBufferWindowMemory
 from langchain_community.chat_message_histories import FileChatMessageHistory
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda, RunnableConfig
 from internal.service import ApiToolService
+from internal.task.demo_task import demo_task
 
 @inject
 @dataclass
@@ -105,5 +106,6 @@ class AppHandler:
         return success_json({"content": content})
 
     def ping(self):
-        return self.api_tool_service.api_tool_invoke()
+        demo_task.delay(uuid.uuid4())
+        # return self.api_tool_service.api_tool_invoke()
         # return success_json()
