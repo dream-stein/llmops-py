@@ -15,6 +15,7 @@ from internal.handler import (
     ApiToolHandler,
     UploadFileHandler,
     DatasetHandler,
+    ApiKeyHandler
 )
 
 @inject
@@ -26,6 +27,7 @@ class Router:
     api_tool_handler: ApiToolHandler
     upload_file_handler: UploadFileHandler
     dataset_handler: DatasetHandler
+    api_key_handler: ApiKeyHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -106,6 +108,22 @@ class Router:
         bp.add_url_rule("/datasets", methods=["POST"], view_func=self.dataset_handler.create_dataset)
         bp.add_url_rule("/datasets/<uuid:dataset_id>", view_func=self.dataset_handler.get_dataset)
         bp.add_url_rule("/datasets/<uuid:dataset_id>", methods=["POST"], view_func=self.dataset_handler.update_dataset)
+
+
+        # API秘钥模块
+        bp.add_url_rule("/openapi/api-keys", view_func=self.api_key_handler.get_api_keys_with_page)
+        bp.add_url_rule("/openapi/api-keys", methods=["POST"], view_func=self.api_key_handler.create_api_key)
+        bp.add_url_rule("/openapi/api-keys/<uuid:api_key_id>", methods=["POST"], view_func=self.api_key_handler.update_api_key)
+        bp.add_url_rule(
+            "/openapi/api-keys/<uuid:api_key_id>/is-active",
+            methods=["POST"],
+            view_func=self.api_key_handler.update_api_key_is_active
+        )
+        bp.add_url_rule(
+            "/openapi/api-keys/<uuid:api_key_id>/delete",
+            methods=["POST"],
+            view_func=self.api_key_handler.delete_api_key
+        )
 
 
         # 7. 在应用上去注册蓝图

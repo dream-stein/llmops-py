@@ -11,10 +11,15 @@ from .api_tool_handler import ApiToolHandler
 from .upload_file_handler import UploadFileHandler
 from .dataset_handler import DatasetHandler
 
+
+from .api_key_handler import ApiKeyHandler
+
 __all__ = [
     'AppHandler',
     'BuiltinToolHandler',
     'ApiToolHandler',
     "UploadFileHandler",
     "DatasetHandler",
+
+    "ApiKeyHandler",
 ]

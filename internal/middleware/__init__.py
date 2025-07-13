@@ -5,3 +5,8 @@
 #Author  :Emcikem
 @File    :__init__.py.py
 """
+from .middleware import Middleware
+
+__all__ = (
+    "Middleware",
+)
