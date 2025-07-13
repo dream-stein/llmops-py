@@ -24,7 +24,8 @@ class Middleware:
     def request_loader(self, request: Request) -> Optional[Request]:
         """登录管理器的请求加载器"""
         # 1.单独为llmops路由蓝图创建请求加载器
-        if request.blueprint == "llmops":
+        # TODO: 改成 if request.blueprint == "llmops":
+        if request.blueprint == "llmop":
             # 2.提取请求体headers中的信息
             auth_header = request.headers.get("Authorization")
             if not auth_header:
