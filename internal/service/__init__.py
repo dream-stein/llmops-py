@@ -14,6 +14,7 @@ from .cos_service import CosService
 from .dataset_service import DatasetService
 from .jwt_service import JWTService
 from .account_service import AccountService
+from .oauth_service import OAuthService
 
 from .jieba_service import JiebaService
 
@@ -27,6 +28,7 @@ __all__ = [
     "DatasetService",
     "JWTService",
     "AccountService",
+    "OAuthService",
 
     "JiebaService",
 ]

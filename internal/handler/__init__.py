@@ -10,7 +10,7 @@ from .builtin_tool_handler import BuiltinToolHandler
 from .api_tool_handler import ApiToolHandler
 from .upload_file_handler import UploadFileHandler
 from .dataset_handler import DatasetHandler
-
+from .oauth_handler import OAuthHandler
 
 from .api_key_handler import ApiKeyHandler
 
@@ -20,6 +20,7 @@ __all__ = [
     'ApiToolHandler',
     "UploadFileHandler",
     "DatasetHandler",
+    "OAuthHandler",
 
     "ApiKeyHandler",
 ]
