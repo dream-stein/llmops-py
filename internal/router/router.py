@@ -19,6 +19,7 @@ from internal.handler import (
     OAuthHandler,
     AccountHandler,
     AuthHandler,
+    DocumentHandler,
 )
 
 @inject
@@ -34,6 +35,7 @@ class Router:
     oauth_handler: OAuthHandler
     account_handler: AccountHandler
     auth_handler: AuthHandler
+    document_handler: DocumentHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -115,7 +117,11 @@ class Router:
         bp.add_url_rule("/datasets/<uuid:dataset_id>", view_func=self.dataset_handler.get_dataset)
         bp.add_url_rule("/datasets/<uuid:dataset_id>", methods=["POST"], view_func=self.dataset_handler.update_dataset)
         bp.add_url_rule("/datasets/embeddings", view_func=self.dataset_handler.embeddings_query)
-
+        bp.add_url_rule(
+            "/datasets/<uuid:dataset_id>/documents",
+            methods=["POST"],
+            view_func=self.document_handler.create_documents
+        )
 
         # 授权认证模块
         bp.add_url_rule(

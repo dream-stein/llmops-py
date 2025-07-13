@@ -9,6 +9,8 @@ from uuid import UUID
 
 from injector import inject
 from dataclasses import dataclass
+
+from internal.model import UploadFile
 from internal.schema.dataset_schema import (
     CreateDatasetReq,
     GetDatasetResp,
@@ -22,6 +24,8 @@ from internal.service import DatasetService, EmbeddingsService
 from flask import request
 from internal.service import JiebaService
 from internal.core.file_extractor import FileExtractor
+from pkg.sqlalchemy import SQLAlchemy
+
 
 @inject
 @dataclass
@@ -31,11 +35,16 @@ class DatasetHandler:
     jieba_service: JiebaService
     file_extractor: FileExtractor
     embeddings_service: EmbeddingsService
+    db: SQLAlchemy
 
     def embeddings_query(self):
-        query = request.args.get("query")
-        keywords = self.jieba_service.extract_keywords(query)
-        return success_json({"keywords": keywords})
+        upload_file = self.db.session.query(UploadFile).get("321c56bc-8cc9-4630-8447-b2b036ad89eb")
+        content = self.file_extractor.load(upload_file, True)
+        return success_json({"content": content})
+
+        # query = request.args.get("query")
+        # keywords = self.jieba_service.extract_keywords(query)
+        # return success_json({"keywords": keywords})
 
     def create_dataset(self):
         """创建知识库"""

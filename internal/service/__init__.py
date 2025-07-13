@@ -16,6 +16,7 @@ from .jwt_service import JWTService
 from .account_service import AccountService
 from .oauth_service import OAuthService
 from .embeddings_service import EmbeddingsService
+from .document_service import DocumentService
 
 from .jieba_service import JiebaService
 
@@ -31,6 +32,7 @@ __all__ = [
     "AccountService",
     "OAuthService",
     "EmbeddingsService",
+    "DocumentService",
 
     "JiebaService",
 ]

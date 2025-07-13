@@ -13,7 +13,7 @@ from .dataset_handler import DatasetHandler
 from .oauth_handler import OAuthHandler
 from .account_handler import AccountHandler
 from .auth_handler import AuthHandler
-
+from .document_handler import DocumentHandler
 
 from .api_key_handler import ApiKeyHandler
 
@@ -26,6 +26,6 @@ __all__ = [
     "OAuthHandler",
     "AccountHandler",
     "AuthHandler",
-
+    "DocumentHandler",
     "ApiKeyHandler",
 ]
