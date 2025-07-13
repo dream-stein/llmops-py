@@ -11,6 +11,8 @@ from .api_tool_handler import ApiToolHandler
 from .upload_file_handler import UploadFileHandler
 from .dataset_handler import DatasetHandler
 from .oauth_handler import OAuthHandler
+from .account_handler import AccountHandler
+
 
 from .api_key_handler import ApiKeyHandler
 

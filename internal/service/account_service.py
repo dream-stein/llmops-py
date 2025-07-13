@@ -5,6 +5,8 @@
 #Author  :Emcikem
 @File    :account_service.py
 """
+import base64
+import secrets
 from uuid import UUID
 
 from injector import inject
@@ -12,6 +14,7 @@ from dataclasses import dataclass
 
 from internal.model import Account, AccountOAuth
 from internal.service import BaseService
+from pkg.password import hash_password
 from pkg.sqlalchemy import SQLAlchemy
 
 
@@ -45,3 +48,23 @@ class AccountService(BaseService):
     def create_account(self, **kwargs) -> Account:
         """根据传递的键值对创建账号信息"""
         return self.create(Account, **kwargs)
+
+    def update_password(self, password: str, account: Account) -> Account:
+        """更新当且账号密码信息"""
+        # 1.生成密码随机盐值
+        salt = secrets.token_bytes(16)
+        base64_salt = base64.b64encode(salt).decode()
+
+        # 2.里用盐值和password进行加密
+        password_hashed = hash_password(password, salt)
+        base64_password_hashed = base64.b64encode(password_hashed).decode()
+
+        # 3.更新账号信息
+        self.update_account(account, password=base64_password_hashed, password_salt=base64_salt)
+
+        return account
+
+    def update_account(self, account: Account, **kwargs) -> Account:
+        """根据传递的信息更新"""
+        self.update(account, **kwargs)
+        return account

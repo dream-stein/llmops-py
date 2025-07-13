@@ -17,6 +17,7 @@ from internal.handler import (
     DatasetHandler,
     ApiKeyHandler,
     OAuthHandler,
+    AccountHandler,
 )
 
 @inject
@@ -30,6 +31,7 @@ class Router:
     dataset_handler: DatasetHandler
     api_key_handler: ApiKeyHandler
     oauth_handler: OAuthHandler
+    account_handler: AccountHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -122,6 +124,14 @@ class Router:
             methods=["POST"],
             view_func=self.oauth_handler.authorize
         )
+
+
+        # 账号设置模块
+        bp.add_url_rule("/account", view_func=self.account_handler.get_current_user)
+        bp.add_url_rule("/account/password", method=["POST"], view_func=AccountHandler.update_password)
+        bp.add_url_rule("/account/name", method=["POST"], view_func=AccountHandler.update_name)
+        bp.add_url_rule("/account/avatar", method=["POST"], view_func=AccountHandler.update_avatar)
+
 
         # API秘钥模块
         bp.add_url_rule("/openapi/api-keys", view_func=self.api_key_handler.get_api_keys_with_page)
