@@ -18,7 +18,7 @@ from internal.schema.dataset_schema import (
 )
 from pkg.paginator import PageModel
 from pkg.response import validate_error_json, success_json, success_message
-from internal.service import DatasetService
+from internal.service import DatasetService, EmbeddingsService
 from flask import request
 from internal.service import JiebaService
 from internal.core.file_extractor import FileExtractor
@@ -30,6 +30,12 @@ class DatasetHandler:
     dataset_service: DatasetService
     jieba_service: JiebaService
     file_extractor: FileExtractor
+    embeddings_service: EmbeddingsService
+
+    def embeddings_query(self):
+        query = request.args.get("query")
+        keywords = self.jieba_service.extract_keywords(query)
+        return success_json({"keywords": keywords})
 
     def create_dataset(self):
         """创建知识库"""
