@@ -17,3 +17,5 @@ class AuthorizeReq(FlaskForm):
 
 class AuthorizeResp(Schema):
     """第三方授权认证响应结构"""
+    access_token = fields.String()
+    expire_at = fields.Integer()

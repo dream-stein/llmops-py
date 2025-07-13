@@ -12,6 +12,7 @@ from .upload_file_handler import UploadFileHandler
 from .dataset_handler import DatasetHandler
 from .oauth_handler import OAuthHandler
 from .account_handler import AccountHandler
+from .auth_handler import AuthHandler
 
 
 from .api_key_handler import ApiKeyHandler
@@ -23,6 +24,8 @@ __all__ = [
     "UploadFileHandler",
     "DatasetHandler",
     "OAuthHandler",
+    "AccountHandler",
+    "AuthHandler",
 
     "ApiKeyHandler",
 ]

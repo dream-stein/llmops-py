@@ -18,6 +18,7 @@ from internal.handler import (
     ApiKeyHandler,
     OAuthHandler,
     AccountHandler,
+    AuthHandler,
 )
 
 @inject
@@ -32,6 +33,7 @@ class Router:
     api_key_handler: ApiKeyHandler
     oauth_handler: OAuthHandler
     account_handler: AccountHandler
+    auth_handler: AuthHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -124,13 +126,23 @@ class Router:
             methods=["POST"],
             view_func=self.oauth_handler.authorize
         )
+        bp.add_url_rule(
+            "/auth/password-login",
+            methods=["POST"],
+            view_func=self.auth_handler.password_login
+        )
+        bp.add_url_rule(
+            "/auth/logout",
+            methods=["POST"],
+            view_func=self.auth_handler.logout
+        )
 
 
         # 账号设置模块
         bp.add_url_rule("/account", view_func=self.account_handler.get_current_user)
-        bp.add_url_rule("/account/password", method=["POST"], view_func=AccountHandler.update_password)
-        bp.add_url_rule("/account/name", method=["POST"], view_func=AccountHandler.update_name)
-        bp.add_url_rule("/account/avatar", method=["POST"], view_func=AccountHandler.update_avatar)
+        bp.add_url_rule("/account/password", methods=["POST"], view_func=AccountHandler.update_password)
+        bp.add_url_rule("/account/name", methods=["POST"], view_func=AccountHandler.update_name)
+        bp.add_url_rule("/account/avatar", methods=["POST"], view_func=AccountHandler.update_avatar)
 
 
         # API秘钥模块
