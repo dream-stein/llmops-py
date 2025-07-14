@@ -17,6 +17,7 @@ from sqlalchemy import (
     func
 )
 from internal.extension.database_extension import db
+from . import UploadFile
 from .app import AppDatasetJoin
 
 class Dataset(db.Model):
@@ -98,6 +99,18 @@ class Document(db.Model):
     status = Column(String(255), nullable=False, default="waitting")
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
     created_at = Column(DateTime, default=datetime.now, nullable=False)
+
+    @property
+    def upload_file(self) -> "UploadFile":
+        return db.session.query(UploadFile).filter(
+            UploadFile.id == self.upload_file_id,
+        ).one_or_none()
+
+    @property
+    def process_rule(self) -> "ProcessRule":
+        return db.session.query(ProcessRule).filter(
+            ProcessRule.id == self.process_rule_id,
+        ).one_or_none()
 
 
 class Segment(db.Model):

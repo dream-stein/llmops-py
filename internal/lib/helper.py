@@ -5,6 +5,7 @@
 #Author  :Emcikem
 @File    :helper.py
 """
+from hashlib import sha3_256
 import importlib
 from typing import Any
 
@@ -23,3 +24,11 @@ def add_attribute(attr_name: str, attr_value: Any):
         return func
 
     return decorator
+
+def generate_text_hash(text: str) -> str:
+    """根据传递的文本计算对应的哈希值"""
+    # 1.将续页计算哈希值的内容加上None这个字符串，避免传递了空字符串导致计算出错
+    text = str(text) + "None"
+
+    # 2.使用sha3_256将数据转换成哈希值后返回
+    return sha3_256(text.encode()).hexdigest()

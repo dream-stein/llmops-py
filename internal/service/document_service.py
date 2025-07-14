@@ -20,6 +20,7 @@ from internal.model import Document, Dataset, UploadFile, ProcessRule
 from internal.service import BaseService
 from pkg.sqlalchemy import SQLAlchemy
 from internal.entity.dataset_entity import ProcessType
+from internal.task.document_task import build_documents
 
 @inject
 @dataclass
@@ -68,7 +69,7 @@ class DocumentService(BaseService):
         # 4.获取当前知识库的最新文档位置
         position = self.get_latest_document_position(dataset_id)
 
-        # 5.循环遍历室友合法的上传文件文件列表并记录
+        # 5.循环遍历所有合法的上传文件列表并记录
         documents = []
         for upload_file in upload_files:
             position += 1
@@ -85,7 +86,7 @@ class DocumentService(BaseService):
             documents.append(document)
 
         # 6.调用异步任务，完成后续操作
-
+        build_documents.delay([document.id for document in documents])
 
         # 7.返回文档列表与处理批次
         return documents, batch
