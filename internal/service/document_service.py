@@ -5,14 +5,18 @@
 #Author  :Emcikem
 @File    :document_service.py
 """
+import random
+import time
 from uuid import UUID
 
 from injector import inject
 from dataclasses import dataclass
 
+from sqlalchemy import desc
+
 from internal.entity.upload_file_entity import ALLOWED_DOCUMENT_EXTENSION
 from internal.exception import ForbiddenException, FailException
-from internal.model import Document, Dataset, UploadFile
+from internal.model import Document, Dataset, UploadFile, ProcessRule
 from internal.service import BaseService
 from pkg.sqlalchemy import SQLAlchemy
 from internal.entity.dataset_entity import ProcessType
@@ -52,3 +56,43 @@ class DocumentService(BaseService):
             raise FailException("暂未解析到合法文件，请重新上传")
 
         # 3.创建批次与处理规则并记录到数据库中
+        batch = time.strftime("%Y%b%d%H%M%S" + str(random.randint(100000, 999999)))
+        process_rule = self.create(
+            ProcessRule,
+            account_id=account_id,
+            dataset_id=dataset_id,
+            mode=process_type,
+            rule=rule,
+        )
+
+        # 4.获取当前知识库的最新文档位置
+        position = self.get_latest_document_position(dataset_id)
+
+        # 5.循环遍历室友合法的上传文件文件列表并记录
+        documents = []
+        for upload_file in upload_files:
+            position += 1
+            document = self.create(
+                Document,
+                account_id=account_id,
+                dataset_id=dataset_id,
+                upload_file_id=upload_file.id,
+                process_rule_id=process_rule.id,
+                batch=batch,
+                name=upload_file.name,
+                position=position,
+            )
+            documents.append(document)
+
+        # 6.调用异步任务，完成后续操作
+
+
+        # 7.返回文档列表与处理批次
+        return documents, batch
+
+    def get_latest_document_position(self, dataset_id: UUID) -> int:
+        """根据传递的知识库id获取最新文档位置"""
+        document = self.db.session.query(Document).filter(
+            Document.dataset_id == dataset_id,
+        ).order_by(desc("position")).first()
+        return document.position if document else 0
