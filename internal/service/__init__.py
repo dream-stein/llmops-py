@@ -20,6 +20,7 @@ from .document_service import DocumentService
 from .jieba_service import JiebaService
 from .indexing_service import IndexingService
 from .process_rule_service import ProcessRuleService
+from .keyword_table_service import KeywordTableService
 
 __all__ = [
     "AppService",
@@ -37,4 +38,5 @@ __all__ = [
     "IndexingService",
     "JiebaService",
     "ProcessRuleService",
+    "KeywordTableService",
 ]
