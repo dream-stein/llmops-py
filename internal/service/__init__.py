@@ -21,6 +21,7 @@ from .jieba_service import JiebaService
 from .indexing_service import IndexingService
 from .process_rule_service import ProcessRuleService
 from .keyword_table_service import KeywordTableService
+from .vector_database_service import VectorDatabaseService
 
 __all__ = [
     "AppService",
@@ -39,4 +40,5 @@ __all__ = [
     "JiebaService",
     "ProcessRuleService",
     "KeywordTableService",
+    "VectorDatabaseService",
 ]

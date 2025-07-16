@@ -10,10 +10,12 @@ import uuid
 from datetime import datetime
 from uuid import UUID
 
+from flask import Flask, current_app
 from injector import inject
 from dataclasses import dataclass
 
 from sqlalchemy import func
+from concurrent.futures import ThreadPoolExecutor
 
 from .base_service import BaseService
 from pkg.sqlalchemy import SQLAlchemy
@@ -205,24 +207,46 @@ class IndexingService(BaseService):
             lc_segment.metadata["segment_enabled"] = True
 
         # 2.调用向量数据库，每次存储10条数据，避免一次性传递过多的数据
-        for i in range(0, len(lc_segments), 10):
-            # 3.提取需要存储的数据和ids
-            chunks = lc_segments[i: i + 10]
-            ids = [chunk.metadata["node_id"] for chunk in chunks]
+        def thread_func(flask_app: Flask, chunks: list[LCDocument], ids: list[UUID]) -> None:
+            """线程函数，执行向量数据库与MySQL的存储"""
+            with flask_app.app_context():
+                try:
+                    # 4.调用向量数据库村粗对应的数据
+                    self.vector_database_service.vector_store.add_documents(
+                        chunks, ids=ids,
+                    )
 
-            # 4.调用向量数据库村粗对应的数据
-            self.vector_database_service.vector_store.add_documents(
-                chunks, ids=ids,
-            )
+                    # 5.更新关联片段的状态以及完成时间
+                    with self.db.auto_commit():
+                        self.db.session.query(Segment).filter(
+                            Segment.node_id.in_(ids)
+                        ).update({
+                            "status": SegmentStatus.COMPLETED,
+                            "completed_at": datetime.now(),
+                            "enabled": True,
+                        })
+                except Exception as e:
+                    print(f"构建文档片段索引发生异常，错误信息{str(e)}")
+                    with self.db.auto_commit():
+                        self.db.session.query(Segment).filter(
+                            Segment.node_id.in_(ids)
+                        ).update({
+                            "status": SegmentStatus.ERROR,
+                            "completed_at": None,
+                            "stopped_at": datetime.now(),
+                            "enabled": False,
+                        })
 
-            # 5.更新关联片段的状态以及完成时间
-            self.db.session.query(Segment).filter(
-                Segment.node_id.in_(ids)
-            ).update({
-                "status": SegmentStatus.COMPLETED,
-                "completed_at": datetime.now(),
-                "enabled": True,
-            })
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            futures = []
+            for i in range(0, len(lc_segments), 10):
+                # 3.提取需要存储的数据和ids
+                chunks = lc_segments[i: i + 10]
+                ids = [chunk.metadata["node_id"] for chunk in chunks]
+                futures.append(executor.submit(thread_func, current_app._get_current_object(), chunks, ids))
+
+            for future in futures:
+                future.result()
 
         # 6.更新文档的状态数据
         self.update(

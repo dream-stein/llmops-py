@@ -20,9 +20,8 @@ from internal.schema.dataset_schema import (
 )
 from pkg.paginator import PageModel
 from pkg.response import validate_error_json, success_json, success_message
-from internal.service import DatasetService, EmbeddingsService
+from internal.service import DatasetService, EmbeddingsService, JiebaService, VectorDatabaseService
 from flask import request
-from internal.service import JiebaService
 from internal.core.file_extractor import FileExtractor
 from pkg.sqlalchemy import SQLAlchemy
 
@@ -35,7 +34,9 @@ class DatasetHandler:
     jieba_service: JiebaService
     file_extractor: FileExtractor
     embeddings_service: EmbeddingsService
+    vector_database_service: VectorDatabaseService
     db: SQLAlchemy
+
 
     def embeddings_query(self):
         upload_file = self.db.session.query(UploadFile).get("321c56bc-8cc9-4630-8447-b2b036ad89eb")
@@ -45,6 +46,32 @@ class DatasetHandler:
         # query = request.args.get("query")
         # keywords = self.jieba_service.extract_keywords(query)
         # return success_json({"keywords": keywords})
+
+    def hit(self, dataset_id: UUID):
+        from weaviate.classes.query import Filter
+        query = "关于Flask-SQL"
+        retriever = self.vector_database_service.vector_store.as_retriever(
+            search_type="mmr",
+            search_kwargs={
+                "k": 10,
+                "filters": Filter.all_of([
+                    Filter.by_property("document_enabled").equal(True),
+                    Filter.by_property("segment_enabled").equal(True),
+                    Filter.any_of([
+                        Filter.by_property("dataset_id").equal(""),
+                    ])
+                ])
+            }
+        )
+
+        documents = retriever.invoke(query)
+
+        return success_json({"documents": [
+            {
+                "page_content": document.page_content,
+                "metadata": document.metadata,
+            } for document in documents
+        ]})
 
     def create_dataset(self):
         """创建知识库"""
