@@ -19,7 +19,7 @@ from internal.handler import (
     OAuthHandler,
     AccountHandler,
     AuthHandler,
-    DocumentHandler,
+    DocumentHandler, document_handler,
 )
 
 @inject
@@ -121,6 +121,10 @@ class Router:
             "/datasets/<uuid:dataset_id>/documents",
             methods=["POST"],
             view_func=self.document_handler.create_documents
+        )
+        bp.add_url_rule(
+            "/datasets/<uuid:dataset_id>/documents/batch/<string:batch>",
+            view_func=self.document_handler.get_documents_status
         )
         bp.add_url_rule(
             "/datasets/<uuid:dataset_id>/hit",
