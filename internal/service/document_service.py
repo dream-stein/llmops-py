@@ -18,7 +18,9 @@ from internal.entity.upload_file_entity import ALLOWED_DOCUMENT_EXTENSION
 from internal.exception import ForbiddenException, FailException, NotFoundException
 from internal.lib.helper import datetime_to_timestamp
 from internal.model import Document, Dataset, UploadFile, ProcessRule, Segment
+from internal.schema.document_schema import GetDocumentWithPageReq
 from internal.service import BaseService
+from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
 from internal.entity.dataset_entity import ProcessType, SegmentStatus
 from internal.task.document_task import build_documents
@@ -144,6 +146,61 @@ class DocumentService(BaseService):
             })
 
         return documents_status
+
+    def get_documents(self, dataset_id: UUID, document_id: UUID) -> Document:
+        """根据传递的知识库id+文档id获取文档记录信息"""
+        # todo:等待授权认证模块
+        account_id = "b8434b9c-ee56-4bfd-bd24-84d3caef5599"
+
+        # 1.查询对呀的文档信息
+        document = self.get(Document, document_id)
+        if document is None:
+            raise NotFoundException("该文档不存在，请核实后重试")
+        if document.dataset_id != dataset_id or str(document.account_id) != account_id:
+            raise ForbiddenException("当前用户无权获取该文档，请核实后重试")
+
+        return document
+
+    def update_document(self, dataset_id: UUID, document_id: UUID, **kwargs) -> Document:
+        # todo:等待授权认证模块
+        account_id = "b8434b9c-ee56-4bfd-bd24-84d3caef5599"
+
+        document = self.get(Document, document_id)
+        if document is None:
+            raise NotFoundException("该文档不存在，请核实后重试")
+        if document.dataset_id != dataset_id or str(document.account_id) != account_id:
+            raise ForbiddenException("当前用户无权限修改该文档，请核实后重试")
+
+        return self.update(document, **kwargs)
+
+    def get_documents_with_page(
+            self, dataset_id: UUID, req: GetDocumentWithPageReq
+    ) -> tuple[list[Document], Paginator]:
+        # todo:等待授权认证模块
+        account_id = "b8434b9c-ee56-4bfd-bd24-84d3caef5599"
+
+        # 1.获取知识库并校验权限
+        dataset = self.get(Dataset, dataset_id)
+        if dataset is None or str(dataset.account_id) != account_id:
+            raise NotFoundException("该知识库不存在，或无权限")
+
+        # 2.构建分页查询器
+        paginator = Paginator(db=self.db, req=req)
+
+        # 3.构建筛选器
+        filters = [
+            Document.account_id == account_id,
+            Document.dataset_id == str(dataset_id),
+        ]
+        if req.search_word.data:
+            filters.append([Document.name.ilike(f"%{req.search_word.data}%")])
+
+        # 4.执行分页并获取数据
+        documents = paginator.paginate(
+            self.db.session.query(Document).filter(*filters).order_by(asc("created_at")),
+        )
+
+        return documents, paginator
 
     def get_latest_document_position(self, dataset_id: UUID) -> int:
         """根据传递的知识库id获取最新文档位置"""
