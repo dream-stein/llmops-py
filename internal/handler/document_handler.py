@@ -8,6 +8,8 @@
 from dataclasses import dataclass
 from injector import inject
 from uuid import UUID
+
+from internal.schema.dataset_schema import UpdateDocumentEnabledReq
 from internal.schema.document_schema import CreateDocumentsReq, CreateDocumentsResp, GetDocumentResp, \
     UpdateDocumentNameReq, GetDocumentWithPageReq, GetDocumentsWithPageResp
 from pkg.paginator import PageModel
@@ -55,6 +57,18 @@ class DocumentHandler:
         self.document_service.update_document(dataset_id, document_id, name=req.name.data)
 
         return success_message("更新文档名称成功")
+
+    def update_document_enabled(self, dataset_id: UUID, document_id: UUID):
+        """根据传递的知识库id+文档id更新指定文档的启用状态"""
+        # 1.提取请求并校验
+        req = UpdateDocumentEnabledReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
+
+        # 2.调用服务更改指定文档的状态
+        self.document_service.update_document_enabled(dataset_id, document_id, req.enabled.data)
+
+        return success_message("更改文档启用状态成功")
 
     def get_documents_with_page(self, dataset_id: UUID):
         """根据传递的知识库id获取文档分页列表数据"""

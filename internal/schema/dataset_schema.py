@@ -7,7 +7,8 @@
 """
 from flask_wtf import FlaskForm
 from wtforms import StringField
-from wtforms.validators import DataRequired, Length, URL, Optional
+from wtforms.fields.simple import BooleanField
+from wtforms.validators import DataRequired, Length, URL, Optional, ValidationError
 from marshmallow import Schema, fields, pre_dump
 
 from internal.model import Dataset
@@ -103,3 +104,13 @@ class GetDatasetsWithPageResp(Schema):
             "updated_at": int(data.updated_at.timestamp()),
             "created_at": int(data.created_at.timestamp()),
         }
+
+
+class UpdateDocumentEnabledReq(FlaskForm):
+    """更新文档启用状态请求"""
+    enabled = BooleanField("enabled")
+
+    def validate_enabled(self, field: BooleanField) -> None:
+        """校验文档启用状态enabled"""
+        if not isinstance(field.data, bool):
+            raise ValidationError("enabled状态不能为空且必须为布尔值")

@@ -30,6 +30,9 @@ from internal.lib.helper import generate_text_hash
 from .jieba_service import JiebaService
 from .keyword_table_service import KeywordTableService
 from .vector_database_service import VectorDatabaseService
+from internal.entity.cache_entity import LOCK_DOCUMENT_UPDATE_ENABLED
+from internal.exception import NotFoundException
+from redis import Redis
 
 
 @inject
@@ -37,6 +40,7 @@ from .vector_database_service import VectorDatabaseService
 class IndexingService(BaseService):
     """索引构建服务"""
     db: SQLAlchemy
+    redis_client: Redis
     file_extractor: FileExtractor
     process_rule_service: ProcessRuleService
     embeddings_service: EmbeddingsService
@@ -76,6 +80,49 @@ class IndexingService(BaseService):
                     error=str(e),
                     stopped_at=datetime.now(),
                 )
+
+    def update_document_enabled(self, document_id: UUID) -> None:
+        """根据传递的文档id更新文档状态，他是修改weaviate向量数据库中的数据"""
+        # 1.构建缓存健
+        cache_key = LOCK_DOCUMENT_UPDATE_ENABLED.format(document_id=document_id)
+
+        # 2.根据传递的document_id获取文档记录
+        document = self.get(Document, document_id)
+        if document is None:
+            print(f"当前文档不存在，文档id:{document_id}")
+            raise NotFoundException("当前文档不存在")
+
+        # 3.查询归属于当前文档的室友片段的节点id
+        node_ids = [
+            node_id for node_id, in self.db.session.query(Segment).with_entities(Segment.node_id).filter(
+                Segment.document_id == document.id
+            ).all()
+        ]
+
+        try:
+            # 4.执行循环遍历所有node_ids并更新向量数据
+            collection = self.vector_database_service.collection
+            for node_id in node_ids:
+                collection.data.update(
+                    uuid=node_id,
+                    properties={
+                        "document_enabled": document.enabled,
+                    }
+                )
+            pass
+        except Exception as e:
+            # 5.记录日志并将状态修改回原来的状态
+            print(f"修改项链数据库文档启用状态失败，文档id:{document_id}, 错误信息:{str(e)}")
+            origin_enabled = not document.enabled
+            self.update(
+                document,
+                enabled=origin_enabled,
+                disabled_at=None if origin_enabled else datetime.now(),
+            )
+        finally:
+            # 6.清空缓存键表示异步操作已经执行完成，无论请求成功还是失败都清除
+            self.redis_client.delete(cache_key)
+
 
     def _parsing(self, document: Document) -> list[LCDocument]:
         """解析传递的文档为LangChain文档列表"""
