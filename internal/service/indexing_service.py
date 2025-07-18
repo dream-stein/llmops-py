@@ -99,26 +99,47 @@ class IndexingService(BaseService):
             raise NotFoundException("当前文档不存在")
 
         # 3.查询归属于当前文档的室友片段的节点id
-        node_ids = [
-            node_id for node_id, in self.db.session.query(Segment).with_entities(Segment.node_id).filter(
-                Segment.document_id == document.id
-            ).all()
-        ]
+        segments = self.db.session.query(Segment).with_entities(Segment.id, Segment.node_id, Segment.enabled).filter(
+            Segment.document_id == document_id,
+            Segment.status == SegmentStatus.COMPLETED,
+        ).all()
+        segment_ids = [id for id, _, _ in segments]
+        node_ids = [node_id for _, node_id, _ in segments]
 
         try:
             # 4.执行循环遍历所有node_ids并更新向量数据
             collection = self.vector_database_service.collection
             for node_id in node_ids:
-                collection.data.update(
-                    uuid=node_id,
-                    properties={
-                        "document_enabled": document.enabled,
-                    }
-                )
-            pass
+                try:
+                    collection.data.update(
+                        uuid=node_id,
+                        properties={
+                            "document_enabled": document.enabled,
+                        }
+                    )
+                except Exception as e:
+                    with self.db.auto_commit():
+                        self.db.session.query(Segment).filter(
+                            Segment.node_id == node_id,
+                        ).update({
+                            "error": str(e),
+                            "status": SegmentStatus.ERROR,
+                            "enabled": False,
+                            "disabled_at": datetime.now(),
+                            "stopped_at": datetime.now(),
+                        })
+
+            # 5.更新关键词表对应的数据（enabled为false表示从关键词表中删除数据，enabled为true表示在关键词表中新增数据）
+            if document.enabled is True:
+                # 6.从禁用改为启用，需要新增关键词
+                enabled_segment_ids = [id for id, _, enabled in segments if enabled is True]
+                self.keyword_table_service.add_keyword_table_from_ids(document.dataset_id, enabled_segment_ids)
+            else:
+                # 7.从启用改为禁用，需要剔除关键词
+                self.keyword_table_service.delete_keyword_table_from_ids(document.dataset_id, segment_ids)
         except Exception as e:
             # 5.记录日志并将状态修改回原来的状态
-            print(f"修改项链数据库文档启用状态失败，文档id:{document_id}, 错误信息:{str(e)}")
+            print(f"修改向量数据库文档启用状态失败，文档id:{document_id}, 错误信息:{str(e)}")
             origin_enabled = not document.enabled
             self.update(
                 document,
@@ -266,7 +287,7 @@ class IndexingService(BaseService):
             # 5.更新关键词表
             self.update(
                 keyword_table_record,
-                keyword_table={field: list(value) for field, value in keyword_table}
+                keyword_table={field: list(value) for field, value in keyword_table.items()}
             )
 
         # 6.更新文档状态
