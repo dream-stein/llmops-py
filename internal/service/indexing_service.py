@@ -133,7 +133,7 @@ class IndexingService(BaseService):
         """根据传递的知识库id+文档id删除文档信息"""
         # 1.查找该文档下的所有片段id列表
         segment_ids = [
-            str(id) for id, in self.db.session.query(Segment).with_entities(Segment.id).filter(
+            id for id, in self.db.session.query(Segment).with_entities(Segment.id).filter(
                 Segment.document_id == document_id,
             ).all()
         ]
@@ -150,31 +150,8 @@ class IndexingService(BaseService):
                 Segment.document_id == document_id,
             ).delete()
 
-        # 4.记录续页删除的片段id集合和空关键词列表
-        segment_ids_to_delete = set(segment_ids)
-        keywords_to_delete = set()
-
-        # 5.更新知识库关键词表信息，并且该操作需要上锁，避免并发更新的时候出现关键词映射错误的问题
-        cache_key = LOCK_KEYWORD_TABLE_UPDATE_KEYWORD_TABLE.format(dataset_id=dataset_id)
-        with self.redis_client.lock(cache_key, timeout=LOCK_EXPIRE_TIME):
-            # 6.获取当前知识库的关键词表
-            keyword_table_record = self.keyword_table_service.get_keyword_table_from_dataset_id(dataset_id)
-            keyword_table = keyword_table_record.keyword_table.copy()
-
-            # 7.循环遍历所有关键词执行判断与更新
-            for keyword, ids in keyword_table.items():
-                ids_set = set(ids)
-                if segment_ids_to_delete.intersection(ids_set):
-                    keyword_table[keyword] = list(ids_set.difference(segment_ids_to_delete))
-                    if not keyword_table[keyword]:
-                        keywords_to_delete.add(keyword)
-
-            # 8.检测空关键词数据并删除(关键词并没有映射任何字段id的数据)
-            for keyword in keywords_to_delete:
-                del keyword_table_record[keyword]
-
-            # 9.将关键词更新到关键词表中
-            self.update(keyword_table_record, keyword_table=keyword_table_record)
+        # 4.删除片段id对应的关键词记录
+        self.keyword_table_service.delete_keyword_table_from_ids(dataset_id, segment_ids)
 
     def _parsing(self, document: Document) -> list[LCDocument]:
         """解析传递的文档为LangChain文档列表"""
