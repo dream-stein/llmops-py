@@ -153,6 +153,10 @@ class Segment(db.Model):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
     created_at = Column(DateTime, default=datetime.now, nullable=False)
 
+    @property
+    def document(self) -> "Document":
+        return db.session.query(Document).get(self.document_id)
+
 class KeywordTable(db.Model):
     """"关键词表模型"""
     __tablename__ = "keyword_table"

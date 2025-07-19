@@ -14,6 +14,7 @@ from .oauth_handler import OAuthHandler
 from .account_handler import AccountHandler
 from .auth_handler import AuthHandler
 from .document_handler import DocumentHandler
+from .segment_handler import SegmentHandler
 
 from .api_key_handler import ApiKeyHandler
 
@@ -28,4 +29,5 @@ __all__ = [
     "AuthHandler",
     "DocumentHandler",
     "ApiKeyHandler",
+    "SegmentHandler",
 ]

@@ -22,6 +22,7 @@ from .indexing_service import IndexingService
 from .process_rule_service import ProcessRuleService
 from .keyword_table_service import KeywordTableService
 from .vector_database_service import VectorDatabaseService
+from .segment_service import SegmentService
 
 __all__ = [
     "AppService",
@@ -41,4 +42,5 @@ __all__ = [
     "ProcessRuleService",
     "KeywordTableService",
     "VectorDatabaseService",
+    "SegmentService",
 ]

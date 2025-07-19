@@ -19,7 +19,8 @@ from internal.handler import (
     OAuthHandler,
     AccountHandler,
     AuthHandler,
-    DocumentHandler, document_handler,
+    DocumentHandler,
+    SegmentHandler,
 )
 
 @inject
@@ -36,6 +37,7 @@ class Router:
     account_handler: AccountHandler
     auth_handler: AuthHandler
     document_handler: DocumentHandler
+    segment_handler: SegmentHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -153,6 +155,19 @@ class Router:
             "/datasets/<uuid:dataset_id>/hit",
             methods=["POST"],
             view_func=self.dataset_handler.hit
+        )
+        bp.add_url_rule(
+            "/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/segments",
+            view_func=self.segment_handler.get_segments_with_page
+        )
+        bp.add_url_rule(
+            "/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/segments/<uuid:segment_id>",
+            view_func=self.segment_handler.get_segment
+        )
+        bp.add_url_rule(
+            "/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/segments/<uuid:segment_id>/enabled",
+            methods=["POST"],
+            view_func=self.segment_handler.update_segment_enabled
         )
 
         # 授权认证模块
