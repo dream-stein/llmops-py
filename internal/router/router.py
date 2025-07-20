@@ -151,11 +151,7 @@ class Router:
             "/datasets/<uuid:dataset_id>/documents/batch/<string:batch>",
             view_func=self.document_handler.get_documents_status
         )
-        bp.add_url_rule(
-            "/datasets/<uuid:dataset_id>/hit",
-            methods=["POST"],
-            view_func=self.dataset_handler.hit
-        )
+
         bp.add_url_rule(
             "/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/segments",
             view_func=self.segment_handler.get_segments_with_page
@@ -170,9 +166,17 @@ class Router:
             view_func=self.segment_handler.get_segment
         )
         bp.add_url_rule(
-            "/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/segments/<uuid:segment_id>/enabled",
+            "/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/segments/<uuid:segment_id>/delete",
             methods=["POST"],
-            view_func=self.segment_handler.update_segment_enabled
+            view_func=self.segment_handler.delete_segment
+        )
+        bp.add_url_rule(
+            "/"
+        )
+        bp.add_url_rule(
+            "/datasets/<uuid:dataset_id>/hit",
+            methods=["POST"],
+            view_func=self.dataset_handler.hit
         )
 
         # 授权认证模块
