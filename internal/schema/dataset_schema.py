@@ -20,7 +20,8 @@ from wtforms.validators import (
 )
 from marshmallow import Schema, fields, pre_dump
 
-from internal.model import Dataset
+from internal.lib.helper import datetime_to_timestamp
+from internal.model import Dataset, DatasetQuery
 from pkg.paginator import PaginatorReq
 from internal.entity.dataset_entity import RetrievalStrategy
 
@@ -142,3 +143,21 @@ class HitReq(FlaskForm):
     score = FloatField("score", validators=[
         NumberRange(min=0, max=0.99, message="最小匹配度范围在0-0.99")
     ])
+
+class GetDatasetQueriesResp(Schema):
+    """获取知识库最佳查询响应结构"""
+    id = fields.UUID(dump_default="")
+    dataset_id = fields.UUID(dump_default="")
+    query = fields.String(dump_default="")
+    source = fields.String(dump_default="")
+    created_at = fields.Integer(dump_default=0)
+
+    @pre_dump
+    def process_data(self, data: DatasetQuery, **kwargs):
+        return {
+            "id": data.id,
+            "dataset_id": data.dataset_id,
+            "query": data.query,
+            "source": data.source,
+            "created_at": datetime_to_timestamp(data.created_at),
+        }

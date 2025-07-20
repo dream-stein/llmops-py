@@ -16,7 +16,9 @@ from internal.schema.dataset_schema import (
     GetDatasetResp,
     UpdateDatasetReq,
     GetDatasetsWithPageReq,
-    GetDatasetsWithPageResp, HitReq
+    GetDatasetsWithPageResp,
+    HitReq,
+    GetDatasetQueriesResp
 )
 from pkg.paginator import PageModel
 from pkg.response import validate_error_json, success_json, success_message
@@ -58,6 +60,13 @@ class DatasetHandler:
         hit_result = self.dataset_service.hit(dataset_id, req)
 
         return success_json(hit_result)
+
+    def get_dataset_queries(self, dataset_id: UUID):
+        """根据传递的知识库id获取最近的10条记录"""
+        dataset_queries = self.dataset_service.get_dataset_queries(dataset_id)
+        resp = GetDatasetQueriesResp(many=True)
+        return success_json(resp.dump(dataset_queries))
+
 
     def create_dataset(self):
         """创建知识库"""

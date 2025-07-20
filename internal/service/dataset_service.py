@@ -61,6 +61,23 @@ class DatasetService(BaseService):
             description=req.description.data,
         )
 
+    def get_dataset_queries(self, dataset_id: UUID) -> list[DatasetQuery]:
+        """根据传递的知识库id获取最近的10条查询记录"""
+        # todo:等待授权认证模块
+        account_id = "b8434b9c-ee56-4bfd-bd24-84d3caef5599"
+
+        # 1.获取知识库并校验权限
+        dataset = self.get(Dataset, dataset_id)
+        if dataset is None or dataset.account_id != account_id:
+            raise NotFoundException("该知识库不存在")
+
+        # 2.调用知识库查询模型查找最近的10条记录
+        dataset_queries = self.db.session.query(DatasetQuery).filter(
+            DatasetQuery.dataset_id == dataset_id,
+        ).order_by(desc("created_at")).limit(10)
+
+        return dataset_queries
+
     def get_dataset(self, dataset_id: UUID) -> Dataset:
         """根据传递的知识库id获取知识库记录"""
         # todo:等待授权认证模块
