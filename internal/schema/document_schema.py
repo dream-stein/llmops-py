@@ -10,7 +10,13 @@ import uuid
 from flask_wtf import FlaskForm
 from marshmallow import Schema, fields, pre_dump
 from wtforms.fields.simple import StringField
-from wtforms.validators import DataRequired, AnyOf, ValidationError, Length, Optional
+from wtforms.validators import (
+    DataRequired,
+    AnyOf,
+    ValidationError,
+    Length,
+    Optional
+)
 from internal.entity.dataset_entity import ProcessType, DEFAULT_PROCESS_RULE
 from pkg.paginator import PaginatorReq
 from .schema import ListField, DictField

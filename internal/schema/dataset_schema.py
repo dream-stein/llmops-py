@@ -7,12 +7,22 @@
 """
 from flask_wtf import FlaskForm
 from wtforms import StringField
+from wtforms.fields.numeric import IntegerField, FloatField
 from wtforms.fields.simple import BooleanField
-from wtforms.validators import DataRequired, Length, URL, Optional, ValidationError
+from wtforms.validators import (
+    DataRequired,
+    Length,
+    URL,
+    Optional,
+    ValidationError,
+    AnyOf,
+    NumberRange
+)
 from marshmallow import Schema, fields, pre_dump
 
 from internal.model import Dataset
 from pkg.paginator import PaginatorReq
+from internal.entity.dataset_entity import RetrievalStrategy
 
 
 class CreateDatasetReq(FlaskForm):
@@ -114,3 +124,21 @@ class UpdateDocumentEnabledReq(FlaskForm):
         """校验文档启用状态enabled"""
         if not isinstance(field.data, bool):
             raise ValidationError("enabled状态不能为空且必须为布尔值")
+
+class HitReq(FlaskForm):
+    """知识库召回测试请求"""
+    query = StringField("query", validators=[
+        DataRequired("查询语句不能为空"),
+        Length(max=200, message="查询语句的最大程度不能超过200")
+    ])
+    retrieval_strategy = StringField("retrieval_strategy", validators=[
+        DataRequired("检索策略不能为空"),
+        AnyOf([item.value for item in RetrievalStrategy], message="检索策略格式错误"),
+    ])
+    k = IntegerField("k", validators=[
+        DataRequired("最大召回数量不能为空"),
+        NumberRange(min=1, max=10, message="最大召回数量的范围在1-10")
+    ])
+    score = FloatField("score", validators=[
+        NumberRange(min=0, max=0.99, message="最小匹配度范围在0-0.99")
+    ])

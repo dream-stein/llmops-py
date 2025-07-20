@@ -16,7 +16,7 @@ from internal.schema.dataset_schema import (
     GetDatasetResp,
     UpdateDatasetReq,
     GetDatasetsWithPageReq,
-    GetDatasetsWithPageResp
+    GetDatasetsWithPageResp, HitReq
 )
 from pkg.paginator import PageModel
 from pkg.response import validate_error_json, success_json, success_message
@@ -48,30 +48,16 @@ class DatasetHandler:
         # return success_json({"keywords": keywords})
 
     def hit(self, dataset_id: UUID):
-        from weaviate.classes.query import Filter
-        query = "关于Flask-SQL"
-        retriever = self.vector_database_service.vector_store.as_retriever(
-            search_type="mmr",
-            search_kwargs={
-                "k": 10,
-                "filters": Filter.all_of([
-                    Filter.by_property("document_enabled").equal(True),
-                    Filter.by_property("segment_enabled").equal(True),
-                    Filter.any_of([
-                        Filter.by_property("dataset_id").equal(""),
-                    ])
-                ])
-            }
-        )
+        """根据传递的知识库id+检索参数执行召回测试"""
+        # 1.提取数据并校验
+        req = HitReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
 
-        documents = retriever.invoke(query)
+        # 2.调用服务执行检索策略
+        hit_result = self.dataset_service.hit(dataset_id, req)
 
-        return success_json({"documents": [
-            {
-                "page_content": document.page_content,
-                "metadata": document.metadata,
-            } for document in documents
-        ]})
+        return success_json(hit_result)
 
     def create_dataset(self):
         """创建知识库"""
