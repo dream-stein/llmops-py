@@ -174,7 +174,7 @@ class SegmentService(BaseService):
         ):
             raise NotFoundException("该文档片段不存在，或无权限修改，请核实后重试")
 
-        # 2.判断文档片段是否处于可修改的环境
+        # 2.判断文档片段是否处于可修改的状态
         if segment.status != SegmentStatus.COMPLETED:
             raise FailException("当前片段不可修改状态，请稍后尝试")
 
@@ -201,10 +201,33 @@ class SegmentService(BaseService):
             self.keyword_table_service.delete_keyword_table_from_ids(dataset_id, [segment_id])
             self.keyword_table_service.add_keyword_table_from_ids(dataset_id, [segment_id])
 
-            # 8.检测是否需要
+            # 8.检测是否需要更新文档信息以及向量数据库
+            if required_update:
+                # 7.更新文档信息，涵盖字符总数、token总次数
+                document = segment.document
+                document_character_count, document_token_count = self.db.session.query(
+                    func.coalesce(func.sum(Segment.character_count), 0),
+                    func.coalesce(func.sum(Segment.token_count), 0)
+                ).first()
 
+                # 7.更新文档的对应信息
+                self.update(
+                    document,
+                    character_count=document_character_count,
+                    token_count=document_token_count,
+                )
+
+                # 8.更新向量数据库对应记录
+                self.vector_database_service.collection.data.update(
+                    uuid=segment.node_id,
+                    properties={
+                        "text": req.content.data,
+                    },
+                    vector=self.embeddings_service.embeddings.embed_query(req.content.data)
+                )
         except Exception as e:
             raise FailException("更新片段记录失败，请稍后重试")
+
         return segment
 
     def get_segments_with_page(
