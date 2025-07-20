@@ -5,7 +5,9 @@
 #Author  :Emcikem
 @File    :app_handler.py
 """
+import json
 import os
+from queue import Queue
 import uuid
 from dataclasses import dataclass
 from operator import itemgetter
@@ -17,7 +19,7 @@ from langchain_core.tracers import Run
 from uuid import UUID
 
 from internal.schema.app_schema import CompletionReq
-from internal.service import AppService
+from internal.service import AppService, BuiltinToolService, ConversationService
 from pkg.response import success_json, validate_error_json, success_message
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
@@ -27,6 +29,7 @@ from langchain_community.chat_message_histories import FileChatMessageHistory
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda, RunnableConfig
 from internal.service import ApiToolService
 from internal.task.demo_task import demo_task
+from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
 
 @inject
 @dataclass
@@ -34,6 +37,8 @@ class AppHandler:
     """应用控制器"""
     app_service: AppService
     api_tool_service: ApiToolService
+    builtin_provider_manager: BuiltinProviderManager
+    conversation_service: ConversationService
 
     def create_app(self):
         """调用服务创建新的APP记录"""
@@ -71,6 +76,61 @@ class AppHandler:
             configurable_memory.save_context(run_obj.inputs, run_obj.outputs)
 
     def debug(self, app_id: UUID):
+        """应用会话调试聊天接口，该接口为流式事件输出"""
+        # 1.提取从接口中获取的输入，POST
+        req = CompletionReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
+
+        # 2.创建队列并读取query数据
+        q = Queue()
+        query = req.query.data
+
+        # 3.创建graph图程序应用
+        def graph_app() -> None:
+            """创建Graph图程序应用并执行"""
+            # 3.1创建tools工具列表
+            tools = [
+                self.builtin_provider_manager.get_tool("google", "google_serper")(),
+                self.builtin_provider_manager.get_tool("gaode", "gaode_weather")(),
+                self.builtin_provider_manager.get_tool("dalle", "dalle3")(),
+            ]
+
+            # # 3.2定义大语言模型/聊天机器人节点
+            # def chatbot(state: MessagesState) -> MessagesState:
+            #     """聊天机器人节点"""
+            #     # 3.2.1创建LLM大语言模型
+            #     llm = ChatOpenAI(model="deepseek-chat", temperature=0.7).bind_tools(tools)
+            #
+            #     # 3.2.2调用stream()函数获取流式输出内容，并判断生成内容是文本还是工具调用参数
+            #     is_first_chunk = True
+            #     is_tool_call = False
+            #     gathered = None
+            #     id = str(uuid.uuid4())
+            #     for chunk in llm.stream(state["messages"]):
+            #         # 3.2.3检测是不是第一个快，部分LLM的第一个块不会生成内容，需要抛弃掉
+            #         if is_first_chunk and chunk.content == "" and not chunk.tool_calls:
+            #             continue
+            #
+            #         # 3.2.4叠加相应的区块
+            #         if is_first_chunk:
+            #             gathered = chunk
+            #             is_first_chunk = None
+            #         else:
+            #             gathered += chunk
+            #
+            #         # 3.2.5判断是工具调用还是文本生成，往队列中添加中添加不同的数据
+            #         if chunk.tool_calls or is_tool_call:
+            #             is_tool_call = True
+            #             q.put({
+            #                 "id": id,
+            #                 "event": "agent_thought",
+            #                 "data": json.dumps(chunk.tool_calls),
+            #             })
+            #         else:
+
+
+    def _debug(self, app_id: UUID):
         """聊天接口"""
         # 1.提取从接口中获取的输入，POST
         req = CompletionReq()
@@ -106,6 +166,8 @@ class AppHandler:
         return success_json({"content": content})
 
     def ping(self):
-        demo_task.delay(uuid.uuid4())
-        # return self.api_tool_service.api_tool_invoke()
-        # return success_json()
+        human_message = "我叫木小可，你是？"
+        ai_message = "你好，我是ChatGPT，有什么可以帮到你的？"
+        old_summary = "人类询问AI关于LLM（大型语言模型）和Agent（智能体）的定义。AI解释称：  \n- **LLM**是基于海量文本训练的语言模型，擅长理解和生成自然语言（如GPT-4），但需明确指令且缺乏主动行动力；  \n- **Agent**是具备自主决策能力的智能系统，能规划任务、调用工具（如API），常以LLM为“大脑”但扩展了行动模块。  \nAI总结两者的区别为：LLM是“语言大脑”，Agent是“能动手执行的完整智能体”。"
+        summary = self.conversation_service.summary(human_message, ai_message, old_summary)
+        return success_json({"summary": summary})

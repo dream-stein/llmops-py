@@ -175,7 +175,9 @@ class Router:
             view_func=self.segment_handler.delete_segment
         )
         bp.add_url_rule(
-            "/"
+            "/datasets/<uuid:dataset_id>/documents/<uuid:document_id>/segments/<uuid:segment_id>",
+            methods=["POST"],
+            view_func=self.segment_handler.update_segment
         )
         bp.add_url_rule(
             "/datasets/<uuid:dataset_id>/hit",

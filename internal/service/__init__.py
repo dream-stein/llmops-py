@@ -24,6 +24,7 @@ from .keyword_table_service import KeywordTableService
 from .vector_database_service import VectorDatabaseService
 from .segment_service import SegmentService
 from .retrieval_service import RetrievalService
+from .conversation_service import ConversationService
 
 __all__ = [
     "AppService",
@@ -45,4 +46,5 @@ __all__ = [
     "VectorDatabaseService",
     "SegmentService",
     "RetrievalService",
+    "ConversationService",
 ]

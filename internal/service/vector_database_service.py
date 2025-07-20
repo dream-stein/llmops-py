@@ -14,7 +14,9 @@ from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_weaviate import WeaviateVectorStore
+from mako.compat import win32
 from weaviate import WeaviateClient
+from weaviate.auth import Auth
 from weaviate.collections import Collection
 
 # 向量数据库的集合名字
@@ -30,18 +32,24 @@ class VectorDatabaseService:
     def __init__(self):
         """构造函数，完成向量数据库服务的客户端+Langchain向量数据库实例的创建"""
         # 1.创建/连接weaviate向量数据库
-        self.client = weaviate.connect_to_local(
-            host=os.getenv("WEAVIATE_HOST"),
-            port=int(os.getenv("WEAVIATE_PORT")),
+        # self.client = weaviate.connect_to_local(
+        #     host=os.getenv("WEAVIATE_HOST"),
+        #     port=int(os.getenv("WEAVIATE_PORT")),
+        # )
+        self.client = weaviate.connect_to_weaviate_cloud(
+            cluster_url=os.getenv("WEAVIATE_URL"),
+            auth_credentials=Auth.api_key(os.getenv("WEAVIATE_API_KEY")),
         )
 
+
         # 2.创建Langchain向量数据库
-        self.vector_store = WeaviateVectorStore(
-            client=self.client,
-            index_name=COLLECTION_NAME,
-            text_key="text",
-            embedding=OpenAIEmbeddings(model="text-embedding-3-small"),
-        )
+        # self.vector_store = WeaviateVectorStore(
+        #     client=self.client,
+        #     index_name=COLLECTION_NAME,
+        #     text_key="text",
+        #     embedding=OpenAIEmbeddings(model="text-embedding-3-small"),
+        # )
+        self.vector_store = None
 
     def get_retriever(self) -> VectorStoreRetriever:
         """获取检索器"""
