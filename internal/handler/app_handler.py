@@ -172,6 +172,10 @@ class AppHandler:
         # summary = self.conversation_service.summary(human_message, ai_message, old_summary)
         # return success_json({"summary": summary})
 
-        human_message = "你好，我叫木小可，你是？"
-        conversation_name = self.conversation_service.generate_conversation_name(human_message)
-        return success_json({"conversation_name": conversation_name})
+        # human_message = "你好，我叫木小可，你是？"
+        # conversation_name = self.conversation_service.generate_conversation_name(human_message)
+        # return success_json({"conversation_name": conversation_name})
+
+        human_message = "你能简单介绍下什么是LLM么？LLM与Agent之间有什么关联？"
+        questions = self.conversation_service.generate_suggested_questions(human_message)
+        return success_json({"questions": questions})
