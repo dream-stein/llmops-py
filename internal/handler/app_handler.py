@@ -166,8 +166,12 @@ class AppHandler:
         return success_json({"content": content})
 
     def ping(self):
-        human_message = "我叫木小可，你是？"
-        ai_message = "你好，我是ChatGPT，有什么可以帮到你的？"
-        old_summary = "人类询问AI关于LLM（大型语言模型）和Agent（智能体）的定义。AI解释称：  \n- **LLM**是基于海量文本训练的语言模型，擅长理解和生成自然语言（如GPT-4），但需明确指令且缺乏主动行动力；  \n- **Agent**是具备自主决策能力的智能系统，能规划任务、调用工具（如API），常以LLM为“大脑”但扩展了行动模块。  \nAI总结两者的区别为：LLM是“语言大脑”，Agent是“能动手执行的完整智能体”。"
-        summary = self.conversation_service.summary(human_message, ai_message, old_summary)
-        return success_json({"summary": summary})
+        # human_message = "我叫木小可，你是？"
+        # ai_message = "你好，我是ChatGPT，有什么可以帮到你的？"
+        # old_summary = "人类询问AI关于LLM（大型语言模型）和Agent（智能体）的定义。AI解释称：  \n- **LLM**是基于海量文本训练的语言模型，擅长理解和生成自然语言（如GPT-4），但需明确指令且缺乏主动行动力；  \n- **Agent**是具备自主决策能力的智能系统，能规划任务、调用工具（如API），常以LLM为“大脑”但扩展了行动模块。  \nAI总结两者的区别为：LLM是“语言大脑”，Agent是“能动手执行的完整智能体”。"
+        # summary = self.conversation_service.summary(human_message, ai_message, old_summary)
+        # return success_json({"summary": summary})
+
+        human_message = "你好，我叫木小可，你是？"
+        conversation_name = self.conversation_service.generate_conversation_name(human_message)
+        return success_json({"conversation_name": conversation_name})

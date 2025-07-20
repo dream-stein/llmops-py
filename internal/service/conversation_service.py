@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 
-from internal.entity.conversation_entity import SUMMARIZER_TEMPLATE
+from internal.entity.conversation_entity import SUMMARIZER_TEMPLATE, CONVERSATION_NAME_TEMPLATE, ConversationInfo
 from internal.service import BaseService
 from pkg.sqlalchemy import SQLAlchemy
 from langchain_core.prompts import ChatPromptTemplate
@@ -42,3 +42,39 @@ class ConversationService(BaseService):
         })
 
         return new_summary
+
+    @classmethod
+    def generate_conversation_name(cls, query: str) -> str:
+        """根据传递的query生成对应的会话名字，并且语言与用户的输入保持一致"""
+        # 1.创建prompt
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", CONVERSATION_NAME_TEMPLATE),
+            ("human", "{query}")
+        ])
+
+        # 2.构建大语言模型实例，并且将大语言模型的温度降低，降低幻觉的概率
+        llm = ChatOpenAI(model="deepseek-chat", temperature=0)
+        structured_llm = llm.with_structured_output(ConversationInfo)
+
+        # 3.构建链应用
+        chain = prompt | structured_llm
+
+        # 4.提取并整理query，截取长度过长的部分
+        if len(query) > 2000:
+            query = query[:300] + "...[TRUNCATED]..." + query[-300:]
+        query = query.replace("\n", " ")
+
+        # 5.调用链并获取会话信息
+        conversation_info = chain.invoke({"query": query})
+
+        # 6.提取会话名称
+        name = "新的会话"
+        try:
+            if conversation_info and hasattr(conversation_info, "subject"):
+                name = conversation_info.subject
+        except Exception:
+            print("提取会话出错")
+        if len(name) > 75:
+            name = name[:75] + "..."
+
+        return name
