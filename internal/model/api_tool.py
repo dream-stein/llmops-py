@@ -19,7 +19,7 @@ class ApiToolProvider(db.Model):
     __table_args__ = (
         PrimaryKeyConstraint("id", name="pk_api_tool_provider_id"),
     )
-#
+
     id = Column(String(36), nullable=False, default=uuid.uuid4)
     account_id = Column(String(36), nullable=False)
     name = Column(String(255), nullable=False, default="")
