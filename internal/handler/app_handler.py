@@ -14,6 +14,7 @@ from operator import itemgetter
 from typing import Any
 
 from injector import inject
+from langchain_core.documents import Document
 from langchain_core.memory import BaseMemory
 from langchain_core.tracers import Run
 from uuid import UUID
@@ -165,6 +166,11 @@ class AppHandler:
 
         return success_json({"content": content})
 
+    @classmethod
+    def _combine_documents(cls, documents: list[Document]) -> str:
+        """将传入的文档列表合并成字符串"""
+        return "\n\n".join([document.page_content for document in documents])
+
     def ping(self):
         # human_message = "我叫木小可，你是？"
         # ai_message = "你好，我是ChatGPT，有什么可以帮到你的？"
@@ -176,6 +182,20 @@ class AppHandler:
         # conversation_name = self.conversation_service.generate_conversation_name(human_message)
         # return success_json({"conversation_name": conversation_name})
 
-        human_message = "你能简单介绍下什么是LLM么？LLM与Agent之间有什么关联？"
-        questions = self.conversation_service.generate_suggested_questions(human_message)
-        return success_json({"questions": questions})
+        # human_message = "你能简单介绍下什么是LLM么？LLM与Agent之间有什么关联？"
+        # questions = self.conversation_service.generate_suggested_questions(human_message)
+        # return success_json({"questions": questions})
+        from internal.core.agent.agents import FunctionCallAgent
+        from internal.core.agent.entities.agent_entity import AgentConfig
+        from langchain_openai import ChatOpenAI
+
+        agent = FunctionCallAgent(AgentConfig(
+            llm=ChatOpenAI(model="deepseek-chat"),
+            preset_prompt="你是一个拥有20年经验的诗人，请根据用户提供的主题来写一首诗"
+        ))
+        state = agent.run("程序员", [], "")
+        content = state["content"][-1].content
+
+        return success_json({"content": content})
+
+

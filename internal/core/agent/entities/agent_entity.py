@@ -40,15 +40,15 @@ AGENT_SYSTEM_PROMPT_TEMPLATE = """你是一个高度定制的智能体应用，�
 
 class AgentConfig(BaseModel):
     """智能体配置信息，涵盖：LLM大语言模型、预设prompt、关联插件、知识库、工作流、是否开启长期记忆内容、后期可以随时扩展"""
+    # 智能体使用的LLM
+    llm: BaseLanguageModel
+
     # 智能体预设提示词
     system_prompt: str = AGENT_SYSTEM_PROMPT_TEMPLATE
     preset_prompt: str = "" # 预设prompt，默认为空，该值由前端用户在编排的时候记录，并填充到system_prompt中
 
     # 智能体长期记忆是否开启
     enable_long_term_memory: bool = False # 是否开启会话信息汇总/长期记忆
-
-    # 智能体使用的LLM
-    llm: BaseLanguageModel
 
     # 智能体使用的工具列表
     tools: list[BaseTool] = Field(default_factory=list)
