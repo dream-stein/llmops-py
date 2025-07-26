@@ -24,7 +24,7 @@ from internal.schema.api_tool_schema import (
 from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
-from internal.model import ApiToolProvider, ApiTool
+from internal.model import ApiToolProvider, ApiTool, Account
 from internal.core.tools.api_tools.providers import ApiProviderManager
 
 @inject
@@ -34,14 +34,16 @@ class ApiToolService(BaseService):
     db: SQLAlchemy
     api_provider_manager: ApiProviderManager
 
-    def update_api_tool_provider(self, provider_id: UUID, req: UpdateApiToolProviderReq):
+    def update_api_tool_provider(
+            self,
+            provider_id: UUID,
+            req: UpdateApiToolProviderReq,
+            account: Account,
+    ):
         """根据传递的provider_id+req更新的API工具提供者信息"""
-        # todo:等待授权认证模块
-        account_id = "b8434b9c-ee56-4bfd-bd24-84d3caef5599"
-
         # 1.根据传递的provider_id查找APPi工具提供者信息并校验
         api_tool_provider = self.get(ApiToolProvider, provider_id)
-        if api_tool_provider is None or str(api_tool_provider.account_id) != account_id:
+        if api_tool_provider is None or api_tool_provider.account_id != account.id:
             raise ValidateErrorException("该工具提供者不存在")
 
         # 2.校验openapi_schema数据
@@ -49,7 +51,7 @@ class ApiToolService(BaseService):
 
         # 3.检测当前账号是否已经创建了同名的工具提供者，如果是则抛出错误
         check_api_tool_provider = self.db.session.query(ApiToolProvider).filter(
-            ApiToolProvider.account_id == account_id,
+            ApiToolProvider.account_id == account.id,
             ApiToolProvider.name == req.name.data,
             ApiToolProvider.id != api_tool_provider.id
         ).one_or_none()
@@ -61,7 +63,7 @@ class ApiToolService(BaseService):
             # 5.先删除该工具提供者下的所有工具
             self.db.session.query(ApiTool).filter(
                 ApiTool.provider_id == api_tool_provider.id,
-                ApiTool.account_id == account_id,
+                ApiTool.account_id == account.id,
             ).delete()
 
         # 6.修改工具提供者信息
@@ -78,7 +80,7 @@ class ApiToolService(BaseService):
             for method, method_item in path_item.items():
                 self.create(
                     ApiTool,
-                    account_id=account_id,
+                    account_id=account.id,
                     provider_id=api_tool_provider.id,
                     name=method_item.get("operationId"),
                     description=method_item.get("description"),

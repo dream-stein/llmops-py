@@ -6,6 +6,8 @@
 @File    :api_tool_handler.py
 """
 from uuid import UUID
+
+from flask_login import current_user
 from injector import inject
 from flask import request
 from dataclasses import dataclass
@@ -59,7 +61,7 @@ class ApiToolHandler:
         if not req.validate():
             return validate_error_json(req.errors)
 
-        self.api_tool_service.update_api_tool_provider(provider_id, req)
+        self.api_tool_service.update_api_tool_provider(provider_id, req, current_user)
 
         return success_message("更新自定义API插件成功")
 
