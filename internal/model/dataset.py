@@ -88,7 +88,7 @@ class Document(db.Model):
     character_count = Column(Integer, nullable=False, default=0)
     token_count = Column(Integer, nullable=False, default=0)
     processing_started_at = Column(DateTime, nullable=True)
-    parsing_started_at = Column(DateTime, nullable=True)
+    parsing_completed_at = Column(DateTime, nullable=True)
     splitting_completed_at = Column(DateTime, nullable=True)
     indexing_completed_at = Column(DateTime, nullable=True)
     completed_at = Column(DateTime, nullable=True)
