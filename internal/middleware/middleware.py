@@ -31,7 +31,7 @@ class Middleware:
             if not auth_header:
                 raise UnauthorizedException("该接口需要授权才能访问，请登录后尝试")
 
-            # 3.请求信息中没用空格分隔符，则验证失败，Authorization：Bearer，access_token
+            # 3.请求信息中没用空格分隔符，则验证失败，Authorization：Bearer access_token
             if " " not in auth_header:
                 raise UnauthorizedException("该接口需要授权才能访问，验证格式失败")
 

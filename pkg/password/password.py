@@ -21,7 +21,7 @@ def validate_password(password: str, pattern: str = password_pattern):
     return
 
 def hash_password(password: str, salt: Any) -> bytes:
-    """将传入的密码+盐值进行哈希加密"""
+    """将传入的密码+盐值进行哈希加密，返回base64的加密结果"""
     dk = hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 100000)
     return binascii.hexlify(dk)
 

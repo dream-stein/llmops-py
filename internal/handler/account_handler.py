@@ -20,7 +20,7 @@ class AccountHandler:
     account_service: AccountService
 
     def get_current_user(self):
-        """获取当且登录账号信息"""
+        """获取当前登录账号信息"""
         resp = GetCurrentUserResp()
         return success_json(resp.dump(current_user))
 
@@ -47,8 +47,6 @@ class AccountHandler:
         self.account_service.update_account(current_user, name=req.name.data)
 
         return success_message("更新账号名称成功")
-
-
 
     def update_avatar(self):
         """更新当且账号头像"""

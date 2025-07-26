@@ -25,7 +25,6 @@ class GithubOAuth(OAuth):
             "client_id": self.client_id,
             "redirect_uri": self.redirect_uri,
             "scope": "user:email", # 只请求用户基本信息
-
         }
         return f"{self._AUTHORIZE_URL}?{urllib.parse.urlencode(params)}"
 

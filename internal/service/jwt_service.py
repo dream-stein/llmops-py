@@ -18,10 +18,10 @@ class JWTService:
     """jwt服务"""
 
     @classmethod
-    def generate_token(cls, paylod: dict[str, Any]) -> str:
+    def generate_token(cls, payload: dict[str, Any]) -> str:
         """根据传递的载荷消息生成token消息"""
         secret_key = os.getenv("JWT_SECRET_KEY")
-        return jwt.encode(paylod, secret_key, algorithm="HS256")
+        return jwt.encode(payload, secret_key, algorithm="HS256")
 
     @classmethod
     def parse_token(cls, token: str) -> dict[str, Any]:
