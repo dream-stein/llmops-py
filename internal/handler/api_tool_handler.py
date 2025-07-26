@@ -37,7 +37,7 @@ class ApiToolHandler:
         if not req.validate():
             return validate_error_json(req.errors)
 
-        api_tool_providers, paginator = self.api_tool_service.get_api_tool_providers_with_page(req)
+        api_tool_providers, paginator = self.api_tool_service.get_api_tool_providers_with_page(req, current_user)
 
         resp = GetApiToolProviderWithPageResp(many=True)
 
