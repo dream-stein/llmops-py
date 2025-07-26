@@ -26,7 +26,7 @@ class Account(UserMixin, db.Model):
     )
 
     id = Column(String(36), nullable=False, default=uuid.uuid4)
-    api_key = Column(String(255), nullable=False, default="")
+    name = Column(String(255), nullable=False, default="")
     email = Column(String(255), nullable=False, default="")
     avatar = Column(String(255), nullable=False, default="")
     password = Column(String(255), nullable=True, default="")
