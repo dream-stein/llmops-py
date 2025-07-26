@@ -46,11 +46,8 @@ class Router:
 
         # 2. 将url与对应控制器方法做绑定
         bp.add_url_rule("/ping", view_func=self.app_handler.ping)
-        bp.add_url_rule("/apps/<uuid:app_id>/debug", methods=["POST"], view_func=self.app_handler.debug)
-        bp.add_url_rule("/app", methods=["POST"], view_func=self.app_handler.create_app)
-        bp.add_url_rule("/app/<uuid:id>", view_func=self.app_handler.get_app)
-        bp.add_url_rule("/app/<uuid:id>", methods=["POST"], view_func=self.app_handler.update_app)
-        bp.add_url_rule("/app/<uuid:id>", methods=["DELETE"], view_func=self.app_handler.delete_app)
+        bp.add_url_rule("/apps", methods=["POST"], view_func=self.app_handler.create_app)
+        bp.add_url_rule("/apps/<uuid:id>", view_func=self.app_handler.get_app)
 
         # 3.内置插件广场模块
         bp.add_url_rule(

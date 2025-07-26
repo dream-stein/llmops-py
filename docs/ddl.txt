@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS `llmops_app_config` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='应用配置表';
 
 
-CREATE TABLE IF NOT EXISTS `llmops_app_config_version` (
+CREATE TABLE IF NOT EXISTS `app_config_version` (
     `id` VARCHAR(36) PRIMARY KEY COMMENT '主键UUID',
     `app_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '关联的应用id',
     `model_config` JSON NOT NULL DEFAULT (JSON_OBJECT()) COMMENT '模型配置（默认空对象）',
@@ -95,11 +95,12 @@ CREATE TABLE IF NOT EXISTS `llmops_app_config_version` (
     INDEX `idx_app_version` (`app_id`, `version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='应用配置版本管理表';
 
-CREATE TABLE IF NOT EXISTS `llmops_app` (
+CREATE TABLE IF NOT EXISTS `app` (
     `id` VARCHAR(36) PRIMARY KEY COMMENT '主键UUID',
     `account_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '账号id',
-    `published_app_config_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '已发布配置id',
-    `drafted_app_config_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '调试会话id',
+    `app_config_id` VARCHAR(36) DEFAULT '' COMMENT '发布配置id',
+    `draft_app_config_id` VARCHAR(36) DEFAULT '' COMMENT '关联的草稿配置id',
+    `debug_conversation_id` VARCHAR(36)  DEFAULT '' COMMENT '调试会话id',
     `name` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '应用名称',
     `icon` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '应用图标',
     `description` TEXT COMMENT '应用描述',
