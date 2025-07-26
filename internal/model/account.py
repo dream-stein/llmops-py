@@ -52,5 +52,6 @@ class AccountOAuth(db.Model):
     account_id = Column(String(36), nullable=False, default="")
     provider = Column(String(36), nullable=False, default="")
     openid = Column(String(255), nullable=False, default="")
+    encrypted_token = Column(String(255), nullable=False, default="")
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
     created_at = Column(DateTime, default=datetime.now, nullable=False)

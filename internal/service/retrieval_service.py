@@ -84,11 +84,12 @@ class RetrievalService(BaseService):
         else:
             lc_documents = hybrid_retriever.invoke(query)[:k]
 
-        # 4.添加知识库查询记录
-        for lc_document in lc_documents:
+        # 4.添加知识库查询记录(只存储唯一记录，也就是一个知识库如果检索了多篇文档，也只存储一条)
+        unique_dataset_ids = list(set(str(lc_document.metadata['dataset_id']) for lc_document in lc_documents))
+        for dataset_id in unique_dataset_ids:
             self.create(
                 DatasetQuery,
-                dataset_id=lc_document.metadata["dataset_id"],
+                dataset_id=dataset_id,
                 query=query,
                 source=retrieval_source,
                 # todo: 等到app配置模块完成后进行调整
