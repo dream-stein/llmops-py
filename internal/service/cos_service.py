@@ -17,7 +17,7 @@ from injector import inject
 from qcloud_cos import CosS3Client, CosConfig
 
 from internal.exception import FailException
-from internal.model import UploadFile
+from internal.model import UploadFile, Account
 from internal.entity.upload_file_entity import ALLOWED_DOCUMENT_EXTENSION, ALLOWED_IMAGE_EXTENSION
 from .upload_file_service import UploadFileService
 
@@ -27,11 +27,13 @@ class CosService:
     """腾讯云cos对象存储服务"""
     upload_file_service: UploadFileService
 
-    def upload_file(self, file: FileStorage, only_image: bool = False) -> UploadFile:
+    def upload_file(
+            self,
+            file: FileStorage,
+            only_image: bool,
+            account: Account,
+    ) -> UploadFile:
         """上传文件到腾讯云cos对象存储，上传后返回文件的信息"""
-        # todo:等待授权认证模块
-        account_id = "b8434b9c-ee56-4bfd-bd24-84d3caef5599"
-
         # 1.提取文件扩展名并检测是否可以上传
         filename = file.filename
         extension = filename.rsplit(".", 1)[-1] if "." in filename else ""
@@ -60,7 +62,7 @@ class CosService:
 
         # 6.创建upload_file记录
         return self.upload_file_service.create_upload_file(
-            account_id=account_id,
+            account_id=account.id,
             name=random_filename,
             key=upload_filename,
             size=len(file_content),

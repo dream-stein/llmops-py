@@ -51,7 +51,7 @@ class ApiToolHandler:
             return validate_error_json(req.errors)
 
         # 2.调用服务创建API工具
-        self.api_tool_service.create_api_tool(req)
+        self.api_tool_service.create_api_tool(req, current_user)
 
         return success_message("创建自定义API插件成功")
 
@@ -67,7 +67,7 @@ class ApiToolHandler:
 
     def get_api_tool(self, provider_id: UUID, tool_name: str):
         """根据传递的provider_id + tool_name获取对应工具的详情消息"""
-        api_tool = self.api_tool_service.get_api_tool(provider_id, tool_name)
+        api_tool = self.api_tool_service.get_api_tool(provider_id, tool_name, current_user)
 
         resp = GetApiToolResp()
 
@@ -75,7 +75,7 @@ class ApiToolHandler:
 
     def get_api_tool_provider(self, provider_id: UUID):
         """根据传递的provider_id获取工具提供者的原始信息"""
-        api_tool_provider = self.api_tool_service.get_api_tool_provider(provider_id)
+        api_tool_provider = self.api_tool_service.get_api_tool_provider(provider_id, current_user)
 
         resp = GetApiToolProviderResp()
 
@@ -83,7 +83,7 @@ class ApiToolHandler:
 
     def delete_api_tool(self, provider_id: UUID):
         """根据传递的provider_id删除对应的工具提供者信息"""
-        self.api_tool_service.delete_api_tool_provider(provider_id)
+        self.api_tool_service.delete_api_tool_provider(provider_id, current_user)
 
         return success_message("删除自定义API插件成功")
 

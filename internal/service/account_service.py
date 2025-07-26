@@ -15,7 +15,7 @@ from flask import request
 from injector import inject
 from dataclasses import dataclass
 
-from internal.exception import UnauthorizedException
+from internal.exception import UnauthorizedException, FailException
 from internal.model import Account, AccountOAuth
 from internal.service import BaseService
 from pkg.password import hash_password, compare_password
@@ -80,7 +80,7 @@ class AccountService(BaseService):
         # 1.根据传递的邮箱查询账号是否存在
         account = self.get_account_by_email(email)
         if not account:
-            raise UnauthorizedException("账号不存在或者密码错误，请核实后重试")
+            raise FailException("账号不存在或者密码错误，请核实后重试")
 
         # 2.校验账号密码是否正确
         if not account.is_password_set or not compare_password(
@@ -88,7 +88,7 @@ class AccountService(BaseService):
             account.password,
             account.password_salt
         ):
-            raise UnauthorizedException("账号不存在或者密码错误，请核实后重试")
+            raise FailException("账号不存在或者密码错误，请核实后重试")
 
         # 3.生成凭证信息
         expire_at = int((datetime.now() + timedelta(days=24)).timestamp())
