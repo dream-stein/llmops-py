@@ -88,6 +88,7 @@ class AppConfig(db.Model):
     opening_questions = Column(JSON, nullable=False, default="[]") # 开场白问题建议列表
     speech_to_text = Column(JSON, nullable=False, default="{}") # 语音转文本配置
     text_to_speech = Column(JSON, nullable=False, default="{}") # 文本转语音配置
+    suggested_after_answer = Column(JSON, nullable=False, default="{\"enable\": true}")
     review_config = Column(JSON, nullable=False, default="{}") # 审核配置
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
     created_at = Column(DateTime, default=datetime.now, nullable=False)
@@ -113,6 +114,7 @@ class AppConfigVersion(db.Model):
     opening_questions = Column(JSON, nullable=False, default="[]")
     speech_to_text = Column(JSON, nullable=False, default="{}")
     text_to_speech = Column(JSON, nullable=False, default="{}")
+    suggested_after_answer = Column(JSON, nullable=False, default="{\"enable\": true}")
     review_config = Column(JSON, nullable=False, default="{}")
     version = Column(Integer, nullable=False, default=0)
     config_type = Column(String(255), nullable=False, default="")

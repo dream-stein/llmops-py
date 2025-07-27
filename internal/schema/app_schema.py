@@ -13,6 +13,7 @@ from wtforms.validators import DataRequired, Length, URL, Optional
 from internal.entity.app_entity import AppStatus
 from internal.lib.helper import datetime_to_timestamp
 from internal.model import App
+from internal.model.app import AppConfigVersion
 from pkg.paginator import PaginatorReq
 
 
@@ -95,3 +96,20 @@ class GetAppResp(Schema):
             "created_at": datetime_to_timestamp(data.created_at),
         }
 
+class GetPublishHistoriesWithPageReq(PaginatorReq):
+    """获取应用发布历史配置分页列表请求"""
+    ...
+
+class GetPublishHistoriesWithPageResp(Schema):
+    """获取应用发布历史配置列表分页数据"""
+    id = fields.UUID(dump_default="")
+    version = fields.Integer(dump_default=0)
+    created_at = fields.Integer(dump_default=0)
+
+    @pre_dump
+    def process_data(self, data: AppConfigVersion, **kwargs):
+        return {
+            "id": data.id,
+            "version": data.version,
+            "created_at": datetime_to_timestamp(data.created_at),
+        }

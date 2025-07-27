@@ -55,6 +55,20 @@ class Router:
             methods=["POST"],
             view_func=self.app_handler.update_draft_app_config,
         )
+        bp.add_url_rule(
+            "/apps/<uuid:app_id>/publish",
+            methods=["POST"],
+            view_func=self.app_handler.publish,
+        )
+        bp.add_url_rule(
+            "/apps/<uuid:app_id>/cancel-publish",
+            methods=["POST"],
+            view_func=self.app_handler.cancel_publish,
+        )
+        bp.add_url_rule(
+            "/apps/<uuid:app_id>/publish-histories",
+            view_func=self.app_handler.get_publish_histories_with_page,
+        )
 
 
         # 3.内置插件广场模块
