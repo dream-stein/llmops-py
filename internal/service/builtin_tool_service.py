@@ -7,7 +7,6 @@
 """
 import mimetypes
 import os.path
-from typing import Any
 
 from injector import inject
 from dataclasses import dataclass

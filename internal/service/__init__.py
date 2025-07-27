@@ -25,6 +25,7 @@ from .vector_database_service import VectorDatabaseService
 from .segment_service import SegmentService
 from .retrieval_service import RetrievalService
 from .conversation_service import ConversationService
+from .builtin_app_service import BuiltinAppService
 
 __all__ = [
     "AppService",
@@ -47,4 +48,5 @@ __all__ = [
     "SegmentService",
     "RetrievalService",
     "ConversationService",
+    "BuiltinAppService",
 ]

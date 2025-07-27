@@ -21,6 +21,7 @@ from internal.handler import (
     AuthHandler,
     DocumentHandler,
     SegmentHandler,
+    BuiltinAppHandler,
 )
 
 @inject
@@ -38,6 +39,7 @@ class Router:
     auth_handler: AuthHandler
     document_handler: DocumentHandler
     segment_handler: SegmentHandler
+    builtin_app_handler: BuiltinAppHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -270,6 +272,10 @@ class Router:
             methods=["POST"],
             view_func=self.api_key_handler.delete_api_key
         )
+
+        # 内置应用模块
+        bp.add_url_rule("/builtin-apps/categories", view_func=self.builtin_app_handler.get_builtin_app_categories)
+        bp.add_url_rule("/builtin-apps", view_func=self.builtin_app_handler.get_builtin_apps)
 
 
         # 7. 在应用上去注册蓝图
