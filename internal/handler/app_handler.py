@@ -54,9 +54,10 @@ class AppHandler:
         # 1.获取草稿请求json数据
         draft_app_config = request.get_json(force=True, silent=True) or {}
 
-        draft_app_config = self.app_service._validate_draft_app_config(draft_app_config, current_user)
+        # 2.调用服务更新应用的草稿配置
+        self.app_service.update_draft_app_config(app_id, draft_app_config, current_user)
 
-        return success_json(draft_app_config)
+        return success_message("更新应用草稿配置更新")
 
     def get_apps_with_page(self):
         """获取当前登录账号的应用分页列表数据"""
