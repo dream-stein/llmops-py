@@ -560,7 +560,7 @@ class AppService(BaseService):
             if retrieval_config["retrieval_strategy"] not in ["semantic", "full_text", "hybrid"]:
                 raise ValidateErrorException("检测策略格式错误")
             # 9.4 校验最大召回数量
-            if not isinstance(retrieval_config["k"], int) or (0 <= retrieval_config["k"] <= 10):
+            if not isinstance(retrieval_config["k"], int) or not (0 <= retrieval_config["k"] <= 10):
                 raise ValidateErrorException("最大召回数量范围为0-100")
             # 9.5 校验得分/最小匹配度
             if not isinstance(retrieval_config["score"], float) or not (0 <= retrieval_config["score"] <= 1):
@@ -575,7 +575,7 @@ class AppService(BaseService):
                 raise ValidateErrorException("长期记忆设置格式错误")
             # 10.2 校验长期记忆属性
             if (
-                set(long_term_memory.keys()) != {"enabled"}
+                set(long_term_memory.keys()) != {"enable"}
                 or not isinstance(long_term_memory["enable"], bool)
             ):
                 raise ValidateErrorException("长期记忆设置格式错误")
@@ -604,12 +604,12 @@ class AppService(BaseService):
         if "speech_to_text" in draft_app_config:
             speech_to_text = draft_app_config["speech_to_text"]
 
-            # 13.1 校验长期记忆格式
+            # 13.1 校验语音转文本格式
             if not speech_to_text or not isinstance(speech_to_text, dict):
                 raise ValidateErrorException("语音转文本设置格式错误")
-            # 13.2 校验长期记忆属性
+            # 13.2 校验语音转文本属性
             if (
-                set(speech_to_text.keys()) != {"enabled"}
+                set(speech_to_text.keys()) != {"enable"}
                 or not isinstance(speech_to_text["enable"], bool)
             ):
                 raise ValidateErrorException("语音转文本设置格式错误")
@@ -658,7 +658,7 @@ class AppService(BaseService):
             if (
                 not review_config["inputs_config"]
                 or not isinstance(review_config["inputs_config"], dict)
-                or set(review_config["outputs_config"].keys()) != {"enable", "preset_response"}
+                or set(review_config["inputs_config"].keys()) != {"enable", "preset_response"}
                 or not isinstance(review_config["inputs_config"]["enable"], bool)
                 or not isinstance(review_config["inputs_config"]["preset_response"], str)
             ):
