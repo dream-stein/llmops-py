@@ -50,6 +50,12 @@ class Router:
         bp.add_url_rule("/apps", methods=["POST"], view_func=self.app_handler.create_app)
         bp.add_url_rule("/apps/<uuid:app_id>", view_func=self.app_handler.get_app)
         bp.add_url_rule("/apps/<uuid:app_id>/draft-app-config", view_func=self.app_handler.get_draft_app_config)
+        bp.add_url_rule(
+            "/apps/<uuid:app_id>/draft-app-config",
+            methods=["POST"],
+            view_func=self.app_handler.update_draft_app_config,
+        )
+
 
         # 3.内置插件广场模块
         bp.add_url_rule(
