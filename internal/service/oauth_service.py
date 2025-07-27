@@ -13,7 +13,7 @@ from uuid import UUID
 from injector import inject
 from dataclasses import dataclass
 from flask import request
-from internal.service import BaseService
+from .base_service import BaseService
 from pkg.oauth import OAuth, GithubOAuth
 from pkg.sqlalchemy import SQLAlchemy
 

@@ -17,7 +17,7 @@ from dataclasses import dataclass
 
 from internal.exception import UnauthorizedException, FailException
 from internal.model import Account, AccountOAuth
-from internal.service import BaseService
+from .base_service import BaseService
 from pkg.password import hash_password, compare_password
 from pkg.sqlalchemy import SQLAlchemy
 from internal.service import JWTService

@@ -18,7 +18,7 @@ from internal.entity.conversation_entity import (
     SUGGESTED_QUESTIONS_TEMPLATE,
     SuggestedQuestions
 )
-from internal.service import BaseService
+from .base_service import BaseService
 from pkg.sqlalchemy import SQLAlchemy
 from langchain_core.prompts import ChatPromptTemplate
 

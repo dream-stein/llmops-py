@@ -15,6 +15,8 @@ from sqlalchemy import (
     PrimaryKeyConstraint,
     Index, JSON, Integer,
 )
+
+from internal.entity.app_entity import AppConfigType, DEFAULT_APP_CONFIG
 from internal.extension.database_extension import db
 
 class App(db.Model):
@@ -36,6 +38,34 @@ class App(db.Model):
     status = Column(String(255), default="", nullable=False)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
     created_at = Column(DateTime, default=datetime.now, nullable=False)
+
+    @property
+    def app_config(self) -> "AppConfig":
+        """只读属性，返回当前应用的运行配置"""
+        if not self.app_config_id:
+            return None
+        return db.session.query(AppConfig).get(self.app_config_id)
+
+    @property
+    def draft_app_config(self) -> "AppConfigVersion":
+        """只读属性，返回当前应用的草稿配置"""
+        # 1.获取当前应用的草稿配置
+        app_config_version = db.session.query(AppConfigVersion).filter(
+            AppConfigVersion.app_id == self.id
+        ).one_or_none()
+
+        # 2..检测配置是否存在，如果不在则创建一个默认值
+        if not app_config_version:
+            app_config_version = AppConfigVersion(
+                app_id=self.id,
+                version=0,
+                config_type=AppConfigType.DRAFT,
+                **DEFAULT_APP_CONFIG
+            )
+            db.session.add(app_config_version)
+            db.session.commit()
+
+        return app_config_version
 
 class AppConfig(db.Model):
     """应用配置模型"""

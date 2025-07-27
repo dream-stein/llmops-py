@@ -21,7 +21,7 @@ from internal.exception import ForbiddenException, FailException, NotFoundExcept
 from internal.lib.helper import datetime_to_timestamp
 from internal.model import Document, Dataset, UploadFile, ProcessRule, Segment, Account
 from internal.schema.document_schema import GetDocumentWithPageReq
-from internal.service import BaseService
+from .base_service import BaseService
 from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
 from internal.entity.dataset_entity import ProcessType, SegmentStatus, DocumentStatus
