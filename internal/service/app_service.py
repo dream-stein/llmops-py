@@ -80,11 +80,17 @@ class AppService(BaseService):
 
         return app
 
-    def delete_app(self) -> App:
-        pass
+    def delete_app(self, app_id: UUID, account: Account) -> App:
+        """根据传递的应用id+账号，删除指定的应用信息，目前仅剩删除应用基础信息即可"""
+        app = self.get_app(app_id, account)
+        self.delete(app)
+        return app
 
-    def update_app(self) -> App:
-        pass
+    def update_app(self, app_id: UUID, account: Account, **kwargs) -> App:
+        """根据传递的应用id+账号+信息，更新指定的应用"""
+        app = self.get_app(app_id, account)
+        self.update(app, **kwargs)
+        return app
 
     def copy_app(self) -> App:
         pass
