@@ -70,7 +70,7 @@ class Router:
             view_func=self.app_handler.get_publish_histories_with_page,
         )
         bp.add_url_rule(
-            "/apps/<uuid:app_id>/fallback-histories",
+            "/apps/<uuid:app_id>/fallback-history",
             methods=["POST"],
             view_func=self.app_handler.fallback_history_to_draft
         )
