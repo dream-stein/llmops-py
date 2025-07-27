@@ -69,6 +69,11 @@ class Router:
             "/apps/<uuid:app_id>/publish-histories",
             view_func=self.app_handler.get_publish_histories_with_page,
         )
+        bp.add_url_rule(
+            "/apps/<uuid:app_id>/fallback-histories",
+            methods=["POST"],
+            view_func=self.app_handler.fallback_history_to_draft
+        )
 
 
         # 3.内置插件广场模块
