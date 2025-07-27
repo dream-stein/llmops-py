@@ -17,7 +17,7 @@ from unstructured_client import workflows
 
 from internal.entity.app_entity import AppStatus, AppConfigType, DEFAULT_APP_CONFIG
 from internal.exception import NotFoundException, ForbiddenException, ValidateErrorException, FailException
-from internal.lib.helper import datetime_to_timestamp
+from internal.lib.helper import datetime_to_timestamp, remove_fields
 from internal.model.app import AppConfigVersion, AppConfig
 from internal.schema.app_schema import CreateAppReq, GetAppsWithPageReq, GetPublishHistoriesWithPageReq
 from pkg.paginator import Paginator
@@ -92,8 +92,48 @@ class AppService(BaseService):
         self.update(app, **kwargs)
         return app
 
-    def copy_app(self) -> App:
-        pass
+    def copy_app(self, app_id: UUID, account: Account) -> App:
+        """根据传递的应用id，拷贝Agent相关信息并创建一个新Agent"""
+        # 1.获取APp+草稿配置，并校验权限
+        app = self.get_app(app_id, account)
+        draft_app_config = app.draft_app_config
+
+        # 2.将数据转换为字典并剔除无用字段
+        app_dict = app.__dict__.copy()
+        draft_app_config_dict = draft_app_config.__dict__.copy()
+
+        # 3.剔除无用字段
+        app_remove_fields = [
+            "id", "app_config_id", "draft_app_config_id", "debug_conversation_id",
+            "status", "updated_at", "created_at", "_sa_instance_state",
+        ]
+        draft_app_config_remove_fields = [
+            "id", "app_id", "version", "updated_at", "created_at", "_sa_instance_state",
+        ]
+        remove_fields(app_dict, app_remove_fields)
+        remove_fields(draft_app_config_dict, draft_app_config_remove_fields)
+
+        # 4.开启数据库自动提交上下文
+        with self.db.auto_commit():
+            # 5.创建一个新的应用记录
+            new_app = App(**app_dict, status=AppStatus.DRAFT)
+            self.db.session.add(new_app)
+            self.db.session.flush()
+
+            # 6.添加草稿配置
+            new_draft_app_config = AppConfigVersion(
+                **draft_app_config_dict,
+                app_id=new_app.id,
+                version=0
+            )
+            self.db.session.add(new_draft_app_config)
+            self.db.session.flush()
+
+            # 7.更新应用的草稿配置id
+            new_app.draft_app_config_id = new_draft_app_config.id
+
+        # 8.返回创建好的新应用
+        return new_app
 
     def get_apps_with_page(self, req: GetAppsWithPageReq, account: Account) -> tuple[list[App], Paginator]:
         """根据传递的分页参数获取当前登录账号下的应用分页列表数据"""
@@ -330,9 +370,10 @@ class AppService(BaseService):
 
         # 6.获取应用草稿记录，并移除id、version、config_type、updated_at、created_at字段
         draft_app_config_copy = app.draft_app_config.__dict__.copy()
-        remove_fields = ["id", "version", "config_type", "updated_at", "created_at", "_sa_instance_state"]
-        for field in remove_fields:
-            draft_app_config_copy.pop(field)
+        remove_fields(
+            draft_app_config_copy,
+            ["id", "version", "config_type", "updated_at", "created_at", "_sa_instance_state"]
+        )
 
         # 7.获取当且最大的发布版本
         max_version = self.db.session.query(func.coalesce(func.max(AppConfigVersion.version), 0)).filter(
@@ -410,9 +451,10 @@ class AppService(BaseService):
 
         # 3.校验历史版本配置信息（剔除已删除的根据、知识库、工作流）
         draft_app_config_dict = app_config_version.__dict__.copy()
-        remove_fields = ["id", "app_id", "version", "config_type", "updated_at", "created_at", "_sa_instance_state"]
-        for field in remove_fields:
-            draft_app_config_dict.pop(field)
+        remove_fields(
+            draft_app_config_dict,
+            ["id", "app_id", "version", "config_type", "updated_at", "created_at", "_sa_instance_state"]
+        )
 
         # 4.校验历史版本配置信息
         draft_app_config_dict = self._validate_draft_app_config(draft_app_config_dict, account)

@@ -39,3 +39,8 @@ def datetime_to_timestamp(dt: datetime) -> int:
     if dt is None:
         return 0
     return int(dt.timestamp())
+
+def remove_fields(data_dict: dict, fields: list[str]) -> None:
+    """根据传递的字段名移除字段中指定的字段"""
+    for field in fields:
+        data_dict.pop(field, None)

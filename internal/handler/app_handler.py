@@ -64,6 +64,11 @@ class AppHandler:
 
         return success_message("修改Agent智能体应用成功")
 
+    def copy_app(self, app_id: UUID):
+        """根据传递的应用id快速拷贝该应用"""
+        app = self.app_service.copy_app(app_id, current_user)
+        return success_json({"id": app.id})
+
     def delete_app(self, app_id: UUID):
         """根据传递的信息删除指定的应用"""
         self.app_service.delete_app(app_id, current_user)
