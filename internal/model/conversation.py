@@ -33,6 +33,7 @@ class Conversation(db.Model):
     is_pinned = Column(Boolean, nullable=False, default=False)
     is_deleted = Column(Boolean, nullable=False, default=False)
     invoke_from = Column(String(255), nullable=False, default="")
+    created_by = Column(String(36), nullable=False, default="") # 会话创建者，会随着invoke_from的差异记录不同的信息，其中web_app和debugger会记录账号id、service_api会记录终端用户id
     created_at = Column(DateTime, default=datetime.now, nullable=False)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
 

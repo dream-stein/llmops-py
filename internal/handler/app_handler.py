@@ -19,7 +19,7 @@ from internal.schema.app_schema import (
     GetAppsWithPageResp,
     GetPublishHistoriesWithPageReq,
     GetPublishHistoriesWithPageResp,
-    FallbackHistoryToDraftReq
+    FallbackHistoryToDraftReq, UpdateDebugConversationSummaryReq
 )
 from internal.service import AppService
 from pkg.paginator import PageModel
@@ -119,6 +119,27 @@ class AppHandler:
 
         return success_json(PageModel(list=resp.dump(apps), paginator=paginator))
 
+    def get_debug_conversation_summary(self, app_id: UUID):
+        """根据传递的应用id获取调试会话长期记忆"""
+        summary = self.app_service.get_debug_conversation_summary(app_id, current_user)
+        return success_json({"summary": summary})
+
+    def update_debug_conversation_summary(self, app_id: UUID):
+        """根据传递的应用id+摘要信息更新调试会话长期记忆"""
+        # 1.提取数据并校验
+        req = UpdateDebugConversationSummaryReq()
+        if not req.validate():
+            return validate_error_json(req.errors)
+
+        # 2.调用服务更新调试会话长期记忆
+        self.app_service.update_debug_conversation_summary(app_id, req.summary.data, current_user)
+
+        return success_message("更新AI应用长期记忆成功")
+
+    def delete_debug_conversation(self, app_id: UUID):
+        """根据传递的应用id，清空应用的调试会话记录"""
+        self.app_service.delete_debug_conversation(app_id, current_user)
+        return success_message("清空应用调试会话记录成功")
 
     def ping(self):
         pass
