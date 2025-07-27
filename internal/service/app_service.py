@@ -123,7 +123,7 @@ class AppService(BaseService):
         for draft_tool in draft_tools:
             if draft_tool["type"] == "builtin_tool":
                 # 5.查询内置工具提供者，并校验是否存在
-                provider = self.builtin_provider_manager.get_provider(draft_tool["provider"])
+                provider = self.builtin_provider_manager.get_provider(draft_tool["provider_id"])
                 if not provider:
                     continue
 
@@ -150,14 +150,14 @@ class AppService(BaseService):
                 tools.append({
                     "type": "builtin_tool",
                     "provider": {
-                        "id": provider_entity.id,
+                        "id": provider_entity.name,
                         "name": provider_entity.name,
                         "label": provider_entity.label,
                         "icon": f"{request.scheme}://{request.host}/builtin-tools/{provider_entity.name}/icon",
                         "description": provider_entity.description,
                     },
                     "tool": {
-                        "id": tool_entity.id,
+                        "id": tool_entity.name,
                         "name": tool_entity.name,
                         "label": tool_entity.label,
                         "description": tool_entity.description,
@@ -266,7 +266,7 @@ class AppService(BaseService):
         self.update(
             draft_app_config_record,
             #todo:由于目前使用server_onupdate，所以该字段暂时续页手动传递
-            uddated_at=datetime.now(),
+            updated_at=datetime.now(),
             **draft_app_config,
         )
 
