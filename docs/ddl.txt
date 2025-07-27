@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS `app_config_version` (
     `long_term_memory` JSON NOT NULL DEFAULT (JSON_OBJECT()) COMMENT '长期记忆配置（默认空对象）',
     `opening_statement` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '对话开场白',
     `opening_questions` JSON NOT NULL DEFAULT (JSON_ARRAY()) COMMENT '开场建议问题（默认空数组）',
-    `suggested_after_answer` JSON NOT NULL DEFAULT (JSON_ARRAY()) COMMENT '回答后建议问题（默认空数组）',
+    `suggested_after_answer` JSON NOT NULL DEFAULT (JSON_OBJECT()) COMMENT '回答后建议问题（默认空数组）',
     `speech_to_text` JSON NOT NULL DEFAULT (JSON_OBJECT()) COMMENT '语音转文本配置（默认空对象）',
     `text_to_speech` JSON NOT NULL DEFAULT (JSON_OBJECT()) COMMENT '文本转语音配置（默认空对象）',
     `review_config` JSON NOT NULL DEFAULT (JSON_OBJECT()) COMMENT '内容审核配置（默认空对象）',

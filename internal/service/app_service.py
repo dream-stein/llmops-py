@@ -380,7 +380,7 @@ class AppService(BaseService):
         # 3.执行分页并获取数据
         app_config_versions = paginator.paginate(
             self.db.session.query(AppConfigVersion).filter(
-                AppConfigVersion.app_id == app_id,
+                AppConfigVersion.app_id == str(app_id),
                 AppConfigVersion.config_type == AppConfigType.PUBLISHED,
             ).order_by(desc("version"))
         )
