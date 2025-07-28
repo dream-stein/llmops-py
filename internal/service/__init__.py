@@ -26,6 +26,7 @@ from .segment_service import SegmentService
 from .retrieval_service import RetrievalService
 from .conversation_service import ConversationService
 from .builtin_app_service import BuiltinAppService
+from .api_key_service import ApiKeyService
 
 __all__ = [
     "AppService",
@@ -49,4 +50,5 @@ __all__ = [
     "RetrievalService",
     "ConversationService",
     "BuiltinAppService",
+    "ApiKeyService",
 ]

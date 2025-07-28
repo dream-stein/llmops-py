@@ -9,7 +9,6 @@ from flask_wtf import FlaskForm
 from wtforms import BooleanField, StringField
 from marshmallow import Schema, fields, pre_dump
 from wtforms.validators import Length
-# from internal.lib.helper import datetime_to_timestamp
 from internal.model import ApiKey
 
 class CreateApiKeyReq(FlaskForm):
