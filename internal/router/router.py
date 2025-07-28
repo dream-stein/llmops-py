@@ -276,7 +276,11 @@ class Router:
         # 内置应用模块
         bp.add_url_rule("/builtin-apps/categories", view_func=self.builtin_app_handler.get_builtin_app_categories)
         bp.add_url_rule("/builtin-apps", view_func=self.builtin_app_handler.get_builtin_apps)
-
+        bp.add_url_rule(
+            "/builtin-apps/add-builtin-app-to-space",
+            methods=["POST"],
+            view_func=self.builtin_app_handler.add_builtin_app_to_space
+        )
 
         # 7. 在应用上去注册蓝图
         app.register_blueprint(bp)

@@ -35,10 +35,16 @@ class GetBuiltinAppsResp(Schema):
     @pre_dump
     def process_data(self, data: BuiltinAppEntity, **kwargs):
         return {
-            #todo:这个什么写法
             **data.model_dump(include={"id", "category", "name", "icon", "description", "created_at"}),
             "model_config": {
                 "provider": data.language_model_config.get("provider", ""),
                 "model": data.language_model_config.get("model", ""),
             }
         }
+
+class AddBuiltinAppToSpaceReq(FlaskForm):
+    """添加内置应用到个人空间请求"""
+    builtin_app_id = StringField("builtin_app_id", default="", validators=[
+        DataRequired("内置应用id不能为空"),
+        UUID("内置工具id格式必须为UUID")
+    ])
