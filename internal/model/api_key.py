@@ -17,6 +17,7 @@ from sqlalchemy import (
 )
 
 from internal.extension.database_extension import db
+from internal.model import Account
 
 
 class ApiKey(db.Model):
@@ -32,3 +33,8 @@ class ApiKey(db.Model):
     remark = Column(String(255), nullable=False, default="")
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
     created_at = Column(DateTime, default=datetime.now, nullable=False)
+
+    @property
+    def account(self) -> "Account":
+        """只读属性，返回该秘钥归属的账号信息"""
+        return db.session.get(Account, self.account_id)
