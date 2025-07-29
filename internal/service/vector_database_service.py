@@ -55,10 +55,6 @@ class VectorDatabaseService:
         """获取检索器"""
         return self.vector_store.as_retriever()
 
-    @classmethod
-    def combine_documents(cls, documents: list[Document]) -> str:
-        return "\n\n".join([document.page_content for document in documents])
-
     @property
     def collection(self) -> Collection:
         return self.client.collections.get(COLLECTION_NAME)

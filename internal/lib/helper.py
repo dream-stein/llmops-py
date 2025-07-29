@@ -10,6 +10,8 @@ from hashlib import sha3_256
 import importlib
 from typing import Any
 
+from langchain_core.documents import Document
+
 
 def dynamic_import(module_name: str, symbol_name: str) -> Any:
     """动态导入特定模块下的特定功能"""
@@ -44,3 +46,6 @@ def remove_fields(data_dict: dict, fields: list[str]) -> None:
     """根据传递的字段名移除字段中指定的字段"""
     for field in fields:
         data_dict.pop(field, None)
+
+def combine_documents(documents: list[Document]) -> str:
+    return "\n\n".join([document.page_content for document in documents])
