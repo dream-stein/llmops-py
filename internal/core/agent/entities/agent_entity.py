@@ -6,10 +6,10 @@
 @File    :agent_entity.py
 """
 from langchain_core.language_models import BaseLanguageModel
-from langchain_core.tools import BaseTool
-from pydantic import BaseModel, Field
-from langgraph.graph import MessagesState
 from langchain_core.messages import AnyMessage
+from pydantic import BaseModel, Field
+from langchain_core.tools import BaseTool
+from langgraph.graph import MessagesState
 
 # Agent智能体系统预设提示词模版
 AGENT_SYSTEM_PROMPT_TEMPLATE = """你是一个高度定制的智能体应用，旨在为用户提供准确，专业的内容生成和问题解答，请严格遵守一下规则：
@@ -55,5 +55,8 @@ class AgentConfig(BaseModel):
 
 class AgentState(MessagesState):
     """智能体状态类"""
-    history: list[AnyMessage] # 短期记忆(历史记录)
-    long_term_memory: str # 长期记忆
+    history: list[AnyMessage]  # 短期记忆(历史记录)
+    long_term_memory: str  # 长期记忆
+
+# 知识库检索工具名称
+DATASET_RETRIEVAL_TOOL_NAME = "dataset_retrieval"

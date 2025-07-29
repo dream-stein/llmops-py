@@ -3,7 +3,7 @@
 """
 @Time    :2025/7/25 20:49
 #Author  :Emcikem
-@File    :agent_queue_manage.py
+@File    :agent_queue_manager.py
 """
 import queue
 import time
@@ -19,7 +19,7 @@ from internal.core.agent.entities.queue_entity import AgentQueueEvent, QueueEven
 from internal.entity.conversation_entity import InvokeFrom
 
 
-class AgentQueueManage:
+class AgentQueueManager:
     """智能体队列管理器"""
     q: Queue
     user_id: UUID
