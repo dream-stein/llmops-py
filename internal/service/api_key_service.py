@@ -44,6 +44,12 @@ class ApiKeyService(BaseService):
             raise ForbiddenException("API秘钥不存在或无权限")
         return api_key
 
+    def get_api_by_by_credential(self, api_key: str) -> ApiKey:
+        """根据传递的凭证信息获取ApiKey记录"""
+        return self.db.session.query(ApiKey).filter(
+            ApiKey.api_key == api_key,
+        ).one_or_none()
+
     def update_api_key(self, api_key_id: UUID, account: Account, **kwargs) -> ApiKey:
         """根据传递的信息更新API秘钥"""
         api_key = self.get_api_key(api_key_id, account)

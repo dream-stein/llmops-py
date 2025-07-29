@@ -22,6 +22,7 @@ from internal.handler import (
     DocumentHandler,
     SegmentHandler,
     BuiltinAppHandler,
+    OpenAPIHandler,
 )
 
 @inject
@@ -40,11 +41,13 @@ class Router:
     document_handler: DocumentHandler
     segment_handler: SegmentHandler
     builtin_app_handler: BuiltinAppHandler
+    openapi_handler: OpenAPIHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
         # 1.创建一个蓝图
         bp = Blueprint("llmops", __name__, url_prefix="")
+        openapi_bp = Blueprint("openapi", __name__, url_prefix="")
 
         # 2. 将url与对应控制器方法做绑定
         bp.add_url_rule("/ping", view_func=self.app_handler.ping)
@@ -272,6 +275,11 @@ class Router:
             methods=["POST"],
             view_func=self.api_key_handler.delete_api_key
         )
+        openapi_bp.add_url_rule(
+            "/openapi/chat",
+            methods=["POST"],
+            view_func=self.openapi_handler.chat,
+        )
 
         # 内置应用模块
         bp.add_url_rule("/builtin-apps/categories", view_func=self.builtin_app_handler.get_builtin_app_categories)
@@ -282,5 +290,8 @@ class Router:
             view_func=self.builtin_app_handler.add_builtin_app_to_space
         )
 
+
+
         # 7. 在应用上去注册蓝图
         app.register_blueprint(bp)
+        app.register_blueprint(openapi_bp)

@@ -16,8 +16,8 @@ from .auth_handler import AuthHandler
 from .document_handler import DocumentHandler
 from .segment_handler import SegmentHandler
 from .builtin_app_handler import BuiltinAppHandler
-
 from .api_key_handler import ApiKeyHandler
+from .openapi_handler import OpenAPIHandler
 
 __all__ = [
     'AppHandler',
@@ -32,4 +32,5 @@ __all__ = [
     "ApiKeyHandler",
     "BuiltinAppHandler",
     "SegmentHandler",
+    "OpenAPIHandler"
 ]
