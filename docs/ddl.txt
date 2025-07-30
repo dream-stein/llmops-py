@@ -282,10 +282,10 @@ CREATE TABLE IF NOT EXISTS `llmops_api_tool_provider` (
 --------------------------
 AI对话
 --------------------------
-CREATE TABLE IF NOT EXISTS `llmops_message` (
+CREATE TABLE IF NOT EXISTS `message` (
     `id` VARCHAR(36) PRIMARY KEY COMMENT '主键UUID',
     `app_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '应用id',
-    `conversation` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '会话id',
+    `conversation_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '会话id',
     `invoke_from` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '调用来源',
     `created_by` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '创建账号id',
     `query` TEXT NOT NULL COMMENT '消息的原始问题',
@@ -298,17 +298,18 @@ CREATE TABLE IF NOT EXISTS `llmops_message` (
     `answer_unit_price` FLOAT NOT NULL DEFAULT 0 COMMENT '单价',
     `answer_price_unit` FLOAT NOT NULL DEFAULT 0 COMMENT '价格单位',
     `latency` FLOAT NOT NULL DEFAULT 0 COMMENT '响应耗时',
-    `total_token_count` INT NOT NULL DEFAULT 0 COMMENT '总token数',
-    `total_price` FLOAT NOT NULL DEFAULT 0 COMMENT '消息总价格',
+    `is_deleted` BOOLEAN NOT NULL DEFAULT FALSE COMMENT '是否被删除',
     `status` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '状态',
     `error` TEXT NOT NULL COMMENT '错误日志',
+    `total_token_count` INT NOT NULL DEFAULT 0 COMMENT '总token数',
+    `total_price` FLOAT NOT NULL DEFAULT 0 COMMENT '消息总价格',
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     INDEX `idx_created_by` (`created_by`),
     INDEX `idx_app_id` (`app_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='消息表';
 
-CREATE TABLE IF NOT EXISTS `llmops_message_agent_thought` (
+CREATE TABLE IF NOT EXISTS `message_agent_thought` (
     `id` VARCHAR(36) PRIMARY KEY COMMENT '主键UUID',
     `app_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '关联的应用id',
     `conversation_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '对话id',

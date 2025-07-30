@@ -55,13 +55,13 @@ class Message(db.Model):
     message = Column(JSON, nullable=False, default="")
     message_token_count = Column(Integer, nullable=False, default=0)
     message_unit_price = Column(Numeric(10, 7), nullable=False, default=0)
-    message_unit_unit = Column(Numeric(10, 4), nullable=False, default=0)
+    message_price_unit = Column(Numeric(10, 4), nullable=False, default=0)
 
     # 消息关联的答案信息
     answer = Column(Text, nullable=False, default="")
     answer_token_count = Column(Integer, nullable=False, default=0)
     answer_unit_price = Column(Numeric(10, 7), nullable=False, default=0)
-    answer_unit_unit = Column(Numeric(10, 4), nullable=False, default=0)
+    answer_price_unit = Column(Numeric(10, 4), nullable=False, default=0)
 
     # 消息的相关统计信息
     latency = Column(Float, nullable=False, default=0.0)
@@ -106,13 +106,13 @@ class MessageAgentThought(db.Model):
     message = Column(JSON, nullable=False, default="")
     message_token_count = Column(Integer, nullable=False, default=0)
     message_unit_price = Column(Numeric(10, 7), nullable=False, default=0)
-    message_unit_unit = Column(Numeric(10, 4), nullable=False, default=0)
+    message_price_unit = Column(Numeric(10, 4), nullable=False, default=0)
 
     # LLM生成内容相关
     answer = Column(Text, nullable=False, default="")
     answer_token_count = Column(Integer, nullable=False, default=0)
     answer_unit_price = Column(Numeric(10, 7), nullable=False, default=0)
-    answer_unit_unit = Column(Numeric(10, 4), nullable=False, default=0)
+    answer_price_unit = Column(Numeric(10, 4), nullable=False, default=0)
 
     # Agent推理观察统计相关
     total_token_count = Column(Integer, nullable=False, default=0)

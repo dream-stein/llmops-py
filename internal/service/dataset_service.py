@@ -137,7 +137,7 @@ class DatasetService(BaseService):
         # 2.调用检索服务执行检索
         lc_documents = self.retrival_service.search_in_datasets(
             dataset_ids=[dataset_id],
-            account=account,
+            account_id=UUID(account.id),
             **req.data,
         )
         lc_document_dict = {str(lc_document.metadata["segment_id"]): lc_document for lc_document in lc_documents}

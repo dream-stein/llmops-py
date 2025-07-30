@@ -65,4 +65,3 @@ class RetrievalSource(str, Enum):
     """检索来源"""
     HIT_TESTING = "hit_testing"
     APP = "app"
-    DEBUGGER = "debugger"
