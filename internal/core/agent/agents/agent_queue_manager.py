@@ -49,7 +49,7 @@ class AgentQueueManager:
         self.redis_client.setex(
             self.generate_task_belong_cache_key(task_id),
             1800,
-            f"{user_prefix}-{str(user_id)}"
+            f"{user_prefix}-{str(user_id)}",
         )
 
     def listen(self) -> Generator:

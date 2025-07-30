@@ -37,7 +37,7 @@ from internal.core.agent.entities.agent_entity import AgentConfig
 from internal.entity.dataset_entity import RetrievalSource
 from redis import Redis
 
-from ..entity.conversation_entity import InvokeFrom
+from internal.entity.conversation_entity import InvokeFrom
 
 
 @inject
