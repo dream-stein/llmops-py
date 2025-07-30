@@ -53,7 +53,7 @@ class TokenBufferMemory:
         # 4.调用LangChain继承的trim_messages函数剪切消息列表
         return trim_messages(
             messages=prompt_messages,
-            max_token=max_token_limit,
+            max_tokens=max_token_limit,
             token_counter=self.model_instance,
             strategy="last",
         )
