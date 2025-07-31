@@ -15,7 +15,7 @@ from sqlalchemy import (
     DateTime,
     PrimaryKeyConstraint,
     Index,
-    text, Boolean, JSON, Integer, Numeric, Float,
+    text, Boolean, JSON, Integer, Numeric, Float, func,
 )
 from internal.extension.database_extension import db
 
@@ -36,6 +36,16 @@ class Conversation(db.Model):
     created_by = Column(String(36), nullable=False, default="") # 会话创建者，会随着invoke_from的差异记录不同的信息，其中web_app和debugger会记录账号id、service_api会记录终端用户id
     created_at = Column(DateTime, default=datetime.now, nullable=False)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
+
+    @property
+    def is_new(self) -> bool:
+        """只读属性，用于判断该会话是否是第一次创建"""
+        message_count = db.session.query(func.count(Message.id)).filter(
+            Message.conversation_id == self.id
+        ).scalar()
+
+        return False if message_count > 1 else True
+
 
 class Message(db.Model):
     """交流消息模型"""
