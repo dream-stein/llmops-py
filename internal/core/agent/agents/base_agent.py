@@ -11,6 +11,7 @@ from typing import Generator
 from langchain_core.messages import AnyMessage
 
 from internal.core.agent.entities.agent_entity import AgentConfig
+from internal.core.agent.entities.queue_entity import AgentThought
 from .agent_queue_manager import AgentQueueManager
 
 

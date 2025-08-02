@@ -24,8 +24,8 @@ class QueueEvent(str, Enum):
     TIMEOUT = "timeout" # 智能体超时事件
     PING = "ping" # ping联通事件
 
-class AgentQueueEvent(BaseModel):
-    """智能体队列事件模型"""
+class AgentThought(BaseModel):
+    """智能体推理观察事件内容"""
     id: UUID # 事件对应的id，同一个事件的id是一样的
     task_id: UUID # 任务id
 
@@ -54,3 +54,8 @@ class AgentQueueEvent(BaseModel):
     total_token_count: int = 0 # 总token消耗数量
     total_price: float = 0 # 总价格
     latency: float = 0 # 步骤推理耗时
+
+class AgentResult(BaseModel):
+    """智能体推理观察最终结果"""
+    # todo:智能体块内容响应，等待开发API模块完成后实现
+    pass

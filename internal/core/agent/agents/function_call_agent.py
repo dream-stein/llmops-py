@@ -21,7 +21,7 @@ from internal.core.agent.entities.agent_entity import AgentState, AGENT_SYSTEM_P
     DATASET_RETRIEVAL_TOOL_NAME
 from internal.exception import FailException
 from .base_agent import BaseAgent
-from internal.core.agent.entities.queue_entity import AgentQueueEvent, QueueEvent
+from internal.core.agent.entities.queue_entity import AgentThought, QueueEvent
 
 
 class FunctionCallAgent(BaseAgent):
@@ -90,7 +90,7 @@ class FunctionCallAgent(BaseAgent):
         long_term_memory = ""
         if self.agent_config.enable_long_term_memory:
             long_term_memory = state["long_term_memory"]
-            self.agent_queue_manager.publish(AgentQueueEvent(
+            self.agent_queue_manager.publish(AgentThought(
                 id=uuid.uuid4(),
                 task_id=self.agent_queue_manager.task_id,
                 event=QueueEvent.LONG_TERM_MEMORY_RECALL,
@@ -154,7 +154,7 @@ class FunctionCallAgent(BaseAgent):
 
             # 5.如果生成的是消息则提交智能体消息事件
             if generation_type == "message":
-                self.agent_queue_manager.publish(AgentQueueEvent(
+                self.agent_queue_manager.publish(AgentThought(
                     id=id,
                     task_id=self.agent_queue_manager.task_id,
                     event=QueueEvent.AGENT_MESSAGE,
@@ -166,7 +166,7 @@ class FunctionCallAgent(BaseAgent):
 
         # 6.如果类型为推理则添加智能体推理事件
         if generation_type == "thoughts":
-            self.agent_queue_manager.publish(AgentQueueEvent(
+            self.agent_queue_manager.publish(AgentThought(
                 id=id,
                 task_id=self.agent_queue_manager.task_id,
                 event=QueueEvent.AGENT_THOUGHT,
@@ -213,7 +213,7 @@ class FunctionCallAgent(BaseAgent):
                 if tool_call["name"] != DATASET_RETRIEVAL_TOOL_NAME
                 else QueueEvent.DATASET_RETRIEVAL
             )
-            self.agent_queue_manager.publish(AgentQueueEvent(
+            self.agent_queue_manager.publish(AgentThought(
                 id=id,
                 task_id=self.agent_queue_manager.task_id,
                 event=event,
