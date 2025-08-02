@@ -23,6 +23,7 @@ from internal.handler import (
     SegmentHandler,
     BuiltinAppHandler,
     OpenAPIHandler,
+    AIHandler,
 )
 
 @inject
@@ -42,6 +43,7 @@ class Router:
     segment_handler: SegmentHandler
     builtin_app_handler: BuiltinAppHandler
     openapi_handler: OpenAPIHandler
+    ai_handler: AIHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -274,6 +276,9 @@ class Router:
         bp.add_url_rule("/account/name", methods=["POST"], view_func=self.account_handler.update_name)
         bp.add_url_rule("/account/avatar", methods=["POST"], view_func=self.account_handler.update_avatar)
 
+        # AI辅助模块
+        bp.add_url_rule("/ai/optimize-prompt", methods=["POST"], view_func=self.ai_handler.optimize_prompt)
+        bp.add_url_rule("/ai/suggested_questions", methods=["POST"], view_func=self.ai_handler.generate_suggested_questions)
 
         # API秘钥模块
         bp.add_url_rule("/openapi/api-keys", view_func=self.api_key_handler.get_api_keys_with_page)
