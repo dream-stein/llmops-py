@@ -45,7 +45,7 @@ from internal.core.memory import TokenBufferMemory
 from internal.core.tools.api_tools.providers import ApiProviderManager
 from internal.core.tools.api_tools.entities import ToolEntity
 from .retrieval_service import RetrievalService
-from internal.core.agent.agents import FunctionCallAgent
+from internal.core.agent.agents import FunctionCallAgent, AgentQueueManager
 from internal.core.agent.entities.agent_entity import AgentConfig
 from internal.entity.dataset_entity import RetrievalSource
 from redis import Redis
@@ -718,6 +718,14 @@ class AppService(BaseService):
             }
         )
         thread.start()
+
+    def stop_debug_chat(self, app_id: UUID, task_id: UUID, account: Account) -> None:
+        """根据传递的应用id+任务id+账号，停止某个要用的调试会话，中断流式事件"""
+        # 1.获取应用信息并校验权限
+        self.get_app(app_id, account)
+
+        # 2.调用智能体队列管理器停止特定任务
+        AgentQueueManager.set_stop_flag(task_id, InvokeFrom.DEBUGGER, UUID(account.id))
 
     def _save_agent_thoughts(
             self,
