@@ -49,6 +49,9 @@ class AgentConfig(BaseModel):
     user_id: UUID
     invoke_from: InvokeFrom.WEB_APP
 
+    # 最大迭代次数
+    MAX_ITERATION_COUNT: int = 5
+
     # 智能体预设提示词
     system_prompt: str = AGENT_SYSTEM_PROMPT_TEMPLATE
     preset_prompt: str = "" # 预设prompt，默认为空，该值由前端用户在编排的时候记录，并填充到system_prompt中
@@ -64,8 +67,8 @@ class AgentConfig(BaseModel):
 
 class AgentState(MessagesState):
     """智能体状态类"""
-    task_id: UUID # 盖茨状态对应的任务id，每次允许时会使用独立的任务id
-    iteration_count: int # 迭代次数，默认为0
+    task_id: UUID  # 该次状态对应的任务id，每次运行时会使用独立的任务id
+    iteration_count: int  # 迭代次数，默认为0
     history: list[AnyMessage]  # 短期记忆(历史记录)
     long_term_memory: str  # 长期记忆
 
