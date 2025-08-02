@@ -831,17 +831,20 @@ class AppService(BaseService):
                             item["answer"],
                             conversation.summary
                         )
-                        new_conversation_name = conversation
-                        if conversation.is_new:
-                            new_conversation_name = self.conversation_service.generate_conversation_name(message.query)
-
                         self.update(
                             conversation,
-                            name=new_conversation_name,
                             summary=new_summary,
                         )
 
-                # 10.判断是否为停止或者错误，如果是则需要更新消息状态
+                    # 10.处理生成新会话名称
+                    if conversation.is_new:
+                        new_conversation_name = self.conversation_service.generate_conversation_name(message.query)
+                        self.update(
+                            conversation,
+                            name=new_conversation_name,
+                        )
+
+                # 11.判断是否为停止或者错误，如果是则需要更新消息状态
                 if item["event"] == [QueueEvent.STOP, QueueEvent.ERROR]:
                     self.update(
                         message,
