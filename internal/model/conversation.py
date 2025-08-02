@@ -15,7 +15,7 @@ from sqlalchemy import (
     DateTime,
     PrimaryKeyConstraint,
     Index,
-    text, Boolean, JSON, Integer, Numeric, Float, func,
+    text, Boolean, JSON, Integer, Numeric, Float, func, asc,
 )
 from internal.extension.database_extension import db
 
@@ -84,6 +84,13 @@ class Message(db.Model):
     # 消息时间相关信息
     updated_at = Column(DateTime, default=datetime.now, nullable=False)
     created_at = Column(DateTime, default=datetime.now, nullable=False)
+
+    @property
+    def agent_thoughts(self) -> list["MessageAgentThought"]:
+        """只读属性，返回该消息对应的智能体推理过程列表"""
+        return db.session.query(MessageAgentThought).filter(
+            MessageAgentThought.message_id == self.id
+        ).order_by(asc("position")).all()
 
 class MessageAgentThought(db.Model):
     """消息智能体观察表，用于记录Agent生成最终消息答案时"""
