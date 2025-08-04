@@ -9,8 +9,8 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
-# 摘要汇总模版
-SUMMARIZER_TEMPLATE = """逐步总结提供的对话内容，在之前的总结基础上继续添加并返回一个新的总结。
+# 摘要汇总模板
+SUMMARIZER_TEMPLATE = """逐步总结提供的对话内容，在之前的总结基础上继续添加并返回一个新的总结，并确保新总结的长度不要超过2000个字符，必要的时候可以删除一些信息，尽可能简洁。
 
 EXAMPLE
 当前总结:
@@ -32,8 +32,9 @@ END OF EXAMPLE
 
 新的总结:"""
 
-# 会话名字提示模版
+# 会话名字提示模板
 CONVERSATION_NAME_TEMPLATE = "请从用户传递的内容中提取出对应的主题"
+
 
 class ConversationInfo(BaseModel):
     """你需要将用户的输入分解为“主题”和“意图”，以便准确识别用户输入的类型。
@@ -87,8 +88,10 @@ class ConversationInfo(BaseModel):
         "尤其是用户问题针对模型本身时，可以通过适当的方式加入趣味性。"
     ))
 
+
 # 建议问题提示词模板
 SUGGESTED_QUESTIONS_TEMPLATE = "请根据传递的历史信息预测人类最后可能会问的三个问题"
+
 
 class SuggestedQuestions(BaseModel):
     """请帮我预测人类最可能会问的三个问题，并且每个问题都保持在50个字符以内。
@@ -98,13 +101,13 @@ class SuggestedQuestions(BaseModel):
 
 class InvokeFrom(str, Enum):
     """会话调用来源"""
-    SERVICE_API = "service_api" # 开放api服务调用
-    WEB_APP = "web_app" # web应用
-    DEBUGGER = "debugger" # 调试页面
+    SERVICE_API = "service_api"  # 开放api服务调用
+    WEB_APP = "web_app"  # web应用
+    DEBUGGER = "debugger"  # 调试页面
 
 
 class MessageStatus(str, Enum):
     """会话状态"""
-    NORMAL = "normal" # 正常
-    STOP = "stop" # 停止
-    ERROR = "error" # 出错
+    NORMAL = "normal"  # 正常
+    STOP = "stop"  # 停止
+    ERROR = "error"  # 出错
