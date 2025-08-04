@@ -13,8 +13,13 @@ from internal.entity.conversation_entity import MessageStatus
 from internal.model import Conversation, Message
 from pkg.sqlalchemy import SQLAlchemy
 from langchain_core.language_models import BaseLanguageModel
-from langchain_core.messages import AnyMessage, HumanMessage, AIMessage, trim_messages, get_buffer_string
-
+from langchain_core.messages import (
+    AnyMessage,
+    HumanMessage,
+    AIMessage,
+    trim_messages,
+    get_buffer_string
+)
 
 @dataclass
 class TokenBufferMemory:
@@ -38,7 +43,7 @@ class TokenBufferMemory:
             Message.conversation_id == self.conversation.id,
             Message.answer != "",
             Message.is_deleted == False,
-            Message.status.in_([MessageStatus.STOP, MessageStatus.NORMAL]),
+            Message.status.in_([MessageStatus.STOP, MessageStatus.NORMAL, MessageStatus.TIMEOUT]),
         ).order_by(desc("created_at")).limit(message_limit).all()
         messages = list(reversed(messages))
 
