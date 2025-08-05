@@ -126,6 +126,15 @@ class AppConfig(db.Model):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
     created_at = Column(DateTime, default=datetime.now, nullable=False)
 
+    @property
+    def app_dataset_joins(self) -> list["AppDatasetJoin"]:
+        """只读属性，获取配置的知识库关联记录"""
+        return (
+            db.session.query(AppDatasetJoin).filter(
+                AppDatasetJoin.app_id == self.id,
+            ).all()
+        )
+
 class AppConfigVersion(db.Model):
     """应用配置版本历史表，用于存储草稿配置+历史发布配置"""
     __tablename__ = "app_config_version"

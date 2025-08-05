@@ -12,7 +12,7 @@ from langchain_core.tools import BaseTool
 
 from internal.core.tools.api_tools.entities import ToolEntity
 from internal.lib.helper import datetime_to_timestamp
-from internal.model import App, ApiTool, Dataset
+from internal.model import App, ApiTool, Dataset, AppDatasetJoin
 from internal.model.app import AppConfig, AppConfigVersion
 from internal.service import BaseService
 from injector import inject
@@ -46,6 +46,8 @@ class AppConfigService(BaseService):
 
         # 5.校验知识库列表，如果引入了不存在/被删除的知识库，需要剔除数据并更新，同时获取知识库的额外信息
         datasets, validate_datasets = self._process_and_validate_datasets(draft_app_config.datasets)
+
+        # 6.判断是否存在已删除的知识库，如果存在则更新
         if set(validate_datasets) != set(draft_app_config.datasets):
             self.update(draft_app_config, datasets=validate_datasets)
 
@@ -57,7 +59,34 @@ class AppConfigService(BaseService):
 
     def get_app_config(self, app: App) -> dict[str, Any]:
         """根据传递的应用获取该应用的运行配置"""
-        pass
+        # 1.提取应用的草稿配置
+        app_config = app.app_config
+
+        # todo: 2.校验model_config配置信息，等待堕LLM实现的时候再来完成
+
+        # 3.循环遍历根据列表删除已经被删除的根据信息
+        tools, validate_tools = self._process_and_validate_tools(app_config.tools)
+
+        # 4.判断是否需要更新草稿配置中的工具列表信息
+        if app_config.tools != validate_tools:
+            # 14.更新草稿配置中的工具列表
+            self.update(app_config, tools=validate_tools)
+
+        # 5.校验知识库列表，如果引入了不存在/被删除的知识库，需要剔除数据并更新，同时获取知识库的额外信息
+        app_dataset_joins = app_config.app_dataset_joins
+        origin_datasets = [str(app_dataset_join.dataset_id) for app_dataset_join in app_dataset_joins]
+        datasets, validate_datasets = self._process_and_validate_datasets(origin_datasets)
+
+        # 6.判断是否存在已删除的知识库，如果存在则更新
+        for dataset_id in (set(origin_datasets) - set(validate_datasets)):
+            with self.db.auto_commit():
+                self.db.session.query(AppDatasetJoin).filter(AppDatasetJoin.dataset_id == dataset_id).delete()
+
+        # todo:7.校验工作流列表对应的数据
+        workflows = []
+
+        # 20.将数据转换成字典后返回
+        return self._process_and_transformer_app_config(tools, workflows, datasets, app_config)
 
     def get_langchain_tools_by_tools_config(self, tools_config: list[dict]) -> list[BaseTool]:
         """根据传递的工具配置列表获取LangChain工具列表"""

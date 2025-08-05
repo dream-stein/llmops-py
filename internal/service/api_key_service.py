@@ -17,8 +17,8 @@ from pkg.paginator import PaginatorReq, Paginator
 from .base_service import BaseService
 from pkg.sqlalchemy import SQLAlchemy
 from internal.schema.api_key_schema import CreateApiKeyReq, UpdateApiKeyReq
-from ..exception import ForbiddenException
-from ..model import Account, ApiKey
+from internal.exception import ForbiddenException
+from internal.model import Account, ApiKey
 
 
 @inject
