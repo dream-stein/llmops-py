@@ -28,6 +28,7 @@ from .conversation_service import ConversationService
 from .builtin_app_service import BuiltinAppService
 from .api_key_service import ApiKeyService
 from .ai_service import AIService
+from .app_config_service import AppConfigService
 
 __all__ = [
     "AppService",
@@ -53,4 +54,5 @@ __all__ = [
     "BuiltinAppService",
     "ApiKeyService",
     "AIService",
+    "AppConfigService",
 ]
