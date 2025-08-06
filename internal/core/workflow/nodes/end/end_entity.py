@@ -1,0 +1,16 @@
+#!/usr/bin/eny python
+# -*- coding: utf-8 -*-
+"""
+@Time    :2025/8/7 00:11
+#Author  :Emcikem
+@File    :end_entity.py
+"""
+from pydantic import Field
+
+from internal.core.workflow.entity.node_entity import BaseNodeData
+from internal.core.workflow.entity.variable_entity import VariableEntity
+
+
+class EndNodeData(BaseNodeData):
+    """结束节点数据"""
+    outputs: list[VariableEntity] = Field(default_factory=list) # 结束节点需要输出的数据

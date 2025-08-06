@@ -11,16 +11,28 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field
 
+class NodeType(str, Enum):
+    """节点类型枚举"""
+    START = "start"
+    LLM = "llm"
+    TOOL = "tool"
+    CODE = "code"
+    DATASETS_RETRIEVAL = "datasets_retrieval"
+    HTTP_REQUEST = "http_request"
+    TEMPLATE_TRANSFORM = "template_transform"
+    END = "end"
+
 class BaseNodeData(BaseModel):
     """基础节点数据"""
     id: UUID # 节点id，数值必须唯一
+    node_type: NodeType # 节点类型
     title: str = "" # 节点标题，数据也必须唯一
     description: str = "" # 节点描述信息
 
 class NodeStatus(str, Enum):
     """节点状态"""
     RUNNING = "running"
-    SUCCESS = "success"
+    SUCCEEDED = "successed"
     FAILED = "failed"
 
 class NodeResult(BaseModel):
