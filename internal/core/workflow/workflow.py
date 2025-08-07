@@ -16,12 +16,13 @@ from pydantic import PrivateAttr, BaseModel, Field, create_model
 from .entity.node_entity import NodeType
 from .entity.variable_entity import VariableTypeMap
 from .entity.workflow_entity import WorkflowConfig, WorkflowState
-from .nodes import StartNode, EndNode
+from .nodes import StartNode, EndNode, LLMNode
 
 # 节点类映射
 NodeClasses = {
     NodeType.START: StartNode,
     NodeType.END: EndNode,
+    NodeType.LLM: LLMNode,
 }
 
 class Workflow(BaseTool):
@@ -79,18 +80,23 @@ class Workflow(BaseTool):
 
         # 3.循环遍历nodes节点信息添加节点
         for node in nodes:
+            node_flag = f"{node.get('node_type')}_{node.get('id')}"
             if node.get("node_type") == NodeType.START:
                 graph.add_node(
-                    f"{NodeType.START.value}_{node.get('id')}",
+                    node_flag,
                     NodeClasses[NodeType.START](node_data=node),
                 )
                 pass
             elif node.get("node_type") == NodeType.END:
                 graph.add_node(
-                    f"{NodeType.END.value}_{node.get('id')}",
+                    node_flag,
                     NodeClasses[NodeType.END](node_data=node),
                 )
-                pass
+            elif node.get("node_type") == NodeType.LLM:
+                graph.add_node(
+                    node_flag,
+                    NodeClasses[NodeType.LLM](node_data=node),
+                )
 
         # 4.循环遍历edges信息添加边
         for edge in edges:
