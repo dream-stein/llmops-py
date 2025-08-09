@@ -16,13 +16,14 @@ from pydantic import PrivateAttr, BaseModel, Field, create_model
 from .entity.node_entity import NodeType
 from .entity.variable_entity import VariableTypeMap
 from .entity.workflow_entity import WorkflowConfig, WorkflowState
-from .nodes import StartNode, EndNode, LLMNode
+from .nodes import StartNode, EndNode, LLMNode, TemplateTransformNode
 
 # 节点类映射
 NodeClasses = {
     NodeType.START: StartNode,
     NodeType.END: EndNode,
     NodeType.LLM: LLMNode,
+    NodeType.TEMPLATE_TRANSFORM: TemplateTransformNode,
 }
 
 class Workflow(BaseTool):
@@ -91,6 +92,11 @@ class Workflow(BaseTool):
                 graph.add_node(
                     node_flag,
                     NodeClasses[NodeType.END](node_data=node),
+                )
+            elif node.get("node_type") == NodeType.TEMPLATE_TRANSFORM:
+                graph.add_node(
+                    node_flag,
+                    NodeClasses[NodeType.TEMPLATE_TRANSFORM](node_data=node),
                 )
             elif node.get("node_type") == NodeType.LLM:
                 graph.add_node(
