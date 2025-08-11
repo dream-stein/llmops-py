@@ -12,6 +12,7 @@ from .llm.llm_node import LLMNode
 from .template_transform.template_transform_node import TemplateTransformNode
 from .dataset_retrival.dataset_retrieval_node import DatasetRetrievalNode
 from .code.code_node import CodeNode
+from .tool.tool_node import ToolNode
 
 __all__ = [
     "BaseNode",
@@ -21,4 +22,5 @@ __all__ = [
     "TemplateTransformNode",
     "DatasetRetrievalNode",
     "CodeNode",
+    "ToolNode",
 ]

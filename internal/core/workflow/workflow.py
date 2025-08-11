@@ -115,6 +115,11 @@ class Workflow(BaseTool):
                     node_flag,
                     NodeClasses[NodeType.CODE](node_data=node),
                 )
+            elif node.get("node_type") == NodeType.TOOL:
+                graph.add_node(
+                    node_flag,
+                    NodeClasses[NodeType.TOOL](node_data=node),
+                )
             elif node.get("node_type") == NodeType.LLM:
                 graph.add_node(
                     node_flag,
