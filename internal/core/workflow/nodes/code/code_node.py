@@ -1,0 +1,119 @@
+#!/usr/bin/eny python
+# -*- coding: utf-8 -*-
+"""
+@Time    :2025/8/11 23:10
+#Author  :Emcikem
+@File    :code_node.py
+"""
+import ast
+from typing import Any, Optional
+
+from langchain_core.runnables import RunnableConfig
+from langchain_core.runnables.utils import Input, Output
+
+from internal.core.workflow.nodes import BaseNode
+from internal.exception import FailException
+from .code_entity import CodeNodeData
+from ...entity.node_entity import NodeResult, NodeStatus
+from ...entity.variable_entity import VariableValueType, VariableDefaultVaultMap
+from ...entity.workflow_entity import WorkflowState
+
+
+class CodeNode(BaseNode):
+    """Python代码运行节点"""
+    node_data: CodeNodeData
+
+    def invoke(self, state: WorkflowState, config: Optional[RunnableConfig] = None) -> WorkflowState:
+        """Python代码运行节点，执行的代码函数名字必须为main，并且参数名为params，有且只有一个参数，不运行有其他的语句"""
+        # 1.提取节点的输入数据
+        inputs = self.node_data.inputs
+
+        # 2.循环遍历输入数据，并提取需要的数据
+        inputs_dict = {}
+        for input in inputs:
+            # 3.判断数据是引用还是直接输入
+            if input.value.type == VariableValueType.LITERAL:
+                inputs_dict[input.name] = input.value.content
+            else:
+                # 4.引用的类型，遍历节点获取数据
+                for node_result in state["node_results"]:
+                    if node_result.node_data.id == input.value.content.ref_node_id:
+                        inputs_dict[input.name] = node_result.outputs.get(
+                            input.value.content.ref_var_name,
+                            VariableDefaultVaultMap.get(input.type)
+                        )
+
+        # todo:5.执行python代码，该方法目前可以执行任务的python代码，所以非常危险，后去需要单独将这块部分功能迁移到沙箱中或者指定容器中运行和项目分离
+        result = self._execute_function(self.node_data.code, params=inputs_dict)
+
+        # 6.检测函数的返回值是否为字典
+        if not isinstance(result, dict):
+            raise FailException("main函数的返回值必须是一个字典")
+
+        # 7.提取输出数据
+        outputs_dict = {}
+        outputs = self.node_data.outputs
+        for output in outputs:
+            # 8.提取输出数据(非严格校验)
+            outputs_dict[output.name] = result.get(
+                output.name,
+                VariableDefaultVaultMap.get(output.type)
+            )
+
+        # 9.构建状态数据并返回
+        return {
+            "node_results": [
+                NodeResult(
+                    node_data=self.node_data,
+                    status=NodeStatus.SUCCEEDED,
+                    inputs=inputs_dict,
+                    outputs=outputs_dict,
+                )
+            ],
+        }
+
+    @classmethod
+    def _execute_function(cls, code: str, *args, **kwargs):
+        """执行Python函数代码"""
+        try:
+            # 1.解析代码为AST(抽象语法树)
+            tree = ast.parse(code)
+
+            # 2.定义变量用于检查是否找到main函数
+            main_func = None
+            for node in tree.body:
+                # 4.判断节点类型是否为函数
+                if isinstance(node, ast.FunctionDef):
+                    # 5.检查函数名称是否为main
+                    if node.name == "main":
+                        if main_func:
+                            raise FailException("代码中只能有一个main函数")
+
+                        # 6.检测main函数的参数是否为params，如果不是则抛出错误
+                        if len(node.args.args) != 1 or node.args.args[0].arg != "params":
+                            raise FailException("main函数必须只有一个参数，且参数为params")
+                        main_func = node
+                    else:
+                        # 7.其他函数的情况，直接抛出错误
+                        raise FailException("代码中不能包含其他函数，只能有main函数")
+                else:
+                    # 8.非函数的情况，直接抛出异常
+                    raise FailException("代码中只能包含函数定义，不允许其他语句存在")
+
+            # 9.判断下是否找到main函数
+            if not main_func:
+                raise FailException("代码中必须包含名为main的函数")
+
+            # 10.代码通过AST校验，执行校验
+            local_vars = {}
+            exec(code, {}, local_vars)
+
+            # 11.调用并调用main函数
+            if "main" in local_vars and callable(local_vars["main"]):
+                return local_vars["main"](*args, **kwargs)
+            else:
+                raise FailException("main函数必须是一个可调用的函数")
+
+        except Exception as e:
+            raise FailException("Python代码执行出错")
+

@@ -17,7 +17,7 @@ from pydantic import PrivateAttr, BaseModel, Field, create_model
 from .entity.node_entity import NodeType
 from .entity.variable_entity import VariableTypeMap
 from .entity.workflow_entity import WorkflowConfig, WorkflowState
-from .nodes import StartNode, EndNode, LLMNode, TemplateTransformNode, DatasetRetrievalNode
+from .nodes import StartNode, EndNode, LLMNode, TemplateTransformNode, DatasetRetrievalNode, CodeNode
 
 # 节点类映射
 NodeClasses = {
@@ -26,6 +26,7 @@ NodeClasses = {
     NodeType.LLM: LLMNode,
     NodeType.TEMPLATE_TRANSFORM: TemplateTransformNode,
     NodeType.DATASETS_RETRIEVAL: DatasetRetrievalNode,
+    NodeType.CODE: CodeNode,
 }
 
 class Workflow(BaseTool):
@@ -108,6 +109,11 @@ class Workflow(BaseTool):
                         account_id=self._workflow_config.account_id,
                         node_data=node,
                     ),
+                )
+            elif node.get("node_type") == NodeType.CODE:
+                graph.add_node(
+                    node_flag,
+                    NodeClasses[NodeType.CODE](node_data=node),
                 )
             elif node.get("node_type") == NodeType.LLM:
                 graph.add_node(
