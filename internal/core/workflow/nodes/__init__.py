@@ -10,6 +10,7 @@ from .start.start_node import StartNode
 from .end.end_node import EndNode
 from .llm.llm_node import LLMNode
 from .template_transform.template_transform_node import TemplateTransformNode
+from .dataset_retrival.dataset_retrieval_node import DatasetRetrievalNode
 
 __all__ = [
     "BaseNode",
@@ -17,4 +18,5 @@ __all__ = [
     "EndNode",
     "LLMNode",
     "TemplateTransformNode",
+    "DatasetRetrievalNode",
 ]

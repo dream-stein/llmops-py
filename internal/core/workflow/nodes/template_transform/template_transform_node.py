@@ -11,7 +11,7 @@ from jinja2 import Template
 from langchain_core.runnables import RunnableConfig
 
 from internal.core.workflow.entity.node_entity import NodeResult, NodeStatus
-from internal.core.workflow.entity.variable_entity import VariableValueType, VariableDefaultVaultValueMap
+from internal.core.workflow.entity.variable_entity import VariableValueType, VariableDefaultVaultMap
 from internal.core.workflow.entity.workflow_entity import WorkflowState
 from internal.core.workflow.nodes import BaseNode
 from internal.core.workflow.nodes.template_transform.template_transform_entity import TemplateTransformNodeData
@@ -39,7 +39,7 @@ class TemplateTransformNode(BaseNode):
                     if node_result.node_data.id == input.value.content.ref_node_id:
                         inputs_dict[input.name] = node_result.outputs.get(
                             input.value.content.ref_var_name,
-                            VariableDefaultVaultValueMap.get(input.type)
+                            VariableDefaultVaultMap.get(input.type)
                         )
 
         # 5.使用jinja2格式模板消息

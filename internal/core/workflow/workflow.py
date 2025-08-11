@@ -7,6 +7,7 @@
 """
 from typing import Any, Optional, Iterator
 
+from flask import current_app
 from langchain_core.runnables import RunnableConfig
 from langchain_core.runnables.utils import Input, Output
 from langchain_core.tools import BaseTool
@@ -16,7 +17,7 @@ from pydantic import PrivateAttr, BaseModel, Field, create_model
 from .entity.node_entity import NodeType
 from .entity.variable_entity import VariableTypeMap
 from .entity.workflow_entity import WorkflowConfig, WorkflowState
-from .nodes import StartNode, EndNode, LLMNode, TemplateTransformNode
+from .nodes import StartNode, EndNode, LLMNode, TemplateTransformNode, DatasetRetrievalNode
 
 # 节点类映射
 NodeClasses = {
@@ -24,6 +25,7 @@ NodeClasses = {
     NodeType.END: EndNode,
     NodeType.LLM: LLMNode,
     NodeType.TEMPLATE_TRANSFORM: TemplateTransformNode,
+    NodeType.DATASETS_RETRIEVAL: DatasetRetrievalNode,
 }
 
 class Workflow(BaseTool):
@@ -97,6 +99,15 @@ class Workflow(BaseTool):
                 graph.add_node(
                     node_flag,
                     NodeClasses[NodeType.TEMPLATE_TRANSFORM](node_data=node),
+                )
+            elif node.get("node_type") == NodeType.DATASETS_RETRIEVAL:
+                graph.add_node(
+                    node_flag,
+                    NodeClasses[NodeType.DATASETS_RETRIEVAL](
+                        flask_app=current_app._get_current_object(),
+                        account_id=self._workflow_config.account_id,
+                        node_data=node,
+                    ),
                 )
             elif node.get("node_type") == NodeType.LLM:
                 graph.add_node(

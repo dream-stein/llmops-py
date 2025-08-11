@@ -28,7 +28,7 @@ VariableTypeMap = {
 }
 
 # 变量类型默认值映射
-VariableDefaultVaultValueMap = {
+VariableDefaultVaultMap = {
     VariableType.STRING: "",
     VariableType.INT: 0,
     VariableType.FLOAT: 0,
