@@ -127,21 +127,40 @@ class Workflow(BaseTool):
                 )
 
         # 4.循环遍历edges信息添加边
+        parallel_edges = {} # key:终点，value：起点列表
+        start_node = ""
+        end_node = ""
         for edge in edges:
-            # 5.添加边映射关系
-            graph.add_edge(
-                f"{edge.get('source_type')}_{edge.get('source')}",
-                f"{edge.get('target_type')}_{edge.get('target')}",
-            )
+            # 5.计算并获取并行边
+            source_node = f"{edge.get('source_type')}_{edge.get('source')}"
+            target_node = f"{edge.get('target_type')}_{edge.get('target')}"
+            if target_node not in parallel_edges:
+                parallel_edges[target_node] = [source_node]
+            else:
+                parallel_edges[target_node].append(source_node)
 
             # 6.检测特殊节点（开始节点、结束节点）
             if edge.get("source_type") == NodeType.START:
-                graph.set_entry_point(f"{edge.get('source_type')}_{edge.get('source')}")
+                start_node = f"{edge.get('source_type')}_{edge.get('source')}"
             elif edge.get("target_type") == NodeType.END:
-                graph.set_finish_point(f"{edge.get('target_type')}_{edge.get('target')}")
+                end_node = f"{edge.get('target_type')}_{edge.get('target')}"
+
+        # 7.设置开始和终点
+        graph.set_entry_point(start_node)
+        graph.set_finish_point(end_node)
+
+        # 8.循环遍历合并边
+        for target_node, source_nodes in parallel_edges.items():
+            graph.add_edge(source_nodes, target_node)
 
         # 7.构建图程序并编译
-        return graph.compile()
+        workflow = graph.compile()
+
+        image_data = workflow.get_graph().draw_mermaid_png()
+        with open("workflow.png", "wb") as f:
+            f.write(image_data)
+
+        return workflow
 
 
     def _run(self, *args: Any, **kwargs: Any) -> Any:
