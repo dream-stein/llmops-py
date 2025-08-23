@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from internal.core.language_model import LanguageModelManager
 from internal.exception import NotFoundException
 from internal.lib.helper import convert_model_to_dict
-from internal.service import BaseService
+from .base_service import BaseService
 from pkg.sqlalchemy import SQLAlchemy
 
 

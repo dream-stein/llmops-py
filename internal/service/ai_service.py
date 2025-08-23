@@ -16,7 +16,7 @@ from transformers.convert_graph_to_onnx import optimize
 
 from internal.exception import ForbiddenException
 from internal.model import Account, Message
-from internal.service import BaseService
+from .base_service import BaseService
 from injector import inject
 from dataclasses import dataclass
 from pkg.sqlalchemy import SQLAlchemy

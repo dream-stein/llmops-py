@@ -20,7 +20,7 @@ from flask_login import UserMixin
 
 from internal.entity.conversation_entity import InvokeFrom
 from internal.extension.database_extension import db
-from internal.model import Conversation
+from internal.model.conversation import Conversation
 
 
 class Account(UserMixin, db.Model):

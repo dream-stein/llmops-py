@@ -14,7 +14,7 @@ from internal.core.tools.api_tools.entities import ToolEntity
 from internal.lib.helper import datetime_to_timestamp
 from internal.model import App, ApiTool, Dataset, AppDatasetJoin
 from internal.model.app import AppConfig, AppConfigVersion
-from internal.service import BaseService
+from .base_service import BaseService
 from injector import inject
 from dataclasses import dataclass
 from pkg.sqlalchemy import SQLAlchemy

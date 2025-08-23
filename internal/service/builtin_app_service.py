@@ -16,7 +16,7 @@ from internal.entity.app_entity import AppStatus, AppConfigType
 from internal.exception import NotFoundException
 from internal.model import Account, App
 from internal.model.app import AppConfigVersion
-from internal.service import BaseService
+from .base_service import BaseService
 from pkg.sqlalchemy import SQLAlchemy
 
 
