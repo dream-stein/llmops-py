@@ -30,12 +30,14 @@ from internal.core.agent.entities.queue_entity import QueueEvent
 from internal.core.memory import TokenBufferMemory
 from internal.schema.assistant_agent_schema import GetAssistantAgentMessagesWithPageReq
 from .conversation_service import ConversationService
+from .faiss_service import FaissService
 
 @inject
 @dataclass
 class AssistantAgentService(BaseService):
     """辅助智能体服务"""
     db: SQLAlchemy
+    faiss_service: FaissService
     conversation_service: ConversationService
 
     def chat(self, query, account: Account) -> Generator:
@@ -71,7 +73,9 @@ class AssistantAgentService(BaseService):
         )
 
         # 6.将草稿配置中的tools转换成LangChain工具
-        tools = []
+        tools = [
+            self.faiss_service.convert_faiss_to_tool(),
+        ]
 
         # 7.构建Agent智能体，使用FunctionCallAgent
         agent = FunctionCallAgent(
