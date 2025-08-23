@@ -50,11 +50,18 @@ class ModelParameter(BaseModel):
     precision: int = 2 # 保留小数的位数
     options: list[ModelParameterOption] = Field(default_factory=list) # 可选的参数配置
 
+class ModelFeature(str, Enum):
+    """模型特征，用于标记模型支持的特征信息，涵盖工具调用、智能体推理、图片输入"""
+    TOOL_CALL = "tool_call" # 工具调用
+    AGENT_THOUGHT = "agent_thought" # 是否支持智能体推理，一般要求参数量比较大，能回答通用型任务，如果不支持推理则会直接生成答案，而不进行中间步骤
+    IMAGE_INPUT = "image_input" # 图片输入，多模态大语言模型
+
 class ModelEntity(BaseModel):
     """语言模型实体，记录模型的相关信息"""
     model_name: str = Field(default="", alias="model") # 模型名字，使用model作为别名
     label: str = "" # 模型标签
     model_type: ModelType = ModelType.CHAT # 模型类型
+    features: list[ModelFeature] = Field(default_factory=list) # 模型特征信息
     context_window: int = 0 # 上下文窗口长度（输入+输出的总长度）
     max_output_tokens: int = 0 # 最大输出内容长度（输出）
     attributes: dict[str, Any] = Field(default_factory=dict) # 模型固定熟悉字典
@@ -63,4 +70,5 @@ class ModelEntity(BaseModel):
 
 class BaseLanguageModel(LCBaseLanguageModel, ABC):
     """基础语言模型"""
-    pass
+    features: list[ModelFeature] = Field(default_factory=list) # 模型特性
+    metadata: dict[str, Any] = Field(default_factory=dict) # 模型元数据信息
