@@ -31,6 +31,7 @@ from .ai_service import AIService
 from .app_config_service import AppConfigService
 from .openapi_service import OpenAPIService
 from .langguage_model_service import LanguageModelService
+from .assistant_agent_service import AssistantAgentService
 
 __all__ = [
     "AppService",
@@ -59,4 +60,5 @@ __all__ = [
     "AppConfigService",
     "OpenAPIService",
     "LanguageModelService",
+    "AssistantAgentService",
 ]

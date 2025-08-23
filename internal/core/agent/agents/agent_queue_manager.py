@@ -128,7 +128,9 @@ class AgentQueueManager:
         # 2.检测队列是否存在，如果不存在则创建队列，并添加缓存标识
         if not q:
             # 3.添加缓存标识
-            user_prefix = "account" if self.invoke_from in [InvokeFrom.WEB_APP, InvokeFrom.DEBUGGER] else 'end-user'
+            user_prefix = "account" if self.invoke_from in [
+                InvokeFrom.WEB_APP, InvokeFrom.DEBUGGER, InvokeFrom.ASSISTANT_AGENT
+            ] else 'end-user'
 
             # 4.设置任务对应的缓存健，代表这次任务已经开始了
             self.redis_client.setex(
@@ -156,7 +158,9 @@ class AgentQueueManager:
             return
 
         # 3.计算对应缓存健的结果
-        user_prefix = "account" if invoke_from in [InvokeFrom.WEB_APP, InvokeFrom.DEBUGGER] else 'end-user'
+        user_prefix = "account" if invoke_from in [
+            InvokeFrom.WEB_APP, InvokeFrom.DEBUGGER, InvokeFrom.ASSISTANT_AGENT,
+        ] else 'end-user'
         if result.decide("utf-8") != f"{user_prefix}-{str(user_id)}":
             return
 

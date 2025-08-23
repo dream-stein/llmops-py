@@ -20,6 +20,7 @@ from .api_key_handler import ApiKeyHandler
 from .openapi_handler import OpenAPIHandler
 from .ai_handler import AIHandler
 from .language_model_handler import LanguageModelHandler
+from .assistant_agent_handler import AssistantAgentHandler
 
 __all__ = [
     'AppHandler',
@@ -37,4 +38,5 @@ __all__ = [
     "OpenAPIHandler",
     "AIHandler",
     "LanguageModelHandler",
+    "AssistantAgentHandler",
 ]

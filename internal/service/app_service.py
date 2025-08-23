@@ -415,8 +415,6 @@ class AppService(BaseService):
 
         # 2.获取应用的最新草稿配置信息
         draft_app_config = self.get_draft_app_config(app_id, account)
-        review_config = draft_app_config["review_config"]
-
 
         # 3.获取当前应用的调试会话信息
         debug_conversation = app.debug_conversation
@@ -494,14 +492,13 @@ class AppService(BaseService):
                     else:
                         # 15.叠加智能体消息
                         agent_thoughts[event_id] = agent_thoughts[event_id].model_copy(update={
-                            "thought": agent_thoughts[event_id]["thought"] + agent_thought.thought,
-                            "answer": agent_thoughts[event_id]["answer"] + agent_thought.answer,
+                            "thought": agent_thoughts[event_id].thought + agent_thought.thought,
+                            "answer": agent_thoughts[event_id].answer + agent_thought.answer,
                             "latency": agent_thought.latency,
                         })
                 else:
                     # 16.处理其他类型事件的消息
                     agent_thoughts[event_id] = agent_thought
-
             data = {
                 **agent_thought.model_dump(include={
                     "event", "thought", "observation", "tool", "tool_input", "answer", "latency",
@@ -513,7 +510,7 @@ class AppService(BaseService):
             }
             yield f"event: {agent_thought.event}\ndata:{json.dumps(data)}\n\n"
 
-        # 22.循环将消息以及推理过程添加到数据库
+            # 22.将消息以及推理过程添加到数据库
         thread = Thread(
             target=self.conversation_service.save_agent_thoughts,
             kwargs={
