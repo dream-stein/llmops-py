@@ -24,6 +24,7 @@ from internal.handler import (
     BuiltinAppHandler,
     OpenAPIHandler,
     AIHandler,
+    LanguageModelHandler, language_model_handler,
 )
 
 @inject
@@ -44,6 +45,7 @@ class Router:
     builtin_app_handler: BuiltinAppHandler
     openapi_handler: OpenAPIHandler
     ai_handler: AIHandler
+    language_model_handler: LanguageModelHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -309,7 +311,15 @@ class Router:
             view_func=self.builtin_app_handler.add_builtin_app_to_space
         )
 
-
+        bp.add_url_rule("/language-models", view_func=self.language_model_handler.get_language_models)
+        bp.add_url_rule(
+            "/language-models/<string:provider_name>/icon",
+            view_func=self.language_model_handler.get_language_model_icon
+        )
+        bp.add_url_rule(
+            "/language-models/<string:provider_name>/<string:model_name>",
+            view_func=self.language_model_handler.get_language_model
+        )
 
         # 7. 在应用上去注册蓝图
         app.register_blueprint(bp)
