@@ -7,8 +7,10 @@
 """
 import uuid
 
+from langchain_core.messages import SystemMessage
+
 from .function_call_agent import FunctionCallAgent
-from ..entities.agent_entity import AgentState
+from ..entities.agent_entity import AgentState, AGENT_SYSTEM_PROMPT_TEMPLATE
 from ..entities.queue_entity import AgentThought, QueueEvent
 from ...language_model.entities.model_entity import ModelFeature
 
@@ -33,4 +35,18 @@ class ReACTAgent(FunctionCallAgent):
                 observation=long_term_memory,
             ))
 
-        # 3.
+        # 3.检测是否支持AGENT_THOUGHT，如果不支持，则使用没有工具描述的prompt
+        if ModelFeature.AGENT_THOUGHT not in self.llm.features:
+            preset_messages = [
+                SystemMessage(AGENT_SYSTEM_PROMPT_TEMPLATE.format(
+                preset_prompt=self.agent_config.preset_prompt,
+                long_term_memory=long_term_memory,
+                ))
+            ]
+        else:
+            preset_messages = [
+                SystemMessage(AGENT_SYSTEM_PROMPT_TEMPLATE.format(
+                    preset_prompt=self.agent_config.preset_prompt,
+                    long_term_memory=long_term_memory,
+                ))
+            ]
