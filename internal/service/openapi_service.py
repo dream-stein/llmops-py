@@ -15,7 +15,6 @@ from injector import inject
 from dataclasses import dataclass
 
 from langchain_core.messages import HumanMessage
-from langchain_openai import ChatOpenAI
 
 from pkg.response import Response
 from .base_service import BaseService
@@ -135,6 +134,7 @@ class OpenAPIService(BaseService):
             agent_config=AgentConfig(
                 user_id=UUID(account.id),
                 invoke_from=InvokeFrom.DEBUGGER,
+                preset_prompt=app_config["preset_prompt"],
                 enable_long_term_memory=app_config["long_term_memory"]["enable"],
                 tools=tools,
                 review_config=app_config["review_config"],
