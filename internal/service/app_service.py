@@ -5,6 +5,7 @@
 #Author  :Emcikem
 @File    :app_service.py
 """
+import io
 import json
 from dataclasses import dataclass
 from datetime import datetime
@@ -12,13 +13,19 @@ from threading import Thread
 from typing import Any, Generator
 from uuid import UUID
 
+import requests
 from flask import current_app, Flask
 from injector import inject
+from langchain_community.utilities.dalle_image_generator import DallEAPIWrapper
 from langchain_core.messages import HumanMessage
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnableParallel
 from langchain_openai import ChatOpenAI
 from sqlalchemy import desc, func
+from werkzeug.datastructures import FileStorage
 
-from internal.entity.app_entity import AppStatus, AppConfigType, DEFAULT_APP_CONFIG
+from internal.entity.app_entity import AppStatus, AppConfigType, DEFAULT_APP_CONFIG, GENERATE_ICON_PROMPT_TEMPLATE
 from internal.exception import NotFoundException, ForbiddenException, ValidateErrorException, FailException
 from internal.lib.helper import remove_fields
 from internal.model.app import AppConfigVersion, AppConfig
@@ -52,6 +59,8 @@ from internal.entity.conversation_entity import InvokeFrom, MessageStatus
 from internal.core.agent.entities.queue_entity import QueueEvent
 from .conversation_service import ConversationService
 from .app_config_service import AppConfigService
+from internal.entity.ai_entity import OPTIMIZE_PROMPT_TEMPLATE
+from .cos_service import CosService
 
 
 @inject
@@ -60,11 +69,80 @@ class AppService(BaseService):
     """应用服务逻辑"""
     db: SQLAlchemy
     redis_client: Redis
+    cos_service: CosService
     conversation_service: ConversationService
     retrieval_service: RetrievalService
     app_config_service: AppConfigService
     api_provider_manager: ApiProviderManager
     builtin_provider_manager: BuiltinProviderManager
+
+    def auto_create_app(self, name: str, description: str, account_id: UUID) -> None:
+        """根据传递的应用名称、描述、账号id利用AI创建一个Agent智能体"""
+        # 1.创建LLM，用于生成icon提示语预设提示词
+        llm = ChatOpenAI(model="gpt-40-mini", temperature=0.8)
+
+        # 2.创建DalleApiWrapper包装器
+        dalle_api_wrapper = DallEAPIWrapper(model="dall-e-3", size="1024*1024")
+
+        # 3.构建生成icon链
+        generate_icon_chain = ChatPromptTemplate.from_template(
+            GENERATE_ICON_PROMPT_TEMPLATE
+        ) | llm | StrOutputParser() | dalle_api_wrapper.run
+
+        # 4.生成预设prompt链
+        generate_preset_prompt_chain = ChatPromptTemplate.from_messages([
+            ("system", OPTIMIZE_PROMPT_TEMPLATE),
+            ("human", f"应用名称：{name}\n\n应用描述：{description}")
+        ]) | llm | StrOutputParser()
+
+        # 5.创建并行链同时执行两条链
+        generate_app_config_chain = RunnableParallel({
+            "icon": generate_icon_chain,
+            "preset_prompt": generate_preset_prompt_chain,
+        })
+        app_config = generate_app_config_chain.invoke({"name": name, "description": description})
+
+        # 6.将图片下载到本地后上传到腾讯云cos中
+        icon_response = requests.get(app_config.get("icon"))
+        if icon_response.status_code == 200:
+            icon_content = icon_response.content
+        else:
+            raise FailException("生成应用icon图标出错")
+        account = self.db.session.query(Account).get(account_id)
+        upload_file = self.cos_service.upload_file(
+            FileStorage(io.BytesIO(icon_content), filename="icon.png"),
+            True,
+            account
+        )
+        icon = self.cos_service.get_file_url(upload_file.key)
+
+        # 7.开启数据库自动提交上下文
+        with self.db.auto_commit():
+            # 8.创建应用记录并刷新数据，从而可以拿到应用id
+            app = App(
+                account_id=account.id,
+                name=name,
+                icon=icon,
+                description=description,
+            )
+            self.db.session.add(app)
+            self.db.session.flush()
+
+            # 9.添加草稿记录
+            app_config_version = AppConfigVersion(
+                app_id=app.id,
+                version=0,
+                config_type=AppConfigType.DRAFT,
+                **{
+                    **DEFAULT_APP_CONFIG,
+                    "preset_prompt": app_config.get("preset_prompt", ""),
+                }
+            )
+            self.db.session.add(app_config_version)
+            self.db.session.flush()
+
+            # 10.更新应用配置id
+            app.draft_app_config_id = app_config_version.id
 
     def create_app(self, req: CreateAppReq, account: Account) -> App:
         """创建Agent应用服务"""

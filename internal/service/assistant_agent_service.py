@@ -33,6 +33,7 @@ from internal.core.memory import TokenBufferMemory
 from internal.schema.assistant_agent_schema import GetAssistantAgentMessagesWithPageReq
 from .conversation_service import ConversationService
 from .faiss_service import FaissService
+from internal.task.app_task import auto_create_app
 
 @inject
 @dataclass
@@ -77,6 +78,7 @@ class AssistantAgentService(BaseService):
         # 6.将草稿配置中的tools转换成LangChain工具
         tools = [
             self.faiss_service.convert_faiss_to_tool(),
+            self.convert_create_app_to_tool(UUID(account.id)),
         ]
 
         # 7.构建Agent智能体，使用FunctionCallAgent
@@ -193,6 +195,7 @@ class AssistantAgentService(BaseService):
         def create_app(name: str, description: str) -> str:
             """如果用户提出了需要创建一个Agent/应用，你跨域调页此工具，参数的输入是应用的名称+描述，返回的数据是创建后的成功提示"""
             # 1.调页celery伊布任务在后端创建应用
+            auto_create_app.delay(name, description, account_id)
 
             # 2.返回成功提示
             return f"已调研后端伊布任务创建Agent应用。\n应用名称：{name}\n应用描述：{description}"
