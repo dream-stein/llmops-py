@@ -5,8 +5,8 @@
 #Author  :Emcikem
 @File    :start_entity.py
 """
-from internal.core.workflow.entity.node_entity import BaseNodeData
-from internal.core.workflow.entity.variable_entity import VariableEntity
+from internal.core.workflow.entities.node_entity import BaseNodeData
+from internal.core.workflow.entities.variable_entity import VariableEntity
 from pydantic import Field
 
 class StartNodeData(BaseNodeData):

@@ -11,15 +11,15 @@ from typing import Optional, Any
 import requests
 from langchain_core.runnables import RunnableConfig
 
-from internal.core.workflow.entity.node_entity import NodeResult, NodeStatus
-from internal.core.workflow.entity.workflow_entity import WorkflowState
+from internal.core.workflow.entities.node_entity import NodeResult, NodeStatus
+from internal.core.workflow.entities.workflow_entity import WorkflowState
 from internal.core.workflow.nodes import BaseNode
 from internal.core.workflow.nodes.http_request.http_request_entity import (
     HttpRequestNodeData,
     HttpRequestInputType,
     HttpRequestMethod
 )
-from internal.core.workflow.util.helper import extract_variables_from_state
+from internal.core.workflow.utils.helper import extract_variables_from_state
 
 
 class HttpRequestNode(BaseNode):

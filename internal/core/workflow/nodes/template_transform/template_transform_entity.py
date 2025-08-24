@@ -7,8 +7,8 @@
 """
 from pydantic import Field
 
-from internal.core.workflow.entity.node_entity import BaseNodeData
-from internal.core.workflow.entity.variable_entity import VariableEntity, VariableValueType
+from internal.core.workflow.entities.node_entity import BaseNodeData
+from internal.core.workflow.entities.variable_entity import VariableEntity, VariableValueType
 
 
 class TemplateTransformNodeData(BaseNodeData):

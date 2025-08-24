@@ -7,13 +7,13 @@
 """
 from typing import Any
 
-from internal.core.workflow.entity.variable_entity import (
+from internal.core.workflow.entities.variable_entity import (
     VariableEntity,
     VariableValueType,
     VARIABLE_TYPE_MAP,
     VARIABLE_TYPE_DEFAULT_VALUE_MAP,
 )
-from internal.core.workflow.entity.workflow_entity import WorkflowState
+from internal.core.workflow.entities.workflow_entity import WorkflowState
 
 
 def extract_variables_from_state(variables: list[VariableEntity], state: WorkflowState) -> dict[str, Any]:

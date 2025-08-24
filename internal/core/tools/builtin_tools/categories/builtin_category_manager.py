@@ -60,6 +60,6 @@ class BuiltinCategoryManager(BaseModel):
 
             # 7.将数据隐射到字典中
             self.category_map[category_entity.category] = {
-                "entity": category_entity,
+                "entities": category_entity,
                 "icon": icon,
             }

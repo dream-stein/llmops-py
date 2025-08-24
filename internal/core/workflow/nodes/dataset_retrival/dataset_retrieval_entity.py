@@ -7,10 +7,10 @@
 """
 from uuid import UUID
 
-from internal.core.workflow.entity.node_entity import BaseNodeData
+from internal.core.workflow.entities.node_entity import BaseNodeData
 from pydantic import BaseModel, Field, model_validator
 
-from internal.core.workflow.entity.variable_entity import VariableEntity, VariableType, VariableValueType
+from internal.core.workflow.entities.variable_entity import VariableEntity, VariableType, VariableValueType
 from internal.entity.dataset_entity import RetrievalStrategy
 from internal.exception import FailException
 

@@ -10,8 +10,8 @@ from enum import Enum
 from langchain_core.pydantic_v1 import validator, HttpUrl
 from pydantic import Field
 
-from internal.core.workflow.entity.node_entity import BaseNodeData
-from internal.core.workflow.entity.variable_entity import VariableEntity, VariableType, VariableValueType
+from internal.core.workflow.entities.node_entity import BaseNodeData
+from internal.core.workflow.entities.variable_entity import VariableEntity, VariableType, VariableValueType
 from internal.exception import ValidateErrorException
 
 

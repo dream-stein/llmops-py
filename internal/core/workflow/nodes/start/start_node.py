@@ -13,9 +13,9 @@ from langchain_core.runnables.utils import Input, Output
 from internal.core.workflow.nodes import BaseNode
 from internal.exception import FailException
 from .start_entity import StartNodeData
-from ...entity.node_entity import NodeResult, NodeStatus
-from ...entity.variable_entity import VariableDefaultVaultMap
-from ...entity.workflow_entity import WorkflowState
+from ...entities.node_entity import NodeResult, NodeStatus
+from ...entities.variable_entity import VariableDefaultVaultMap
+from ...entities.workflow_entity import WorkflowState
 
 
 class StartNode(BaseNode):

@@ -10,7 +10,7 @@ from typing import Any
 
 from langchain_core.runnables import RunnableSerializable
 
-from internal.core.workflow.entity.node_entity import BaseNodeData
+from internal.core.workflow.entities.node_entity import BaseNodeData
 
 
 class BaseNode(RunnableSerializable, ABC):

@@ -14,9 +14,9 @@ from langchain_core.tools import BaseTool
 from langgraph.graph.state import CompiledStateGraph, StateGraph
 from pydantic import PrivateAttr, BaseModel, Field, create_model
 
-from .entity.node_entity import NodeType
-from .entity.variable_entity import VariableTypeMap
-from .entity.workflow_entity import WorkflowConfig, WorkflowState
+from .entities.node_entity import NodeType
+from .entities.variable_entity import VariableTypeMap
+from .entities.workflow_entity import WorkflowConfig, WorkflowState
 from .nodes import StartNode, EndNode, LLMNode, TemplateTransformNode, DatasetRetrievalNode, CodeNode
 
 # 节点类映射

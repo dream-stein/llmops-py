@@ -13,9 +13,9 @@ from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import BaseTool
 from pydantic import PrivateAttr
 
-from internal.core.workflow.entity.node_entity import NodeResult, NodeStatus
-from internal.core.workflow.entity.variable_entity import VariableValueType, VariableDefaultVaultMap
-from internal.core.workflow.entity.workflow_entity import WorkflowState
+from internal.core.workflow.entities.node_entity import NodeResult, NodeStatus
+from internal.core.workflow.entities.variable_entity import VariableValueType, VariableDefaultVaultMap
+from internal.core.workflow.entities.workflow_entity import WorkflowState
 from internal.core.workflow.nodes import BaseNode
 from internal.core.workflow.nodes.dataset_retrival.dataset_retrieval_entity import DatasetRetrievalNodeData
 
