@@ -14,7 +14,7 @@ from typing import Any, Generator
 from uuid import UUID
 
 import requests
-from flask import current_app, Flask
+from flask import current_app
 from injector import inject
 from langchain_community.utilities.dalle_image_generator import DallEAPIWrapper
 from langchain_core.messages import HumanMessage
@@ -61,6 +61,7 @@ from .conversation_service import ConversationService
 from .app_config_service import AppConfigService
 from internal.entity.ai_entity import OPTIMIZE_PROMPT_TEMPLATE
 from .cos_service import CosService
+from .langguage_model_service import LanguageModelService
 
 
 @inject
@@ -75,6 +76,7 @@ class AppService(BaseService):
     app_config_service: AppConfigService
     api_provider_manager: ApiProviderManager
     builtin_provider_manager: BuiltinProviderManager
+    language_model_service: LanguageModelService
 
     def auto_create_app(self, name: str, description: str, account_id: UUID) -> None:
         """根据传递的应用名称、描述、账号id利用AI创建一个Agent智能体"""
@@ -508,11 +510,8 @@ class AppService(BaseService):
             status=MessageStatus.NORMAL,
         )
 
-        # todo:5.根据传递的model_config实体变化不同的LLM模型，等待堕LLM接入后该处会发生变化
-        llm = ChatOpenAI(
-            model=draft_app_config["model_config"]["model"],
-            **draft_app_config["model_config"]["parameters"],
-        )
+        # 5.从语言模型管理器中加载大语言模型
+        llm = self.language_model_service.load_language_model(draft_app_config.get("model_config", {}))
 
         # 6.实例化tokenBufferMemory用于提取短期记忆
         token_buffer_memory = TokenBufferMemory(
@@ -662,7 +661,7 @@ class AppService(BaseService):
         ):
             raise ValidateErrorException("草稿配置字段出错，请核实后重试")
 
-        # todo:3.校验model_config字段，等待堕LLM接入时完成该步骤校验
+        # 4.校验dialog_round上下文轮数，校验数据类型以及范围
         if "dialog_round" in draft_app_config:
             dialog_round = draft_app_config["dialog_round"]
             if (

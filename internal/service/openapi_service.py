@@ -34,6 +34,7 @@ from internal.core.agent.entities.agent_entity import AgentConfig
 from internal.core.agent.entities.queue_entity import QueueEvent
 from internal.entity.dataset_entity import RetrievalSource
 from .conversation_service import ConversationService
+from .langguage_model_service import LanguageModelService
 
 
 @inject
@@ -45,6 +46,7 @@ class OpenAPIService(BaseService):
     retrieval_service: RetrievalService
     app_config_service: AppConfigService
     conversation_service: ConversationService
+    language_model_service: LanguageModelService
 
     def chat(self, req: OpenAPIChatReq, account: Account):
         """根据传递的请求+账号信息发起聊天对话，返回数据为块内容或生成器"""
@@ -99,11 +101,8 @@ class OpenAPIService(BaseService):
             "status": MessageStatus.NORMAL,
         })
 
-        # todo:9.根据传递的Model_config创建LLM实例，等待堕LLM接入时需要调整
-        llm = ChatOpenAI(
-            model=app_config["model_config"]["model"],
-            **app_config["model_config"]["parameters"],
-        )
+        # 9.从语言模型中根据模型配置获取模型实例
+        llm = self.language_model_service.load_language_model(app_config.get("model_config", {}))
 
         # 10.实例化tokenBufferMemory用于提取短期记忆
         token_buffer_memory = TokenBufferMemory(
