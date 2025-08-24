@@ -16,7 +16,9 @@ from injector import inject
 from dataclasses import dataclass
 
 from langchain_core.messages import HumanMessage
+from langchain_core.tools import BaseTool, tool
 from langchain_openai import ChatOpenAI
+from pydantic import BaseModel, Field
 from sqlalchemy import desc
 
 from pkg.paginator import Paginator
@@ -177,3 +179,22 @@ class AssistantAgentService(BaseService):
     def delete_conversation(self, account: Account) -> None:
         """根据传递的账号，清空辅助Agent智能体会话消息列表"""
         self.update(account, assistant_agent_conversation_id=None)
+
+    @classmethod
+    def convert_create_app_to_tool(cls, account_id: UUID) -> BaseTool:
+        """定义自动创建Agent应用LangChain工具"""
+
+        class CreateAppInput(BaseModel):
+            """创建Agent/应用输入结构"""
+            name: str = Field(description="需要创建的Agent/应用名称，长度不超过50个字符")
+            description: str = Field(description="需要创建的Agent/应用描述，请详细概括该应用的功能")
+
+        @tool("create_app", args_schema=CreateAppInput)
+        def create_app(name: str, description: str) -> str:
+            """如果用户提出了需要创建一个Agent/应用，你跨域调页此工具，参数的输入是应用的名称+描述，返回的数据是创建后的成功提示"""
+            # 1.调页celery伊布任务在后端创建应用
+
+            # 2.返回成功提示
+            return f"已调研后端伊布任务创建Agent应用。\n应用名称：{name}\n应用描述：{description}"
+
+        return  create_app
