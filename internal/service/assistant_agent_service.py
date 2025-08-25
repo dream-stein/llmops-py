@@ -34,6 +34,9 @@ from internal.schema.assistant_agent_schema import GetAssistantAgentMessagesWith
 from .conversation_service import ConversationService
 from .faiss_service import FaissService
 from internal.task.app_task import auto_create_app
+from ..core.language_model.entities.model_entity import ModelFeature
+from ..core.language_model.providers.openai.chat import Chat
+
 
 @inject
 @dataclass
@@ -63,7 +66,12 @@ class AssistantAgentService(BaseService):
         )
 
         # 4.使用GPT模型作为辅助Agent的LLM大脑
-        llm = ChatOpenAI(model="gpt-4o-mini",temperature=0.8,)
+        llm = Chat(
+            model="gpt-4o-mini",
+            temperature=0.8,
+            features=[ModelFeature.TOOL_CALL, ModelFeature.AGENT_THOUGHT],
+            metadata={},
+        )
 
         # 5.实例化tokenBufferMemory用于提取短期记忆
         token_buffer_memory = TokenBufferMemory(
