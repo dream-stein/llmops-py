@@ -63,7 +63,8 @@ from internal.entity.ai_entity import OPTIMIZE_PROMPT_TEMPLATE
 from .cos_service import CosService
 from .langguage_model_service import LanguageModelService
 from internal.core.language_model import LanguageModelManager
-from ..core.language_model.entities.model_entity import ModelParameterType
+from ..core.agent.agents.react_agent import ReACTAgent
+from ..core.language_model.entities.model_entity import ModelParameterType, ModelFeature
 
 
 @inject
@@ -541,8 +542,9 @@ class AppService(BaseService):
             )
             tools.append(dataset_retrieval)
 
-        # todo:10.构建Agent智能体，目前暂时使用FunctionCallAgent
-        agent = FunctionCallAgent(
+        # 10.工具LLM是否支持tool_call决定使用不同Agent
+        agent_class = FunctionCallAgent if ModelFeature.TOOL_CALL in llm.features else ReACTAgent
+        agent = agent_class(
             llm=llm,
             agent_config=AgentConfig(
                 user_id=UUID(account.id),

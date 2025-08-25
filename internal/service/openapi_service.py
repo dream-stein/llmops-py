@@ -34,6 +34,8 @@ from internal.core.agent.entities.queue_entity import QueueEvent
 from internal.entity.dataset_entity import RetrievalSource
 from .conversation_service import ConversationService
 from .langguage_model_service import LanguageModelService
+from ..core.agent.agents.react_agent import ReACTAgent
+from ..core.language_model.entities.model_entity import ModelFeature
 
 
 @inject
@@ -128,8 +130,9 @@ class OpenAPIService(BaseService):
             )
             tools.append(dataset_retrieval)
 
-        # todo:14.构建Agent智能体，目前暂时使用FunctionCallAgent
-        agent = FunctionCallAgent(
+        # 14.工具LLM是否支持tool_call决定使用不同Agent
+        agent_class = FunctionCallAgent if ModelFeature.TOOL_CALL in llm.features else ReACTAgent
+        agent = agent_class(
             llm=llm,
             agent_config=AgentConfig(
                 user_id=UUID(account.id),
