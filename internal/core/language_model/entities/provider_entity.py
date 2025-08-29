@@ -33,7 +33,7 @@ class Provider(BaseModel):
     model_entity_map: dict[str, ModelEntity] = Field(default_factory=dict) # 模型实体映射
     model_class_map: dict[str, Union[None, Type[BaseLanguageModel]]] = Field(default_factory=dict) # 模型类映射
 
-    @root_validator(pre=True)
+    @root_validator(pre=True, skip_on_failure=True)
     def validate_provider(cls, provider: dict[str, Any]) -> dict[str, Any]:
         """服务提供者校验器，里用校验器完成该服务提供者的实体与类实例化"""
         # 1.获取服务提供商实体
