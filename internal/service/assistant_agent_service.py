@@ -17,7 +17,6 @@ from dataclasses import dataclass
 
 from langchain_core.messages import HumanMessage
 from langchain_core.tools import BaseTool, tool
-from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 from sqlalchemy import desc
 
@@ -63,7 +62,8 @@ class AssistantAgentService(BaseService):
         )
 
         # 4.使用GPT模型作为辅助Agent的LLM大脑
-        llm = ChatOpenAI(model="gpt-4o-mini",temperature=0.8,)
+        from langchain_openai import ChatOpenAI
+        llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.8)
 
         # 5.实例化tokenBufferMemory用于提取短期记忆
         token_buffer_memory = TokenBufferMemory(

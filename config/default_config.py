@@ -10,8 +10,8 @@ DEFAULT_CONFIG = {
     # wft配置
     "WTF_CSRF_ENABLED": "False",
 
-    # SQLAlchemy数据库配置
-    "SQLALCHEMY_DATABASE_URI": "",
+    # SQLAlchemy数据库配置（默认使用本地sqlite，便于本地开发无需额外服务）
+    "SQLALCHEMY_DATABASE_URI": "sqlite:///storage/dev.sqlite3",
     "SQLALCHEMY_POOL_SIZE": 30,
     "SQLALCHEMY_POOL_RECYCLE": 3600,
     "SQLALCHEMY_ECHO": "True",

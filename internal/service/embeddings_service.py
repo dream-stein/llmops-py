@@ -10,22 +10,17 @@ import os.path
 import tiktoken
 from injector import inject
 from dataclasses import dataclass
-from langchain_community.storage import RedisStore
-from langchain_core.embeddings import Embeddings
-from langchain.embeddings import CacheBackedEmbeddings
-from redis import Redis
-from langchain_openai import OpenAIEmbeddings
-from langchain_huggingface import HuggingFaceEmbeddings
+from typing import Any
 
 @inject
 @dataclass
 class EmbeddingsService:
     """文本嵌入模型服务"""
-    _store: RedisStore
-    _embeddings: Embeddings
-    _cache_backed_embeddings: CacheBackedEmbeddings
+    _store: Any
+    _embeddings: Any
+    _cache_backed_embeddings: Any
 
-    def __init__(self, redis: Redis):
+    def __init__(self, redis: Any):
         """构造函数，初始化文本嵌入模型客户端、存储器、缓存客户端"""
         # self._store = RedisStore(client=redis)
         # self._embeddings = HuggingFaceEmbeddings(
@@ -50,11 +45,11 @@ class EmbeddingsService:
         return len(encoding.encode(query))
 
     @property
-    def store(self) -> RedisStore:
+    def store(self):
         return self._store
 
     @property
-    def embeddings(self) -> Embeddings:
+    def embeddings(self):
         return self._embeddings
 
     @property

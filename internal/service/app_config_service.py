@@ -25,8 +25,8 @@ from internal.core.language_model import LanguageModelManager
 from ..core.language_model.entities.model_entity import ModelParameterType
 
 
-@dataclass
 @inject
+@dataclass
 class AppConfigService(BaseService):
     """应用配置服务"""
     db: SQLAlchemy

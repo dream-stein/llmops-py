@@ -17,7 +17,10 @@ from dataclasses import dataclass
 from sqlalchemy import func
 from concurrent.futures import ThreadPoolExecutor
 
-from weaviate.collections.classes.filters import Filter
+try:
+    from weaviate.collections.classes.filters import Filter  # type: ignore
+except Exception:
+    Filter = None  # type: ignore
 
 from .base_service import BaseService
 from pkg.sqlalchemy import SQLAlchemy
@@ -161,6 +164,8 @@ class IndexingService(BaseService):
 
         # 2.调用向量数据库删除其关联数据
         collection = self.vector_database_service.collection
+        if Filter is None:
+            raise RuntimeError("Weaviate 过滤器不可用，请安装 weaviate 相关依赖后再试")
         collection.data.delete_many(
             where=Filter.by_property("document_id").equal(document_id),
         )
@@ -199,6 +204,8 @@ class IndexingService(BaseService):
                 ).delete()
 
             # 5.调用向量数据库删除知识库的关联记录
+            if Filter is None:
+                raise RuntimeError("Weaviate 过滤器不可用，请安装 weaviate 相关依赖后再试")
             self.vector_database_service.collection.data.delete_many(
                 where=Filter.by_property("dataset_id").equal(str(dataset_id)),
             )

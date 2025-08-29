@@ -8,9 +8,9 @@
 import os.path
 
 from injector import inject
-from langchain_community.vectorstores import FAISS
 from langchain_core.tools import BaseTool, tool
 from pydantic import BaseModel, Field
+from typing import Any
 
 from internal.lib.helper import combine_documents
 from internal.service import EmbeddingsService
@@ -20,7 +20,7 @@ from internal.core.agent.entities.agent_entity import DATASET_RETRIEVAL_TOOL_NAM
 @inject
 class FaissService:
     """Faiss向量数据库服务"""
-    faiss: FAISS
+    faiss: Any
     embeddings_service: EmbeddingsService
 
     def __init__(self, embeddings_service: EmbeddingsService):
@@ -31,16 +31,25 @@ class FaissService:
         internal_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         faiss_vector_store_path = os.path.join(internal_path, "core", "vector_store")
 
-        # 3.初始化faiss向量数据库
-        self.faiss = FAISS.load_local(
-            folder_path=faiss_vector_store_path,
-            embeddings=self.embeddings_service.embeddings,
-            allow_dangerous_deserialization=True,
-        )
+        # 3.初始化faiss向量数据库（延迟导入，避免启动时依赖faiss）
+        try:
+            from langchain_community.vectorstores import FAISS
+            self.faiss = FAISS.load_local(
+                folder_path=faiss_vector_store_path,
+                embeddings=self.embeddings_service.embeddings,
+                allow_dangerous_deserialization=True,
+            )
+        except Exception:
+            # 启动阶段未安装faiss或相关依赖时，先置空，实际调用工具时再报错
+            self.faiss = None
 
     def convert_faiss_to_tool(self) -> BaseTool:
         """将Faiss向量数据库检索器转换成LangChain工具"""
         # 1.将Faiss向量数据库转换成检索器
+        if self.faiss is None:
+            # 延迟失败，提示需要安装依赖
+            raise RuntimeError("FAISS 向量数据库未初始化，请安装所需依赖并构建本地索引后重试")
+
         retrieval = self.faiss.as_retriever(
             search_type="mmr",
             search_kwargs={"k": 5, "fetch_k": 20}

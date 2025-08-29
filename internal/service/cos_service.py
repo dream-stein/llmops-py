@@ -14,7 +14,11 @@ from datetime import datetime
 from werkzeug.datastructures import FileStorage
 
 from injector import inject
-from qcloud_cos import CosS3Client, CosConfig
+try:
+    from qcloud_cos import CosS3Client, CosConfig
+except Exception:  # pragma: no cover
+    CosS3Client = None  # type: ignore
+    CosConfig = None  # type: ignore
 
 from internal.exception import FailException
 from internal.model import UploadFile, Account
@@ -94,6 +98,8 @@ class CosService:
     @classmethod
     def _get_client(cls) -> CosS3Client:
         """获取腾讯云cos对象存储客户端"""
+        if CosConfig is None or CosS3Client is None:
+            raise FailException("未安装腾讯云COS SDK(qcloud_cos)，请安装后再试")
         conf = CosConfig(
             Region=os.getenv("COS_REGION"),
             SecretId=os.getenv("COS_SECRET_ID"),

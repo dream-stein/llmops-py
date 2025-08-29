@@ -12,7 +12,6 @@ from uuid import UUID
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-from transformers.convert_graph_to_onnx import optimize
 
 from internal.exception import ForbiddenException
 from internal.model import Account, Message
