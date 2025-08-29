@@ -39,33 +39,43 @@ class Provider(BaseModel):
         # 1.获取服务提供商实体
         provider_entity: ProviderEntity = provider['provider_entity']
 
+        # 初始化映射字典，避免后续 KeyError
+        if 'model_class_map' not in provider:
+            provider['model_class_map'] = {}
+        if 'model_entity_map' not in provider:
+            provider['model_entity_map'] = {}
+
         # 2.动态导入服务提供商的模型类
         for model_type in provider_entity.supported_model_types:
             # 3.将类型的第一个字符转换成大写，其他不变，并构建类隐射
             symbol_name = model_type[0].upper() + model_type[1:]
-            provider["model_class_map"][model_type] = dynamic_import(
-                f"internal.core.language_model.providers.{provider_entity.name}.{model_type}",
-                symbol_name
-            )
+            try:
+                provider["model_class_map"][model_type] = dynamic_import(
+                    f"internal.core.language_model.providers.{provider_entity.name}.{model_type}",
+                    symbol_name
+                )
+            except Exception:
+                provider["model_class_map"][model_type] = None
 
         # 4.获取当前类所在的位置，provider提供商所在的位置
         current_path = os.path.abspath(__file__)
         entities_path = os.path.dirname(current_path)
         provider_path = os.path.join(os.path.dirname(entities_path), "providers", provider_entity.name)
 
-        # 5.组装positions.yaml
+        # 5.组装positions.yaml，如果不存在则跳过该提供者的模型定义装载
         positions_yaml_path = os.path.join(provider_path, "positions.yaml")
+        if not os.path.exists(positions_yaml_path):
+            return provider
         with open(positions_yaml_path, encoding="utf-8") as f:
-            positions_yaml_data = yaml.safe_load_all(f) or []
-        if not isinstance(positions_yaml_path, list):
-            raise FailException("positions.yaml数据格式错误")
+            loaded = list(yaml.safe_load_all(f))
+            positions_yaml_data = loaded if isinstance(loaded, list) else []
 
         # 6.循环读取位置中的模型名字
         for model_name in positions_yaml_data:
             # 7.组装每一个模型的详细信息
             mode_yaml_path = os.path.join(provider_path, f"{model_name}.yaml")
             with open(mode_yaml_path, encoding="utf-8") as f:
-                mode_yaml_data = yaml.safe_load(f)
+                mode_yaml_data = yaml.safe_load(f) or {}
 
             # 8.循环读取模型中的parameters参数
             yaml_parameters = mode_yaml_data.get("parameters")

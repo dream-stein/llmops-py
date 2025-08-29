@@ -12,7 +12,6 @@ from typing import Any
 
 from flask import current_app
 from injector import inject
-from langchain_openai import ChatOpenAI
 
 from internal.core.language_model import LanguageModelManager
 from internal.core.language_model.entities.model_entity import BaseLanguageModel
@@ -129,4 +128,5 @@ class LanguageModelService(BaseService):
     @classmethod
     def load_default_language_model(cls) -> BaseLanguageModel:
         """加载默认的大语言模型，在模型管理器中获取不到模型或者出错时使用默认模型进行兜底"""
+        from langchain_openai import ChatOpenAI
         return ChatOpenAI(model="gpt-4o-mini", temperature=1, max_tokens=8192)

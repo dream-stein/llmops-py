@@ -13,7 +13,6 @@ from injector import inject
 from dataclasses import dataclass
 
 from langchain_core.output_parsers import StrOutputParser
-from langchain_openai import ChatOpenAI
 
 from internal.entity.conversation_entity import (
     SUMMARIZER_TEMPLATE,
@@ -43,6 +42,7 @@ class ConversationService(BaseService):
         prompt = ChatPromptTemplate.from_template(SUMMARIZER_TEMPLATE)
 
         # 2.构建大语言模型实例，并且将大语言模型的温度降低，降低幻觉的概率
+        from langchain_openai import ChatOpenAI
         llm = ChatOpenAI(model="deepseek-chat", temperature=0.5)
 
         # 3.构建链应用
@@ -66,6 +66,7 @@ class ConversationService(BaseService):
         ])
 
         # 2.构建大语言模型实例，并且将大语言模型的温度降低，降低幻觉的概率
+        from langchain_openai import ChatOpenAI
         llm = ChatOpenAI(model="deepseek-chat", temperature=0)
         structured_llm = llm.with_structured_output(ConversationInfo)
 
@@ -101,6 +102,7 @@ class ConversationService(BaseService):
         ])
 
         # 2.构建大语言模型实例，并且将大语言模型的温度降低，降低幻觉的概率
+        from langchain_openai import ChatOpenAI
         llm = ChatOpenAI(model="deepseek-chat", temperature=0)
         structured_llm = llm.with_structured_output(SuggestedQuestions)
 

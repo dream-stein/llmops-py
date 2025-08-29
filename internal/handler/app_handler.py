@@ -198,4 +198,5 @@ class AppHandler:
         return success_json(PageModel(list=resp.dump(messages), paginator=paginator))
 
     def ping(self):
-        pass
+        from pkg.response import success_json
+        return success_json({"status": "ok"})
