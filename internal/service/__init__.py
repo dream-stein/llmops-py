@@ -33,6 +33,7 @@ from .openapi_service import OpenAPIService
 from .langguage_model_service import LanguageModelService
 from .assistant_agent_service import AssistantAgentService
 from .faiss_service import FaissService
+from .analysis_service import AnalysisService
 
 __all__ = [
     "AppService",
@@ -62,5 +63,6 @@ __all__ = [
     "OpenAPIService",
     "LanguageModelService",
     "AssistantAgentService",
-    "FaissService"
+    "FaissService",
+    "AnalysisService",
 ]
