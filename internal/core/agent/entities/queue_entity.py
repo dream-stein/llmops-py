@@ -44,13 +44,13 @@ class AgentThought(BaseModel):
     message: list[dict] = Field(default_factory=dict) # 推理使用的消息列表
     message_token_count: int = 0 # 消息花费的token数
     message_unit_price: float = 0  # 单价
-    message_unit_unit: float = 0  # 价格单价
+    message_price_unit: float = 0  # 价格单价
 
     # 答案相关的数据
     answer: str = "" # LLM生成的最终答案
     answer_token_count: int = 0  # 消息花费的token数
     answer_unit_price: float = 0  # 单价
-    answer_unit_unit: float = 0  # 价格单价
+    answer_price_unit: float = 0  # 价格单价
 
     # Agent推理统计相关
     total_token_count: int = 0 # 总token消耗数量
