@@ -130,7 +130,14 @@ class OpenAPIService(BaseService):
             )
             tools.append(dataset_retrieval)
 
-        # 14.工具LLM是否支持tool_call决定使用不同Agent
+        # 14.检索是否关联工作流，如果关联工作流则将工作流关联成根据添加到tools中
+        if app_config["workflows"]:
+            workflow_tools = self.app_config_service.get_langchain_tools_by_workflows_ids(
+                [workflow["id"] for workflow in app_config["workflows"]]
+            )
+            tools.extend(workflow_tools)
+
+        # 15.工具LLM是否支持tool_call决定使用不同Agent
         agent_class = FunctionCallAgent if ModelFeature.TOOL_CALL in llm.features else ReACTAgent
         agent = agent_class(
             llm=llm,
@@ -144,7 +151,7 @@ class OpenAPIService(BaseService):
             ),
         )
 
-        # 15.定义智能体状态基础数据
+        # 16.定义智能体状态基础数据
         agent_state = {
             "messages": [HumanMessage(req.query.data)],
             "history": history,

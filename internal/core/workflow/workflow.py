@@ -15,7 +15,7 @@ from langgraph.graph.state import CompiledStateGraph, StateGraph
 from pydantic import PrivateAttr, BaseModel, Field, create_model
 
 from .entities.node_entity import NodeType
-from .entities.variable_entity import VariableTypeMap
+from .entities.variable_entity import VARIABLE_TYPE_MAP
 from .entities.workflow_entity import WorkflowConfig, WorkflowState
 from .nodes import StartNode, EndNode, LLMNode, TemplateTransformNode, DatasetRetrievalNode, CodeNode
 
@@ -61,7 +61,7 @@ class Workflow(BaseTool):
         # 2.循环遍历所有输入信息并创建字段映射
         for input in inputs:
             field_name = input.get("name")
-            field_type = VariableTypeMap.get(input.get("type"), str)
+            field_type = VARIABLE_TYPE_MAP.get(input.get("type"), str)
             field_required = input.get("required", True)
             field_description = input.get("description", "")
 
