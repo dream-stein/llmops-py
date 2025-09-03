@@ -16,9 +16,10 @@ from sqlalchemy import (
     Index, JSON, Integer,
 )
 
-from internal.entity.app_entity import AppConfigType, DEFAULT_APP_CONFIG
+from internal.entity.app_entity import AppConfigType, DEFAULT_APP_CONFIG, AppStatus
 from internal.entity.conversation_entity import InvokeFrom
 from internal.extension.database_extension import db
+from internal.lib.helper import generate_random_string
 from internal.model.conversation import Conversation
 
 
@@ -38,6 +39,7 @@ class App(db.Model):
     name = Column(String(255), default="", nullable=False)
     icon = Column(String(255), default="", nullable=False)
     description = Column(Text, default="", nullable=False)
+    token = Column(String(255), default="", nullable=False)
     status = Column(String(255), default="", nullable=False)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
     created_at = Column(DateTime, default=datetime.now, nullable=False)
@@ -100,6 +102,26 @@ class App(db.Model):
                 self.debug_conversation_id = debug_conversation.id
 
         return debug_conversation
+
+    @property
+    def token_with_default(self) -> str:
+        """获取带有默认值的token"""
+        # 1.判断状态是否为已发布
+        if self.status != AppStatus.PUBLISHED:
+            # 2.非发布的情况下需要请课数据，并提交更新
+            if self.token is not None or self.token != "":
+                self.token = None
+                db.session.commit()
+            return ""
+
+        # 3.已发布状态需要判断token是否存在，不存在则生成
+        if self.token is None or self.token == "":
+            self.token = generate_random_string(16)
+            db.session.commit()
+
+        return self.token
+
+
 
 class AppConfig(db.Model):
     """应用配置模型"""

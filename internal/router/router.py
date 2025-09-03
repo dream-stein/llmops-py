@@ -350,6 +350,16 @@ class Router:
             view_func=self.analysis_handler.get_app_analysis
         )
 
+        bp.add_url_rule(
+            "apps/<uuid:app_id>/published-config",
+            view_func=self.app_handler.get_published_config
+        )
+        bp.add_url_rule(
+            "/apps/<uuid:app_id>/published-config/regenerate-web-app-token",
+            methods=["POST"],
+            view_func=self.app_handler.regenerate_web_app_token
+        )
+
         # 7. 在应用上去注册蓝图
         app.register_blueprint(bp)
         app.register_blueprint(openapi_bp)

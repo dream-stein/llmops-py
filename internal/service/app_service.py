@@ -27,7 +27,7 @@ from werkzeug.datastructures import FileStorage
 
 from internal.entity.app_entity import AppStatus, AppConfigType, DEFAULT_APP_CONFIG, GENERATE_ICON_PROMPT_TEMPLATE
 from internal.exception import NotFoundException, ForbiddenException, ValidateErrorException, FailException
-from internal.lib.helper import remove_fields, get_value_type
+from internal.lib.helper import remove_fields, get_value_type, generate_random_string
 from internal.model.app import AppConfigVersion, AppConfig
 from internal.schema.app_schema import (
     CreateAppReq,
@@ -669,6 +669,34 @@ class AppService(BaseService):
         )
 
         return messages, paginator
+
+    def get_published_config(self, app_id: UUID, account: Account) -> dict[str, Any]:
+        """根据传递的应用id+账号，获取应用的发布配置"""
+        # 1.获取应用信息并校验权限
+        app = self.get_app(app_id, account)
+
+        # 2.构建发布配置并返回
+        return {
+            "web_app": {
+                "token": app.token_with_default,
+                "status": app.status,
+            }
+        }
+
+    def regenerate_web_app_token(self, app_id: UUID, account: Account) -> str:
+        """根据传递的应用id+账号，重新生成Webapp凭证标识"""
+        # 1.获取要用信息并校验权限
+        app = self.get_app(app_id, account)
+
+        # 2.判断要用是否已发布
+        if app.status != AppStatus.PUBLISHED:
+            raise FailException("应用未发布，无法生成WebApp凭证标识")
+
+        # 3.重新生成token并更新数据
+        token = generate_random_string(16)
+        self.update(app, token=token)
+
+        return token
 
     def _validate_draft_app_config(self, draft_app_config: dict[str, Any], account: Account) -> dict[str, Any]:
         """校验传递的应用草稿配置信息，返回校验后的数据"""

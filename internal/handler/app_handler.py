@@ -197,5 +197,15 @@ class AppHandler:
 
         return success_json(PageModel(list=resp.dump(messages), paginator=paginator))
 
+    def get_published_config(self, app_id: UUID):
+        """根据传递的应用id获取应用的发布配置信息"""
+        published_config = self.app_service.get_published_config(app_id, current_user)
+        return success_json(published_config)
+
+    def regenerate_web_app_token(self, app_id: UUID):
+        """根据传递的应用id重新生成Webapp凭证标识"""
+        token = self.app_service.regenerate_web_app_token(app_id, current_user)
+        return success_json({"token": token})
+
     def ping(self):
         pass
