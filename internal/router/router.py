@@ -27,6 +27,7 @@ from internal.handler import (
     LanguageModelHandler,
     AssistantAgentHandler,
     AnalysisHandler,
+    WebAppHandler,
 )
 
 @inject
@@ -50,6 +51,7 @@ class Router:
     language_model_handler: LanguageModelHandler
     assistant_agent_handler: AssistantAgentHandler
     analysis_handler: AnalysisHandler
+    web_app_handler: WebAppHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -358,6 +360,21 @@ class Router:
             "/apps/<uuid:app_id>/published-config/regenerate-web-app-token",
             methods=["POST"],
             view_func=self.app_handler.regenerate_web_app_token
+        )
+
+        bp.add_url_rule(
+            "/web-apps/<string:token>",
+            view_func=self.web_app_handler.get_web_app
+        )
+        bp.add_url_rule(
+            "/web-apps/<string:token>/chat",
+            methods=["POST"],
+            view_func=self.web_app_handler.web_app_chat,
+        )
+        bp.add_url_rule(
+            "/web-apps/<string:token>/chat/<uuid:app_id>/stop",
+            methods=["POST"],
+            view_func=self.web_app_handler.stop_web_app_chat
         )
 
         # 7. 在应用上去注册蓝图
