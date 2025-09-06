@@ -11,7 +11,7 @@ from langchain_core.runnables import RunnableConfig
 from langchain_core.runnables.utils import Input, Output
 
 from internal.core.workflow.entities.node_entity import NodeResult, NodeStatus
-from internal.core.workflow.entities.variable_entity import VariableValueType, VariableDefaultVaultMap
+from internal.core.workflow.entities.variable_entity import VariableValueType, VARIABLE_TYPE_DEFAULT_VALUE_MAP
 from internal.core.workflow.entities.workflow_entity import WorkflowState
 from internal.core.workflow.nodes import BaseNode
 from internal.core.workflow.nodes.end.end_entity import EndNodeData
@@ -39,7 +39,7 @@ class EndNode(BaseNode):
                     if node_result.node_data.id == output.value.content.ref_node_id:
                         outputs_dict[output.name] = node_result.outputs.get(
                             outputs.value.content.ref_var_name,
-                            VariableDefaultVaultMap.get(output.type)
+                            VARIABLE_TYPE_DEFAULT_VALUE_MAP.get(output.type)
                         )
 
         # 5.组装状态并返回

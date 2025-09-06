@@ -9,13 +9,12 @@ import ast
 from typing import Any, Optional
 
 from langchain_core.runnables import RunnableConfig
-from langchain_core.runnables.utils import Input, Output
 
 from internal.core.workflow.nodes import BaseNode
 from internal.exception import FailException
 from .code_entity import CodeNodeData
 from ...entities.node_entity import NodeResult, NodeStatus
-from ...entities.variable_entity import VariableValueType, VariableDefaultVaultMap
+from ...entities.variable_entity import VariableValueType, VARIABLE_TYPE_DEFAULT_VALUE_MAP
 from ...entities.workflow_entity import WorkflowState
 
 
@@ -40,7 +39,7 @@ class CodeNode(BaseNode):
                     if node_result.node_data.id == input.value.content.ref_node_id:
                         inputs_dict[input.name] = node_result.outputs.get(
                             input.value.content.ref_var_name,
-                            VariableDefaultVaultMap.get(input.type)
+                            VARIABLE_TYPE_DEFAULT_VALUE_MAP.get(input.type)
                         )
 
         # todo:5.执行python代码，该方法目前可以执行任务的python代码，所以非常危险，后去需要单独将这块部分功能迁移到沙箱中或者指定容器中运行和项目分离
@@ -57,7 +56,7 @@ class CodeNode(BaseNode):
             # 8.提取输出数据(非严格校验)
             outputs_dict[output.name] = result.get(
                 output.name,
-                VariableDefaultVaultMap.get(output.type)
+                VARIABLE_TYPE_DEFAULT_VALUE_MAP.get(output.type)
             )
 
         # 9.构建状态数据并返回

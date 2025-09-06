@@ -9,15 +9,13 @@ import json
 from typing import Any, Optional
 
 from langchain_core.runnables import RunnableConfig
-from langchain_core.runnables.utils import Input, Output
 
 from langchain_core.tools import BaseTool
 from pydantic import PrivateAttr
-from unstructured_client.models.shared import WorkflowNode
 
 from internal.core.tools.api_tools.entities import ToolEntity
 from internal.core.workflow.entities.node_entity import NodeResult, NodeStatus
-from internal.core.workflow.entities.variable_entity import VariableValueType, VariableDefaultVaultMap
+from internal.core.workflow.entities.variable_entity import VariableValueType, VARIABLE_TYPE_DEFAULT_VALUE_MAP
 from internal.core.workflow.entities.workflow_entity import WorkflowState
 from internal.core.workflow.nodes import BaseNode
 from internal.core.workflow.nodes.tool.tool_entity import ToolNodeData
@@ -94,7 +92,7 @@ class ToolNode(BaseNode):
                     if node_result.node_data.id == input.value.content.ref_node_id:
                         inputs_dict[input.name] = node_result.outputs.get(
                             input.value.content.ref_var_name,
-                            VariableDefaultVaultMap.get(input.type)
+                            VARIABLE_TYPE_DEFAULT_VALUE_MAP.get(input.type)
                         )
 
         # 5.调用插件并获取结果

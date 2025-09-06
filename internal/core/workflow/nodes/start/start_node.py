@@ -14,7 +14,7 @@ from internal.core.workflow.nodes import BaseNode
 from internal.exception import FailException
 from .start_entity import StartNodeData
 from ...entities.node_entity import NodeResult, NodeStatus
-from ...entities.variable_entity import VariableDefaultVaultMap
+from ...entities.variable_entity import VARIABLE_TYPE_DEFAULT_VALUE_MAP
 from ...entities.workflow_entity import WorkflowState
 
 
@@ -38,7 +38,7 @@ class StartNode(BaseNode):
                 if input.required:
                     raise FailException(f"工作流参数生成出错，{input.name}为必填参数")
                 else:
-                    input_value = VariableDefaultVaultMap.get(input.type)
+                    input_value = VARIABLE_TYPE_DEFAULT_VALUE_MAP.get(input.type)
 
             # 4.提取出输出数据
             outputs[input.name] = input_value
