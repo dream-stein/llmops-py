@@ -5,13 +5,14 @@
 #Author  :Emcikem
 @File    :conversation_schema.py
 """
+from flask_wtf import FlaskForm
 from marshmallow import Schema, pre_dump, fields
-from wtforms import IntegerField
+from wtforms import IntegerField, StringField, BooleanField
 
 from internal.lib.helper import datetime_to_timestamp
 from internal.model import Message
 from pkg.paginator import PaginatorReq
-from wtforms.validators import Optional, NumberRange
+from wtforms.validators import Optional, NumberRange, DataRequired, Length
 
 
 class GetConversationMessagesWithPageReq(PaginatorReq):
@@ -54,3 +55,14 @@ class GetConversationMessagesWithPageResp(Schema):
             } for agent_thought in data.agent_thoughts],
             "created_at": datetime_to_timestamp(data.created_at),
         }
+
+class UpdateConversationNameReq(FlaskForm):
+    """更新回话名字请求结构体"""
+    name = StringField("name", validators=[
+        DataRequired(message="会话名字不能为空"),
+        Length(max=100, message="会话名字长度不能超过100个字符")
+    ])
+
+class UpdateConversationIsPinnedReq(FlaskForm):
+    """更新会话置顶选项请求结构体"""
+    is_pinned = BooleanField('is_pinned', default=False)
