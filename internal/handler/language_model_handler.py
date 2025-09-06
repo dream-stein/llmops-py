@@ -6,9 +6,11 @@
 @File    :language_model_handler.py
 """
 import io
-
-from injector import inject
 from dataclasses import dataclass
+
+from flask import send_file
+from flask_login import login_required
+from injector import inject
 
 from internal.service import LanguageModelService
 from pkg.response import success_json
@@ -22,7 +24,7 @@ class LanguageModelHandler:
 
     def get_language_models(self):
         """获取所有的语言模型提供商信息"""
-        return success_json(self.language_model_service.get_language_model_models())
+        return success_json(self.language_model_service.get_language_models())
 
     def get_language_model(self, provider_name: str, model_name: str):
         """根据传递的提供商名字+模型名字获取模型详细信息"""
