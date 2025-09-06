@@ -9,7 +9,7 @@ from collections import defaultdict
 from typing import Any, TypedDict, Annotated
 from uuid import UUID
 
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, root_validator, model_validator
 from .node_entity import NodeResult, BaseNodeData
 
 # 工作流配置校验信息
@@ -42,7 +42,7 @@ class WorkflowConfig(BaseModel):
     nodes: list[dict[str, Any]] = Field(default_factory=list) # 工作流对应的节点
     edges: list[dict[str, Any]] = Field(default_factory=list) # 工作流对应的边
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     def validate_workflow_config(cls, values: dict[str, Any]):
         """自定义校验函数，用于校验尬住了配置中的所有参数信息"""
         pass

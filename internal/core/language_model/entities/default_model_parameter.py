@@ -33,7 +33,7 @@ DEFAULT_MODEL_PARAMETER_TEMPLATE = {
         "precision": 2,
         "options": [],
     },
-# 存在惩罚
+    # 存在惩罚
     DefaultModelParameterName.PRESENCE_PENALTY: {
         "label": "存在惩罚",
         "type": ModelParameterType.FLOAT,
@@ -57,8 +57,8 @@ DEFAULT_MODEL_PARAMETER_TEMPLATE = {
         "precision": 2,
         "options": [],
     },
-# 最大生成tokens数
-    DefaultModelParameterName.MAX_COMPLETION_TOKENS: {
+    # 最大生成tokens数
+    DefaultModelParameterName.MAX_TOKENS: {
         "label": "最大标记",
         "type": ModelParameterType.INT,
         "help": "要生成的标记的最大数量，类型为整型",

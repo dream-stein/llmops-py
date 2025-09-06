@@ -25,14 +25,14 @@ from internal.entity.conversation_entity import (
     SuggestedQuestions, InvokeFrom, MessageStatus
 )
 from pkg.paginator import Paginator
-from .base_service import BaseService
+from internal.service.base_service import BaseService
 from pkg.sqlalchemy import SQLAlchemy
 from langchain_core.prompts import ChatPromptTemplate
 
-from ..core.agent.entities.queue_entity import AgentThought, QueueEvent
-from ..exception import NotFoundException
-from ..model import Conversation, Message, MessageAgentThought, Account
-from ..schema.conversation_schema import GetConversationMessagesWithPageReq
+from internal.core.agent.entities.queue_entity import AgentThought, QueueEvent
+from internal.exception import NotFoundException
+from internal.model import Conversation, Message, MessageAgentThought, Account
+from internal.schema.conversation_schema import GetConversationMessagesWithPageReq
 
 
 @inject

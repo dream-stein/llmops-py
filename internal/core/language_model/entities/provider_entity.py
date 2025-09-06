@@ -9,7 +9,7 @@ import os.path
 from typing import Union, Type, Any, Optional
 
 import yaml
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, model_validator
 
 from internal.core.language_model.entities.default_model_parameter import DEFAULT_MODEL_PARAMETER_TEMPLATE
 from internal.core.language_model.entities.model_entity import ModelType, ModelEntity, BaseLanguageModel
@@ -33,7 +33,7 @@ class Provider(BaseModel):
     model_entity_map: dict[str, ModelEntity] = Field(default_factory=dict) # 模型实体映射
     model_class_map: dict[str, Union[None, Type[BaseLanguageModel]]] = Field(default_factory=dict) # 模型类映射
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     def validate_provider(cls, provider: dict[str, Any]) -> dict[str, Any]:
         """服务提供者校验器，里用校验器完成该服务提供者的实体与类实例化"""
         # 1.获取服务提供商实体
