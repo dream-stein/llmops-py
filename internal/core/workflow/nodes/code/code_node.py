@@ -16,6 +16,7 @@ from .code_entity import CodeNodeData
 from ...entities.node_entity import NodeResult, NodeStatus
 from ...entities.variable_entity import VariableValueType, VARIABLE_TYPE_DEFAULT_VALUE_MAP
 from ...entities.workflow_entity import WorkflowState
+from ...utils.helper import extract_variables_from_state
 
 
 class CodeNode(BaseNode):
@@ -24,42 +25,27 @@ class CodeNode(BaseNode):
 
     def invoke(self, state: WorkflowState, config: Optional[RunnableConfig] = None) -> WorkflowState:
         """Python代码运行节点，执行的代码函数名字必须为main，并且参数名为params，有且只有一个参数，不运行有其他的语句"""
-        # 1.提取节点的输入数据
-        inputs = self.node_data.inputs
+        # 1.循环遍历输入数据，并提取需要的数据
+        inputs_dict = extract_variables_from_state(self.node_data.inputs, state)
 
-        # 2.循环遍历输入数据，并提取需要的数据
-        inputs_dict = {}
-        for input in inputs:
-            # 3.判断数据是引用还是直接输入
-            if input.value.type == VariableValueType.LITERAL:
-                inputs_dict[input.name] = input.value.content
-            else:
-                # 4.引用的类型，遍历节点获取数据
-                for node_result in state["node_results"]:
-                    if node_result.node_data.id == input.value.content.ref_node_id:
-                        inputs_dict[input.name] = node_result.outputs.get(
-                            input.value.content.ref_var_name,
-                            VARIABLE_TYPE_DEFAULT_VALUE_MAP.get(input.type)
-                        )
-
-        # todo:5.执行python代码，该方法目前可以执行任务的python代码，所以非常危险，后去需要单独将这块部分功能迁移到沙箱中或者指定容器中运行和项目分离
+        # todo:2.执行python代码，该方法目前可以执行任务的python代码，所以非常危险，后去需要单独将这块部分功能迁移到沙箱中或者指定容器中运行和项目分离
         result = self._execute_function(self.node_data.code, params=inputs_dict)
 
-        # 6.检测函数的返回值是否为字典
+        # 3.检测函数的返回值是否为字典
         if not isinstance(result, dict):
             raise FailException("main函数的返回值必须是一个字典")
 
-        # 7.提取输出数据
+        # 4.提取输出数据
         outputs_dict = {}
         outputs = self.node_data.outputs
         for output in outputs:
-            # 8.提取输出数据(非严格校验)
+            # 5.提取输出数据(非严格校验)
             outputs_dict[output.name] = result.get(
                 output.name,
                 VARIABLE_TYPE_DEFAULT_VALUE_MAP.get(output.type)
             )
 
-        # 9.构建状态数据并返回
+        # 6.构建状态数据并返回
         return {
             "node_results": [
                 NodeResult(

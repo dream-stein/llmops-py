@@ -18,6 +18,6 @@ def main(params):
 
 class CodeNodeData(BaseNodeData):
     """Python代码执行节点数据"""
-    code: str = "" # 需要执行的Python代码
+    code: str = DefaultCode # 需要执行的Python代码
     inputs: list[VariableEntity] = Field(default_factory=list) # 输入变量列表
     outputs: list[VariableEntity] = Field(default_factory=list) # 输出变量列表

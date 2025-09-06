@@ -19,6 +19,7 @@ from internal.core.workflow.entities.variable_entity import VariableValueType, V
 from internal.core.workflow.entities.workflow_entity import WorkflowState
 from internal.core.workflow.nodes import BaseNode
 from internal.core.workflow.nodes.tool.tool_entity import ToolNodeData
+from internal.core.workflow.utils.helper import extract_variables_from_state
 from internal.exception import NotFoundException, FailException
 from internal.model import ApiTool
 
@@ -78,41 +79,26 @@ class ToolNode(BaseNode):
     def invoke(self, state: WorkflowState, config: Optional[RunnableConfig] = None) -> WorkflowState:
         """扩展插件执行节点，根据传递的信息调用预设的插件，涵盖内置插件及API插件"""
         # 1.提取节点中的输入数据
-        inputs = self.node_data.inputs
+        inputs_dict = extract_variables_from_state(self.node_data.inputs, state)
 
-        # 2.循环遍历输入数据，并提取需要的数据
-        inputs_dict = {}
-        for input in inputs:
-            # 3.判断数据是引用还是直接输入
-            if input.value.type == VariableValueType.LITERAL:
-                inputs_dict[input.name] = input.value.content
-            else:
-                # 4.引用的数据类型，遍历节点获取数据
-                for node_result in state["node_results"]:
-                    if node_result.node_data.id == input.value.content.ref_node_id:
-                        inputs_dict[input.name] = node_result.outputs.get(
-                            input.value.content.ref_var_name,
-                            VARIABLE_TYPE_DEFAULT_VALUE_MAP.get(input.type)
-                        )
-
-        # 5.调用插件并获取结果
+        # 2.调用插件并获取结果
         try:
             result = self._tool.invoke(inputs_dict)
         except Exception as e:
             raise FailException("扩展插件执行失败，请稍后尝试")
 
-        # 6.检测result是否为字符串，如果不是则转换
+        # 3.检测result是否为字符串，如果不是则转换
         if not isinstance(result, str):
             result = json.dumps(result)
 
-        # 7.提取并构建输出数据结构
+        # 4.提取并构建输出数据结构
         outputs = {}
         if self.node_data.outputs:
             outputs[self.node_data.outputs[0].name] = result
         else:
             outputs["text"] = result
 
-        # 8.构建响应状态并返回
+        # 5.构建响应状态并返回
         return {
             "node_results": [
                 NodeResult(

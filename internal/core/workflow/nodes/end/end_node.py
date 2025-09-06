@@ -15,6 +15,7 @@ from internal.core.workflow.entities.variable_entity import VariableValueType, V
 from internal.core.workflow.entities.workflow_entity import WorkflowState
 from internal.core.workflow.nodes import BaseNode
 from internal.core.workflow.nodes.end.end_entity import EndNodeData
+from internal.core.workflow.utils.helper import extract_variables_from_state
 
 
 class EndNode(BaseNode):
@@ -24,25 +25,10 @@ class EndNode(BaseNode):
 
     def invoke(self, state: WorkflowState, config: Optional[RunnableConfig] = None) -> WorkflowState:
         """结束节点执行函数，提取出状态中需要展示的数据，并更新outputs"""
-        # 1.提取节点中需要输出的数据
-        outputs = self.node_data.outputs
+        # 1.循环遍历所有需要输出的数据
+        outputs_dict = extract_variables_from_state(self.node_data.outputs, state)
 
-        # 2.循环遍历所有需要输出的数据
-        outputs_dict = {}
-        for output in outputs:
-            # 3.判断输出字段是引用还是直接输入
-            if output.value.type == VariableValueType.LITERAL:
-                outputs_dict[output.name] = output.value.content
-            else:
-                # 4.引用数据类型，遍历节点并提取
-                for node_result in state["node_results"]:
-                    if node_result.node_data.id == output.value.content.ref_node_id:
-                        outputs_dict[output.name] = node_result.outputs.get(
-                            outputs.value.content.ref_var_name,
-                            VARIABLE_TYPE_DEFAULT_VALUE_MAP.get(output.type)
-                        )
-
-        # 5.组装状态并返回
+        # 2.组装状态并返回
         return {
             "outputs": outputs_dict,
             "node_results": [

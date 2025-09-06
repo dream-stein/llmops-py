@@ -18,6 +18,7 @@ from internal.core.workflow.entities.variable_entity import VariableValueType, V
 from internal.core.workflow.entities.workflow_entity import WorkflowState
 from internal.core.workflow.nodes import BaseNode
 from internal.core.workflow.nodes.dataset_retrival.dataset_retrieval_entity import DatasetRetrievalNodeData
+from internal.core.workflow.utils.helper import extract_variables_from_state
 
 
 class DatasetRetrievalNode(BaseNode):
@@ -52,34 +53,20 @@ class DatasetRetrievalNode(BaseNode):
 
     def invoke(self, state: WorkflowState, config: Optional[RunnableConfig] = None) -> WorkflowState:
         """知识库检索节点调用函数，执行响应的知识库检索后返回"""
-        # 1.提取检索query输入变量
-        query_input = self.node_data.inputs[0]
+        # 1.提取query输入变量关联的值
+        inputs_dict = extract_variables_from_state(self.node_data.inputs, state)
 
-        # 2.提取query输入变量关联的值
-        inputs_dict = {}
-        if query_input.value.type == VariableValueType.LITERAL:
-            # 3.数据直接输入
-            inputs_dict[query_input.name] = query_input.value.content
-        else:
-            # 4.引用数据，需要循环遍历当前节点之前的节点执行结果
-            for node_result in state["node_results"]:
-                if node_result.node_data.id == query_input.value.content.ref_node_id:
-                    inputs_dict[query_input.name] = node_result.outputs.get(
-                        query_input.value.content.ref_var_name,
-                        VARIABLE_TYPE_DEFAULT_VALUE_MAP.get(query_input.type)
-                    )
-
-        # 5.调用知识库检索工具
+        # 2.调用知识库检索工具
         combine_documents = self._retrieval_tool.invoke(inputs_dict)
 
-        # 6.提取并构建输出数据结构
+        # 3.提取并构建输出数据结构
         outputs = {}
         if self.node_data.outputs:
             outputs[self.node_data.outputs[0].name] = combine_documents
         else:
             outputs["combine_documents"] = combine_documents
 
-        # 7.返回响应状态
+        # 4.返回响应状态
         return {
             "node_results": [
                 NodeResult(
