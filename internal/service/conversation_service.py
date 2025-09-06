@@ -5,6 +5,7 @@
 #Author  :Emcikem
 @File    :conversation_service.py
 """
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
@@ -14,20 +15,24 @@ from dataclasses import dataclass
 
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
+from sqlalchemy import desc
 
 from internal.entity.conversation_entity import (
     SUMMARIZER_TEMPLATE,
     CONVERSATION_NAME_TEMPLATE,
     ConversationInfo,
     SUGGESTED_QUESTIONS_TEMPLATE,
-    SuggestedQuestions, InvokeFrom
+    SuggestedQuestions, InvokeFrom, MessageStatus
 )
+from pkg.paginator import Paginator
 from .base_service import BaseService
 from pkg.sqlalchemy import SQLAlchemy
 from langchain_core.prompts import ChatPromptTemplate
 
 from ..core.agent.entities.queue_entity import AgentThought, QueueEvent
-from ..model import Conversation, Message, MessageAgentThought
+from ..exception import NotFoundException
+from ..model import Conversation, Message, MessageAgentThought, Account
+from ..schema.conversation_schema import GetConversationMessagesWithPageReq
 
 
 @inject
@@ -236,3 +241,48 @@ class ConversationService(BaseService):
                         observation=agent_thought.observation,
                     )
                     break
+
+    def get_conversation(self, conversation_id: UUID, account: Account) -> Conversation:
+        """根据传递的会话id+account，获取制定的会话消息"""
+        # 1.根据conversation_id查询会话记录
+        conversation = self.get(Conversation, conversation_id)
+        if (
+            not conversation
+            or conversation.created_by != account.id
+            or conversation.is_deleted
+        ):
+            raise NotFoundException("该会话不存在或被删除，请核实后重试")
+
+        # 2.校验通过返回会话
+        return conversation
+
+    def get_conversation_messages_with_page(
+            self,
+            conversation_id: UUID,
+            req: GetConversationMessagesWithPageReq,
+            account: Account,
+    ) -> tuple[list[Message], Paginator]:
+        """根据传递的回话id+请求数据，获取当前账号下盖会话的消息分页列表数据"""
+        # 1.获取会话并校验权限
+        conversation = self.get_conversation(conversation_id, account)
+
+        # 2.构建分页器并设置游标条件
+        paginator = Paginator(db=self.db, req=req)
+        filters = []
+        if req.created_at.data:
+            # 3.将时间转换成DateTime
+            create_at_datetime = datetime.fromtimestamp(req.created_at.data)
+            filters.append(Message.created_at <= create_at_datetime)
+
+        # 4.执行分页并查询数据
+        messages = paginator.paginate(
+            self.db.session.query(Message).filter(
+                Message.conversation_id == conversation.id,
+                Message.status.in_([MessageStatus.STOP, MessageStatus.NORMAL]),
+                Message.answer != "",
+                ~Message.is_deleted,
+                *filters,
+            ).order_by(desc("created_at"))
+        )
+
+        return messages, paginator

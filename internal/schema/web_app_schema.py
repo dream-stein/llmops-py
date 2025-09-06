@@ -8,10 +8,11 @@
 
 from flask_wtf import FlaskForm
 from marshmallow import Schema, fields, pre_dump
-from wtforms import StringField
+from wtforms import StringField, BooleanField
 from wtforms.validators import UUID, Optional, DataRequired
 
-from internal.model import App
+from internal.lib.helper import datetime_to_timestamp
+from internal.model import App, Conversation
 
 
 class GetWebAppResp(Schema):
@@ -46,3 +47,23 @@ class WebAppChatReq(FlaskForm):
     query = StringField("query", default="", validators=[
         DataRequired(message="用户提问query不能为空")
     ])
+
+class GetConversationsReq(FlaskForm):
+    """获取WebApp会话列表请求结构体"""
+    is_pinned = BooleanField("is_pinned", default=False)
+
+class GetConversationsResp(Schema):
+    """获取WebApp会话会话列表响应结构"""
+    id = fields.UUID(dump_default="")
+    name = fields.String(dump_default="")
+    summary = fields.String(dump_default="")
+    created_at = fields.Integer(dump_default=0)
+
+    @pre_dump
+    def process_data(self, data: Conversation, **kwargs):
+        return {
+            "id": data.id,
+            "name": data.name,
+            "summary": data.summary,
+            "created_at": datetime_to_timestamp(data.created_at),
+        }
