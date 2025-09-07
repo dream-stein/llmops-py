@@ -344,6 +344,11 @@ class Router:
             "/workflows/<uuid:workflow_id>/draft-graph",
             view_func=self.workflow_handler.get_workflow,
         )
+        bp.add_url_rule(
+            "/workflows/<uuid:workflow_id>/debug",
+            methods=["POST"],
+            view_func=self.workflow_handler.debug_workflow,
+        )
 
         bp.add_url_rule("/language-models", view_func=self.language_model_handler.get_language_models)
         bp.add_url_rule(
