@@ -6,13 +6,11 @@
 @File    :end_node.py
 """
 import time
-from typing import Optional, Any
+from typing import Optional
 
 from langchain_core.runnables import RunnableConfig
-from langchain_core.runnables.utils import Input, Output
 
 from internal.core.workflow.entities.node_entity import NodeResult, NodeStatus
-from internal.core.workflow.entities.variable_entity import VariableValueType, VARIABLE_TYPE_DEFAULT_VALUE_MAP
 from internal.core.workflow.entities.workflow_entity import WorkflowState
 from internal.core.workflow.nodes import BaseNode
 from internal.core.workflow.nodes.end.end_entity import EndNodeData
