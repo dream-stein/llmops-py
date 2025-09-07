@@ -22,8 +22,9 @@ from .ai_handler import AIHandler
 from .language_model_handler import LanguageModelHandler
 from .assistant_agent_handler import AssistantAgentHandler
 from .analysis_handler import AnalysisHandler
-from web_app_handler import WebAppHandler
-from conversation_handler import ConversationHandler
+from .web_app_handler import WebAppHandler
+from .conversation_handler import ConversationHandler
+from .workflow_handler import WorkflowHandler
 
 __all__ = [
     'AppHandler',
@@ -45,4 +46,5 @@ __all__ = [
     "AnalysisHandler",
     "WebAppHandler",
     "ConversationHandler",
+    "WorkflowHandler",
 ]

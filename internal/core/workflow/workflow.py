@@ -140,9 +140,9 @@ class Workflow(BaseTool):
                 parallel_edges[target_node].append(source_node)
 
             # 6.检测特殊节点（开始节点、结束节点）
-            if edge.get("source_type") == NodeType.START:
+            if edge.source_type == NodeType.START:
                 start_node = f"{edge.get('source_type')}_{edge.get('source')}"
-            elif edge.get("target_type") == NodeType.END:
+            if edge.target_type == NodeType.END:
                 end_node = f"{edge.get('target_type')}_{edge.get('target')}"
 
         # 7.设置开始和终点

@@ -29,6 +29,7 @@ from internal.handler import (
     AnalysisHandler,
     WebAppHandler,
     ConversationHandler,
+    WorkflowHandler,
 )
 
 @inject
@@ -54,6 +55,7 @@ class Router:
     analysis_handler: AnalysisHandler
     web_app_handler: WebAppHandler
     conversation_handler: ConversationHandler
+    workflow_handler: WorkflowHandler
 
     def register_router(self, app: Flask):
         """注册路由"""
@@ -319,6 +321,21 @@ class Router:
             view_func=self.builtin_app_handler.add_builtin_app_to_space
         )
 
+        # 工作流模块
+        bp.add_url_rule("/workflows", view_func=self.workflow_handler.get_workflows_with_page)
+        bp.add_url_rule("/workflows", methods=["POST"], view_func=self.workflow_handler.create_workflow)
+        bp.add_url_rule("/workflows/<uuid:workflow_id>", view_func=self.workflow_handler.get_workflow)
+        bp.add_url_rule(
+            "/workflows/<uuid:workflow_id>",
+            methods=["POST"],
+            view_func=self.workflow_handler.update_workflow
+        )
+        bp.add_url_rule(
+            "/workflows/<uuid:workflow_id>/delete",
+            methods=["POST"],
+            view_func=self.workflow_handler.delete_workflow
+        )
+
         bp.add_url_rule("/language-models", view_func=self.language_model_handler.get_language_models)
         bp.add_url_rule(
             "/language-models/<string:provider_name>/icon",
@@ -388,6 +405,7 @@ class Router:
             "/conversations/<uuid:conversation_id>/messages",
             view_func=self.conversation_handler.get_conversation_messages_with_page
         )
+
 
         # 7. 在应用上去注册蓝图
         app.register_blueprint(bp)
