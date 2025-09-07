@@ -29,7 +29,7 @@ from internal.handler import (
     AnalysisHandler,
     WebAppHandler,
     ConversationHandler,
-    WorkflowHandler,
+    WorkflowHandler, workflow_handler,
 )
 
 @inject
@@ -348,6 +348,16 @@ class Router:
             "/workflows/<uuid:workflow_id>/debug",
             methods=["POST"],
             view_func=self.workflow_handler.debug_workflow,
+        )
+        bp.add_url_rule(
+            "/workflows/<uuid:workflow_id>/publish",
+            methods=["POST"],
+            view_func=self.workflow_handler.publish_workflow
+        )
+        bp.add_url_rule(
+            "/workflows/<uuid:workflow_id>/cancel-publish",
+            methods=["POST"],
+            view_func=self.workflow_handler.cancel_publish_workflow,
         )
 
         bp.add_url_rule("/language-models", view_func=self.language_model_handler.get_language_models)

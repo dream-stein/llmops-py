@@ -101,3 +101,13 @@ class WorkflowHandler:
         response = self.workflow_service.debug_workflow(workflow_id, inputs, current_user)
 
         return compact_generate_response(response)
+
+    def publish_workflow(self, workflow_id: UUID):
+        """根据传递的工作流id发布指定的工作流"""
+        self.workflow_service.publish_workflow(workflow_id, current_user)
+        return success_message("发布工作流成功")
+
+    def cancel_publish_workflow(self, workflow_id: UUID):
+        """根据传递的工作流id取消发布指定的工作流"""
+        self.workflow_service.cancel_publish_workflow(workflow_id, current_user)
+        return success_message("取消发布工作流成功")
