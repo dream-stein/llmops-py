@@ -5,9 +5,9 @@
 #Author  :Emcikem
 @File    :tool_entity.py
 """
-from typing import Any
+from typing import Any, Literal
 
-from pydantic import Field
+from pydantic import Field, validator, field_validator
 
 from internal.core.workflow.entities.node_entity import BaseNodeData
 from internal.core.workflow.entities.variable_entity import VariableEntity, VariableValueType
@@ -15,14 +15,19 @@ from internal.core.workflow.entities.variable_entity import VariableEntity, Vari
 
 class ToolNodeData(BaseNodeData):
     """工具节点数据"""
-    tool_type: str = Field(alias="type") # 工具类型
-    provider_id: str # 工具提供者id
-    tool_id: str # 工具id
-    params: dict[str, Any] = Field(default_factory=dict) # 内置工具设置参数
-    inputs: list[VariableEntity] = Field(default_factory=list) # 输入变量列表
+    tool_type: Literal["builtin_tool", "api_tool", ""] = Field(alias="type")  # 工具类型
+    provider_id: str  # 工具提供者id
+    tool_id: str  # 工具id
+    params: dict[str, Any] = Field(default_factory=dict)  # 内置工具设置参数
+    inputs: list[VariableEntity] = Field(default_factory=list)  # 输入变量列表
     outputs: list[VariableEntity] = Field(
-        exclude=True,
-        default_factory=lambda :[
+        default_factory=lambda: [
             VariableEntity(name="text", value={"type": VariableValueType.GENERATED})
         ]
-    ) # 输出字段列表信息
+    )  # 输出字段列表信息
+
+    @field_validator("outputs", mode="before")
+    def validate_outputs(cls, outputs: list[VariableEntity]):
+        return [
+            VariableEntity(name="text", value={"type": VariableValueType.GENERATED})
+        ]

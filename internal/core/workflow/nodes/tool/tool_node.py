@@ -6,6 +6,7 @@
 @File    :tool_node.py
 """
 import json
+import time
 from typing import Any, Optional
 
 from langchain_core.runnables import RunnableConfig
@@ -79,6 +80,7 @@ class ToolNode(BaseNode):
     def invoke(self, state: WorkflowState, config: Optional[RunnableConfig] = None) -> WorkflowState:
         """扩展插件执行节点，根据传递的信息调用预设的插件，涵盖内置插件及API插件"""
         # 1.提取节点中的输入数据
+        start_at = time.perf_counter()
         inputs_dict = extract_variables_from_state(self.node_data.inputs, state)
 
         # 2.调用插件并获取结果
@@ -106,6 +108,7 @@ class ToolNode(BaseNode):
                     status=NodeStatus.SUCCEEDED,
                     inputs=inputs_dict,
                     outputs=outputs,
+                    latency=time.perf_counter() - start_at,
                 )
             ]
         }

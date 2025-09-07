@@ -5,6 +5,7 @@
 #Author  :Emcikem
 @File    :dataset_retrieval_node.py
 """
+import time
 from typing import Optional, Any
 from uuid import UUID
 
@@ -54,6 +55,7 @@ class DatasetRetrievalNode(BaseNode):
     def invoke(self, state: WorkflowState, config: Optional[RunnableConfig] = None) -> WorkflowState:
         """知识库检索节点调用函数，执行响应的知识库检索后返回"""
         # 1.提取query输入变量关联的值
+        start_at = time.perf_counter()
         inputs_dict = extract_variables_from_state(self.node_data.inputs, state)
 
         # 2.调用知识库检索工具
@@ -74,6 +76,7 @@ class DatasetRetrievalNode(BaseNode):
                     status=NodeStatus.SUCCEEDED,
                     inputs=inputs_dict,
                     outputs=outputs,
+                    latency=time.perf_counter() - start_at,
                 )
             ]
         }

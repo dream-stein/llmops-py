@@ -5,6 +5,7 @@
 #Author  :Emcikem
 @File    :end_node.py
 """
+import time
 from typing import Optional, Any
 
 from langchain_core.runnables import RunnableConfig
@@ -26,6 +27,7 @@ class EndNode(BaseNode):
     def invoke(self, state: WorkflowState, config: Optional[RunnableConfig] = None) -> WorkflowState:
         """结束节点执行函数，提取出状态中需要展示的数据，并更新outputs"""
         # 1.循环遍历所有需要输出的数据
+        start_at = time.perf_counter()
         outputs_dict = extract_variables_from_state(self.node_data.outputs, state)
 
         # 2.组装状态并返回
@@ -37,6 +39,7 @@ class EndNode(BaseNode):
                     status=NodeStatus.SUCCEEDED,
                     inputs={},
                     outputs=outputs_dict,
+                    latency=time.perf_counter() - start_at,
                 )
             ]
         }

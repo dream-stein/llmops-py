@@ -335,6 +335,15 @@ class Router:
             methods=["POST"],
             view_func=self.workflow_handler.delete_workflow
         )
+        bp.add_url_rule(
+            "/workflows/<uuid:workflow_id>/draft-graph",
+            methods=["POST"],
+            view_func=self.workflow_handler.update_draft_graph,
+        )
+        bp.add_url_rule(
+            "/workflows/<uuid:workflow_id>/draft-graph",
+            view_func=self.workflow_handler.get_workflow,
+        )
 
         bp.add_url_rule("/language-models", view_func=self.language_model_handler.get_language_models)
         bp.add_url_rule(

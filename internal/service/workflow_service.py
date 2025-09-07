@@ -6,19 +6,35 @@
 @File    :workflow_service.py
 """
 from dataclasses import dataclass
+from typing import Any
 from uuid import UUID
 
+from flask import request
 from injector import inject
 from sqlalchemy import desc
 
+from internal.core.workflow.entities.edge_entity import BaseEdgeData
+from internal.core.workflow.entities.node_entity import NodeType, BaseNodeData
 from internal.entity.workflow_entity import DEFAULT_WORKFLOW_CONFIG
 from internal.exception import ValidateErrorException, NotFoundException, ForbiddenException
-from internal.model import Account
+from internal.lib.helper import convert_model_to_dict
+from internal.model import Account, Dataset, ApiTool
+from internal.core.workflow.nodes import (
+    CodeNodeData,
+    DatasetRetrievalNodeData,
+    EndNodeData,
+    HttpRequestNodeData,
+    LLMNodeData,
+    StartNodeData,
+    TemplateTransformNodeData,
+    ToolNodeData,
+)
 from internal.model.workflow import Workflow
 from internal.schema.workflow_schema import CreateWorkflowReq, GetWorkflowsWithPageReq
 from internal.service import BaseService
 from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
+from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
 
 
 @inject
@@ -26,6 +42,7 @@ from pkg.sqlalchemy import SQLAlchemy
 class WorkflowService(BaseService):
     """工作流服务"""
     db: SQLAlchemy
+    builtin_provider_manager: BuiltinProviderManager
 
     def create_workflow(self, req: CreateWorkflowReq, account: Account) -> Workflow:
         """根据传递的请求信息创建工作流"""
@@ -110,3 +127,242 @@ class WorkflowService(BaseService):
         )
 
         return workflows, paginator
+
+    def update_draft_graph(self, workflow_id: UUID, draft_graph: dict[str, Any], account: Account) -> Workflow:
+        """根据传递的工作流id+草稿图配置+账号更新工作流的草稿图"""
+        # 1,根据传递的id获取工作流并校验权限
+        workflow = self.get_workflow(workflow_id, account)
+
+        # 2.校验传递的草稿图配置，因为可能边有可能还未建立，啥呀需要校验关联的数据
+        validate_draft_graph = self._validate_graph(draft_graph, account)
+
+        # 3.更新工作流草稿图配置，每次修改都要将is_debug_passed的值充值为False，该处可以优化对比字典里除position的其他属性
+        self.update(Workflow, **{
+            "draft_graph": validate_draft_graph,
+            "is_debug_passed": False,
+        })
+
+        return workflow
+
+    def _validate_graph(self, graph: dict[str, Any], account: Account) -> dict[str, Any]:
+        """校验传递的graph信息，涵盖nodes和edges对应的数据，该函数使用相对宽松的校验方式，并且因为是草稿，不需要校验节点与边的关系"""
+        # 1.提取nodes和edges数据
+        nodes = graph.get("nodes", [])
+        edges = graph.get("edges", [])
+
+        # 2.构建节点类型与及节点数据类映射
+        node_data_classes = {
+            NodeType.START: StartNodeData,
+            NodeType.END: EndNodeData,
+            NodeType.LLM: LLMNodeData,
+            NodeType.TEMPLATE_TRANSFORM: TemplateTransformNodeData,
+            NodeType.DATASETS_RETRIEVAL: DatasetRetrievalNodeData,
+            NodeType.CODE: CodeNodeData,
+            NodeType.TOOL: ToolNodeData,
+            NodeType.HTTP_REQUEST: HttpRequestNodeData,
+        }
+
+        # 3.循环校验nodes中各个节点对应的数据
+        node_data_dict: dict[UUID, BaseNodeData] = {}
+        start_nodes = 0
+        end_nodes = 0
+        for node in nodes:
+            try:
+                # 4.校验传递的node数据是不是字典，如果不是则跳过当前数据
+                if not isinstance(node, dict):
+                    raise ValidateErrorException("工作流节点数据类型出错，请核实后重试")
+
+                # 5.提取节点的node_type类型，并判断类型是否正确
+                node_type = node.get("node_type", "")
+                node_data_cls = node_data_classes.get(node_type, None)
+                if node_data_cls is None:
+                    raise ValidateErrorException("工作流节点类型出错，请核实后重试")
+
+                # 6.实例化节点数据类型，如果出错则跳过当前数据
+                node_data = node_data_cls(**node)
+
+                # 7.判断节点id是否唯一，如果不唯一，则将当前节点清除
+                if node_data.id in node_data_dict:
+                    raise ValidateErrorException("工作流节点id必须唯一，请核实后重试")
+
+                # 8.判断节点title是否唯一，如果不唯一，则将当前节点清除
+                if any(item.title.strip() == node_data.title.strip() for item in node_data_dict.values()):
+                    raise ValidateErrorException("工作流节点title必须唯一，请核实后重试")
+
+                # 9.对特殊节点进行判断，涵盖开始/结束/知识库检索/工具
+                if node_data.node_type == NodeType.START:
+                    if start_nodes >= 1:
+                        raise ValidateErrorException("工作流中只允许有1个开始节点")
+                    start_nodes += 1
+                elif node_data.node_type == NodeType.END:
+                    if end_nodes >= 1:
+                        raise ValidateErrorException("工作流中只允许有1个结束节点")
+                    end_nodes += 1
+                elif node_data.node_type == NodeType.DATASET_RETRIEVAL:
+                    # 10.剔除关联知识库列表中不属于当前账户的数据
+                    datasets = self.db.session.query(Dataset).filter(
+                        Dataset.id.in_(node_data.dataset_ids[:5]),
+                        Dataset.account_id == account.id,
+                    ).all()
+                    node_data.dataset_ids = [dataset.id for dataset in datasets]
+
+                # 11.将数据添加到node_data_dict中
+                node_data_dict[node_data.id] = node_data
+            except Exception:
+                continue
+
+        # 14.循环校验edges中各个节点对应的数据
+        edge_data_dict: dict[UUID, BaseEdgeData] = {}
+        for edge in edges:
+            try:
+                # 15.边类型为非字典则抛出错误，否则转换成BaseEdgeData
+                if not isinstance(edge, dict):
+                    raise ValidateErrorException("工作流边数据类型出错，请核实后重试")
+                edge_data = BaseEdgeData(**edge)
+
+                # 16.校验边edges的id是否唯一
+                if edge_data.id in edge_data_dict:
+                    raise ValidateErrorException("工作流边数据id必须唯一，请核实后重试")
+
+                # 17.校验边中的source/target/source_type/target_type必须和nodes对得上
+                if (
+                        edge_data.source not in node_data_dict
+                        or edge_data.source_type != node_data_dict[edge_data.source].node_type
+                        or edge_data.target not in node_data_dict
+                        or edge_data.target_type != node_data_dict[edge_data.target].node_type
+                ):
+                    raise ValidateErrorException("工作流边起点/终点对应的节点不存在或类型错误，请核实后重试")
+
+                # 18.校验边Edges里的边必须唯一(source+target必须唯一)
+                if any(
+                        (item.source == edge_data.source and item.target == edge_data.target)
+                        for item in edge_data_dict.values()
+                ):
+                    raise ValidateErrorException("工作流边数据不能重复添加")
+
+                # 19.基础数据校验通过，将数据添加到edge_data_dict中
+                edge_data_dict[edge_data.id] = edge_data
+            except Exception:
+                continue
+
+        return {
+            "nodes": [convert_model_to_dict(node_data) for node_data in node_data_dict.values()],
+            "edges": [convert_model_to_dict(edge_data) for edge_data in edge_data_dict.values()],
+        }
+
+    def get_draft_graph(self, workflow_id: str, account: Account) -> dict[str, Any]:
+        """根据传递的工作流id+账号信息，获取指定工作流的草稿配置信息"""
+        # 1.根据传递的id获取工作流并校验权限
+        workflow = self.get_workflow(UUID(workflow_id), account)
+
+        # 2.提取草稿图结构信息并校验（不更新校验后的数据到数据库）
+        draft_graph = workflow.draft_graph
+        validate_draft_graph = self._validate_graph(draft_graph, account)
+
+        # 3.循环遍历节点信息，为工具/知识库节点附加元数据
+        for node in validate_draft_graph["nodes"]:
+            if node.get("node_type") == NodeType.TOOL:
+                # 4.判断工具的类型执行不同的操作
+                if node.get("tool_type") == "builtin_tool":
+                    # 5.节点类型为工具，则附加工具的名称、图标、参数等额外信息
+                    provider = self.builtin_provider_manager.get_provider(node.get("provider_id"))
+                    if not provider:
+                        continue
+
+                    # 6.获取提供者下的工具实体，并检测是否存在
+                    tool_entity = provider.get_tool_entity(node.get("tool_id"))
+                    if not tool_entity:
+                        continue
+
+                    # 7.判断工具的params和草稿中的params是否一致，如果不一致则全部重置为默认值（或者考虑删除这个工具的引用）
+                    param_keys = set([param.name for param in tool_entity.params])
+                    params = node.get("params")
+                    if set(params.keys()) - param_keys:
+                        params = {
+                            param.name: params.default
+                            for param in tool_entity.params
+                            if param.default is not None
+                        }
+
+                    # 8.数据校验成功附加展示信息
+                    provider_entity = provider.provider_entity
+                    node["meta"] = {
+                        "type": "builtin_tool",
+                        "provider": {
+                            "id": provider_entity.id,
+                            "name": provider_entity.name,
+                            "label": provider_entity.label,
+                            "icon": f"{request.scheme}://{request.host}/builtin-tools/{provider_entity.name}/icon",
+                            "description": provider_entity.description,
+                        },
+                        "tool": {
+                            "id": tool_entity.name,
+                            "name": tool_entity.name,
+                            "label": tool_entity.label,
+                            "description": tool_entity.description,
+                            "params": params,
+                        }
+                    }
+                elif node.get("tool_type") == "api_tool":
+                    # 9.查询数据库获取对应的工具记录，并检测是否存在
+                    tool_record = self.db.session.query(ApiTool).filter(
+                        ApiTool.provider_id == node.get("provider_id"),
+                        ApiTool.name == node.get("tool_id"),
+                        ApiTool.account_id == account.id,
+                    ).one_or_one()
+                    if not tool_record:
+                        continue
+
+                    # 10.组装api工具展示信息
+                    provider = tool_record.provider
+                    node["meta"] = {
+                        "type": "api_tool",
+                        "provider": {
+                            "id": provider.id,
+                            "name": provider.name,
+                            "label": provider.label,
+                            "icon": provider.icon,
+                            "description": provider.description,
+                        },
+                        "tool": {
+                            "id": str(tool_record.id),
+                            "name": tool_record.name,
+                            "label": tool_record.name,
+                            "description": tool_record.description,
+                            "params": {},
+                        }
+                    }
+                else:
+                    node["meta"] = {
+                        "type": "api_tool",
+                        "provider": {
+                            "id": "",
+                            "name": "",
+                            "label": "",
+                            "icon": "",
+                            "description": "",
+                        },
+                        "tool": {
+                            "id": "",
+                            "name": "",
+                            "label": "",
+                            "description": "",
+                            "params": {},
+                        },
+                    }
+            elif node.get("tool_type") == NodeType.DATASETS_RETRIEVAL:
+                # 5.节点类型为知识库检索，需要附加知识库的名称、图标等信息
+                datasets = self.db.session.query(Dataset).filter(
+                    Dataset.id.in_(node.get("datasets_ids", [])),
+                    Dataset.account_id == account.id,
+                ).all()
+                node["meta"] = {
+                    "datasets": [{
+                        "id": dataset.id,
+                        "name": dataset.name,
+                        "icon": dataset.icon,
+                        "description": dataset.description,
+                    } for dataset in datasets]
+                }
+
+        return validate_draft_graph

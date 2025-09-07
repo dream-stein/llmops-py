@@ -6,17 +6,18 @@
 @File    :code_node.py
 """
 import ast
-from typing import Any, Optional
+import time
+from typing import Optional
 
 from langchain_core.runnables import RunnableConfig
 
 from internal.core.workflow.nodes import BaseNode
 from internal.exception import FailException
 from .code_entity import CodeNodeData
-from ...entities.node_entity import NodeResult, NodeStatus
-from ...entities.variable_entity import VariableValueType, VARIABLE_TYPE_DEFAULT_VALUE_MAP
-from ...entities.workflow_entity import WorkflowState
-from ...utils.helper import extract_variables_from_state
+from internal.core.workflow.entities.node_entity import NodeResult, NodeStatus
+from internal.core.workflow.entities.variable_entity import VARIABLE_TYPE_DEFAULT_VALUE_MAP
+from internal.core.workflow.entities.workflow_entity import WorkflowState
+from internal.core.workflow.utils.helper import extract_variables_from_state
 
 
 class CodeNode(BaseNode):
@@ -26,6 +27,7 @@ class CodeNode(BaseNode):
     def invoke(self, state: WorkflowState, config: Optional[RunnableConfig] = None) -> WorkflowState:
         """Python代码运行节点，执行的代码函数名字必须为main，并且参数名为params，有且只有一个参数，不运行有其他的语句"""
         # 1.循环遍历输入数据，并提取需要的数据
+        start_at = time.perf_counter()
         inputs_dict = extract_variables_from_state(self.node_data.inputs, state)
 
         # todo:2.执行python代码，该方法目前可以执行任务的python代码，所以非常危险，后去需要单独将这块部分功能迁移到沙箱中或者指定容器中运行和项目分离
@@ -53,6 +55,7 @@ class CodeNode(BaseNode):
                     status=NodeStatus.SUCCEEDED,
                     inputs=inputs_dict,
                     outputs=outputs_dict,
+                    latency=time.perf_counter() - start_at,
                 )
             ],
         }

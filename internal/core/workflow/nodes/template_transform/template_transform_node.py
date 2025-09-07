@@ -5,6 +5,7 @@
 #Author  :Emcikem
 @File    :template_transform_node.py
 """
+import time
 from typing import Optional, Any
 
 from jinja2 import Template
@@ -26,6 +27,7 @@ class TemplateTransformNode(BaseNode):
     def invoke(self, state: WorkflowState, config: Optional[RunnableConfig] = None) -> WorkflowState:
         """模板转换节点执行函数，将传递的多个变量合并成字符串后返回"""
         # 1.循环遍历输入数据，并提取需要的数据
+        start_at = time.perf_counter()
         inputs_dict = extract_variables_from_state(self.node_data.inputs, state)
 
         # 2.使用jinja2格式模板消息
@@ -43,6 +45,7 @@ class TemplateTransformNode(BaseNode):
                     status=NodeStatus.SUCCEEDED,
                     inputs=inputs_dict,
                     outputs=outputs,
+                    latency=time.perf_counter() - start_at,
                 )
             ]
         }
