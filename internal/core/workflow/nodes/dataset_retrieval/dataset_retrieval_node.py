@@ -15,16 +15,15 @@ from langchain_core.tools import BaseTool
 from pydantic import PrivateAttr
 
 from internal.core.workflow.entities.node_entity import NodeResult, NodeStatus
-from internal.core.workflow.entities.variable_entity import VariableValueType, VARIABLE_TYPE_DEFAULT_VALUE_MAP
 from internal.core.workflow.entities.workflow_entity import WorkflowState
 from internal.core.workflow.nodes import BaseNode
-from internal.core.workflow.nodes.dataset_retrival.dataset_retrieval_entity import DatasetRetrievalNodeData
+from internal.core.workflow.nodes.dataset_retrieval.dataset_retrieval_entity import DatasetRetrievalNodeData
 from internal.core.workflow.utils.helper import extract_variables_from_state
 
 
 class DatasetRetrievalNode(BaseNode):
     """知识库检索节点"""
-    node_data = DatasetRetrievalNodeData
+    node_data: DatasetRetrievalNodeData
     _retrieval_tool: BaseTool = PrivateAttr(None)
 
     def __init__(
