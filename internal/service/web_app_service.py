@@ -6,35 +6,31 @@
 @File    :web_app_service.py
 """
 import json
-from threading import Thread
-from typing import Generator
+from dataclasses import dataclass
+from typing import Generator, Any
 from uuid import UUID
 
 from flask import current_app
 from injector import inject
-from dataclasses import dataclass
-
-from langchain_core.messages import HumanMessage
 from sqlalchemy import desc
 
+from internal.core.agent.agents import FunctionCallAgent, ReACTAgent, AgentQueueManager
+from internal.core.agent.entities.agent_entity import AgentConfig
+from internal.core.agent.entities.queue_entity import QueueEvent
+from internal.core.language_model.entities.model_entity import ModelFeature
+from internal.core.memory import TokenBufferMemory
 from internal.entity.app_entity import AppStatus
 from internal.entity.conversation_entity import InvokeFrom, MessageStatus
+from internal.entity.dataset_entity import RetrievalSource
 from internal.exception import NotFoundException, ForbiddenException
 from internal.model import App, Account, Conversation, Message
 from internal.schema.web_app_schema import WebAppChatReq
-from internal.service import BaseService
 from pkg.sqlalchemy import SQLAlchemy
 from .app_config_service import AppConfigService
+from .base_service import BaseService
 from .conversation_service import ConversationService
 from .language_model_service import LanguageModelService
 from .retrieval_service import RetrievalService
-from ..core.agent.agents import FunctionCallAgent, AgentQueueManager
-from ..core.agent.agents.react_agent import ReACTAgent
-from ..core.agent.entities.agent_entity import AgentConfig
-from ..core.agent.entities.queue_entity import QueueEvent
-from ..core.language_model.entities.model_entity import ModelFeature
-from ..core.memory import TokenBufferMemory
-from ..entity.dataset_entity import RetrievalSource
 
 
 @inject
