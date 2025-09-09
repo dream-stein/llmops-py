@@ -5,23 +5,25 @@
 #Author  :Emcikem
 @File    :language_model_manager.py
 """
-import os
+import os.path
 from typing import Any, Optional, Type
 
 import yaml
 from injector import inject, singleton
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, root_validator, model_validator
 
+# from langchain_core.pydantic_v1 import BaseModel, Field, root_validator
+
+from internal.exception import NotFoundException
 from .entities.model_entity import ModelType, BaseLanguageModel
 from .entities.provider_entity import Provider, ProviderEntity
-from ...exception import NotFoundException
 
 
 @inject
 @singleton
 class LanguageModelManager(BaseModel):
     """语言模型管理器"""
-    provider_map: dict[str, Provider] = Field(default_factory=dict) # 服务提供者映射
+    provider_map: dict[str, Provider] = Field(default_factory=dict)  # 服务提供者映射
 
     @model_validator(mode="before")
     def validate_language_model_manager(cls, values: dict[str, Any]) -> dict[str, Any]:
@@ -45,7 +47,6 @@ class LanguageModelManager(BaseModel):
                 position=index + 1,
                 provider_entity=provider_entity,
             )
-
         return values
 
     def get_provider(self, provider_name: str) -> Optional[Provider]:

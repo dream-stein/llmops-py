@@ -13,11 +13,3 @@
   background: "#FFFFFF"
   supported_model_types:
     - chat
-- name: tongyi
-  label: 通义千问
-  description: 通义千问
-  icon: icon.png
-  background: "#FFFFFF"
-  supported_model_types:
-    - chat
-- name: wenxin
