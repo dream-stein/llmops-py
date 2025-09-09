@@ -26,7 +26,7 @@ from internal.service import BaseService
 from pkg.sqlalchemy import SQLAlchemy
 from .app_config_service import AppConfigService
 from .conversation_service import ConversationService
-from .langguage_model_service import LanguageModelService
+from .language_model_service import LanguageModelService
 from .retrieval_service import RetrievalService
 from ..core.agent.agents import FunctionCallAgent, AgentQueueManager
 from ..core.agent.agents.react_agent import ReACTAgent

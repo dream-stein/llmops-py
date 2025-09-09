@@ -7,20 +7,20 @@
 """
 import base64
 import secrets
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
 
 from flask import request
 from injector import inject
-from dataclasses import dataclass
 
-from internal.exception import UnauthorizedException, FailException
+from internal.exception import FailException
 from internal.model import Account, AccountOAuth
-from .base_service import BaseService
 from pkg.password import hash_password, compare_password
 from pkg.sqlalchemy import SQLAlchemy
-from internal.service import JWTService
+from .base_service import BaseService
+from .jwt_service import JwtService
 
 
 @inject
@@ -28,7 +28,7 @@ from internal.service import JWTService
 class AccountService(BaseService):
     """账号服务"""
     db: SQLAlchemy
-    jwt_service: JWTService
+    jwt_service: JwtService
 
     def get_account(self, account_id: UUID) -> Account:
         """根据id获取指定的账号模型"""

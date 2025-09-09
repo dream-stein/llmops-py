@@ -20,14 +20,14 @@ from pkg.sqlalchemy import SQLAlchemy
 from internal.exception import NotFoundException
 from .account_service import AccountService
 from internal.model import AccountOAuth
-from internal.service import JWTService
+from internal.service import JwtService
 
 @inject
 @dataclass
 class OAuthService(BaseService):
     """第三方授权认证服务"""
     db: SQLAlchemy
-    jwt_service: JWTService
+    jwt_service: JwtService
     account_service: AccountService
 
     @classmethod

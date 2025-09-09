@@ -11,13 +11,13 @@ from injector import inject
 from dataclasses import dataclass
 
 from internal.exception import UnauthorizedException
-from internal.service import JWTService, AccountService, ApiKeyService
+from internal.service import JwtService, AccountService, ApiKeyService
 
 @inject
 @dataclass
 class Middleware:
     """应用中间件，可以重写request_loader与unauthorized_handler"""
-    jwt_service: JWTService
+    jwt_service: JwtService
     api_key_service: ApiKeyService
     account_service: AccountService
 

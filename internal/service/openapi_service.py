@@ -33,7 +33,7 @@ from internal.core.agent.entities.agent_entity import AgentConfig
 from internal.core.agent.entities.queue_entity import QueueEvent
 from internal.entity.dataset_entity import RetrievalSource
 from .conversation_service import ConversationService
-from .langguage_model_service import LanguageModelService
+from .language_model_service import LanguageModelService
 from ..core.agent.agents.react_agent import ReACTAgent
 from ..core.language_model.entities.model_entity import ModelFeature
 

@@ -14,7 +14,7 @@ from dataclasses import dataclass
 
 @inject
 @dataclass
-class JWTService:
+class JwtService:
     """jwt服务"""
 
     @classmethod

@@ -61,7 +61,7 @@ from .conversation_service import ConversationService
 from .app_config_service import AppConfigService
 from internal.entity.ai_entity import OPTIMIZE_PROMPT_TEMPLATE
 from .cos_service import CosService
-from .langguage_model_service import LanguageModelService
+from .language_model_service import LanguageModelService
 from internal.core.language_model import LanguageModelManager
 from ..core.agent.agents.react_agent import ReACTAgent
 from ..core.language_model.entities.model_entity import ModelParameterType, ModelFeature

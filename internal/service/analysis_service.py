@@ -15,7 +15,7 @@ from dataclasses import dataclass
 
 from redis import Redis
 
-from . import AppService
+from .app_service import AppService
 from .base_service import BaseService
 from pkg.sqlalchemy import SQLAlchemy
 from internal.model import Account, App, Message

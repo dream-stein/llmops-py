@@ -17,7 +17,7 @@ from sqlalchemy import (
     func
 )
 from internal.extension.database_extension import db
-from . import UploadFile
+from .upload_file import UploadFile
 from .app import AppDatasetJoin
 
 class Dataset(db.Model):

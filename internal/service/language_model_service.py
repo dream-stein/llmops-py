@@ -3,7 +3,7 @@
 """
 @Time    :2025/8/23 13:11
 #Author  :Emcikem
-@File    :langguage_model_service.py
+@File    :language_model_service.py
 """
 import mimetypes
 import os
