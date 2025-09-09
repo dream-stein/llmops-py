@@ -202,7 +202,6 @@ class OpenAPIService(BaseService):
                 thread = Thread(
                     target=self.conversation_service.save_agent_thoughts,
                     kwargs={
-                        "flask_app": current_app._get_current_object(),
                         "account_id": account.id,
                         "app_id": app.id,
                         "app_config": app_config,
@@ -222,7 +221,6 @@ class OpenAPIService(BaseService):
         thread = Thread(
             target=self.conversation_service.save_agent_thoughts,
             kwargs={
-                "flask_app": current_app._get_current_object(),
                 "account_id": account.id,
                 "app_id": app.id,
                 "app_config": app_config,

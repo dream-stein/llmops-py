@@ -14,17 +14,21 @@ from injector import inject
 
 from internal.schema.app_schema import (
     CreateAppReq,
-    GetAppResp,
+    UpdateAppReq,
     GetAppsWithPageReq,
     GetAppsWithPageResp,
+    GetAppResp,
     GetPublishHistoriesWithPageReq,
     GetPublishHistoriesWithPageResp,
-    FallbackHistoryToDraftReq, UpdateDebugConversationSummaryReq, UpdateAppReq, DebugChatReq,
-    GetDebugConversationMessagesWithPageReq, GetDebugConversationMessagesWithPageResp
+    FallbackHistoryToDraftReq,
+    UpdateDebugConversationSummaryReq,
+    DebugChatReq,
+    GetDebugConversationMessagesWithPageReq,
+    GetDebugConversationMessagesWithPageResp
 )
 from internal.service import AppService
 from pkg.paginator import PageModel
-from pkg.response import success_json, success_message, validate_error_json, compact_generate_response
+from pkg.response import validate_error_json, success_json, success_message, compact_generate_response
 
 
 @inject

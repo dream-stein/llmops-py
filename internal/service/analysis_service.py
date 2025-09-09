@@ -6,19 +6,18 @@
 @File    :analysis_service.py
 """
 import json
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
 from uuid import UUID
 
 from injector import inject
-from dataclasses import dataclass
-
 from redis import Redis
 
+from internal.model import Account, App, Message
+from pkg.sqlalchemy import SQLAlchemy
 from .app_service import AppService
 from .base_service import BaseService
-from pkg.sqlalchemy import SQLAlchemy
-from internal.model import Account, App, Message
 
 
 @inject
