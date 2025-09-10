@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from injector import inject
 import weaviate
 from langchain_core.vectorstores import VectorStoreRetriever
+from langchain_openai import OpenAIEmbeddings
 from langchain_weaviate import WeaviateVectorStore
 from weaviate import WeaviateClient
 from weaviate.auth import Auth
@@ -38,15 +39,14 @@ class VectorDatabaseService:
             auth_credentials=Auth.api_key(os.getenv("WEAVIATE_API_KEY")),
         )
 
-
         # 2.创建Langchain向量数据库
-        # self.vector_store = WeaviateVectorStore(
-        #     client=self.client,
-        #     index_name=COLLECTION_NAME,
-        #     text_key="text",
-        #     embedding=OpenAIEmbeddings(model="text-embedding-3-small"),
-        # )
-        self.vector_store = None
+        self.vector_store = WeaviateVectorStore(
+            client=self.client,
+            index_name=COLLECTION_NAME,
+            text_key="text",
+            embedding=OpenAIEmbeddings(model="text-embedding-3-small"),
+        )
+        # self.vector_store = None
 
     def get_retriever(self) -> VectorStoreRetriever:
         """获取检索器"""
