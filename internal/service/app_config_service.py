@@ -26,8 +26,8 @@ from internal.model import App, ApiTool, Dataset, AppConfig, AppConfigVersion, A
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
 
-@dataclass
 @inject
+@dataclass
 class AppConfigService(BaseService):
     """应用配置服务"""
     db: SQLAlchemy
