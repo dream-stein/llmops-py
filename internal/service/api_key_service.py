@@ -6,19 +6,18 @@
 @File    :api_key_service.py
 """
 import secrets
+from dataclasses import dataclass
 from uuid import UUID
 
 from injector import inject
-from dataclasses import dataclass
-
 from sqlalchemy import desc
 
-from pkg.paginator import PaginatorReq, Paginator
-from .base_service import BaseService
-from pkg.sqlalchemy import SQLAlchemy
-from internal.schema.api_key_schema import CreateApiKeyReq, UpdateApiKeyReq
 from internal.exception import ForbiddenException
 from internal.model import Account, ApiKey
+from internal.schema.api_key_schema import CreateApiKeyReq
+from pkg.paginator import PaginatorReq, Paginator
+from pkg.sqlalchemy import SQLAlchemy
+from .base_service import BaseService
 
 
 @inject

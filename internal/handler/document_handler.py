@@ -13,7 +13,7 @@ from uuid import UUID
 
 from internal.schema.dataset_schema import UpdateDocumentEnabledReq
 from internal.schema.document_schema import CreateDocumentsReq, CreateDocumentsResp, GetDocumentResp, \
-    UpdateDocumentNameReq, GetDocumentWithPageReq, GetDocumentsWithPageResp
+    UpdateDocumentNameReq, GetDocumentsWithPageReq, GetDocumentsWithPageResp
 from pkg.paginator import PageModel
 from pkg.response import validate_error_json, success_json, success_message
 from internal.service import DocumentService
@@ -81,7 +81,7 @@ class DocumentHandler:
     def get_documents_with_page(self, dataset_id: UUID):
         """根据传递的知识库id获取文档分页列表数据"""
         # 1.提取请求数据并校验
-        req = GetDocumentWithPageReq()
+        req = GetDocumentsWithPageReq()
         if not req.validate():
             return validate_error_json(req.errors)
 

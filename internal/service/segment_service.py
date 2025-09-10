@@ -6,36 +6,32 @@
 @File    :segment_service.py
 """
 import uuid
+from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
 from injector import inject
-from dataclasses import dataclass
-
-from numpy import character
+from langchain_core.documents import Document as LCDocument
+from redis import Redis
 from sqlalchemy import asc, func
 
-from internal.entity.cache_entity import LOCK_SEGMENT_UPDATE_ENABED, LOCK_EXPIRE_TIME
-from internal.entity.dataset_entity import SegmentStatus, DocumentStatus
+from internal.entity.cache_entity import LOCK_EXPIRE_TIME, LOCK_SEGMENT_UPDATE_ENABLED
+from internal.entity.dataset_entity import DocumentStatus, SegmentStatus
 from internal.exception import NotFoundException, FailException, ValidateErrorException
 from internal.lib.helper import generate_text_hash
-from internal.model import Segment, Document, Account
+from internal.model import Document, Segment, Account
 from internal.schema.segment_schema import (
     GetSegmentsWithPageReq,
     CreateSegmentReq,
-    UpdateSegmentReq
-)
-from internal.service import (
-    BaseService,
-    KeywordTableService,
-    VectorDatabaseService,
-    EmbeddingsService,
-    JiebaService,
+    UpdateSegmentReq,
 )
 from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
-from redis import Redis
-from langchain_core.documents import Document as LCDocument
+from .base_service import BaseService
+from .embeddings_service import EmbeddingsService
+from .jieba_service import JiebaService
+from .keyword_table_service import KeywordTableService
+from .vector_database_service import VectorDatabaseService
 
 @inject
 @dataclass
@@ -306,7 +302,7 @@ class SegmentService(BaseService):
             raise FailException(f"片段状态修改错误，当前以是{'启用' if enabled else '禁用'}")
 
         # 4.获取更新片段启用状态所并上锁检测
-        cache_key = LOCK_SEGMENT_UPDATE_ENABED.format(segment_id=segment_id)
+        cache_key = LOCK_SEGMENT_UPDATE_ENABLED.format(segment_id=segment_id)
         cache_result = self.redis_client.get(cache_key)
         if cache_result is not None:
             raise FailException("当前文档片段正在修改状态，请稍后重试")

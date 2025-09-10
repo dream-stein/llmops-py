@@ -9,65 +9,63 @@ import io
 import json
 from dataclasses import dataclass
 from datetime import datetime
-from threading import Thread
 from typing import Any, Generator
 from uuid import UUID
 
 import requests
 from flask import current_app
-from injector import inject, provider
+from injector import inject
 from langchain_community.utilities.dalle_image_generator import DallEAPIWrapper
-from langchain_core.messages import HumanMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel
 from langchain_openai import ChatOpenAI
-from sqlalchemy import desc, func
+from redis import Redis
+from sqlalchemy import func, desc
 from werkzeug.datastructures import FileStorage
 
-from internal.entity.app_entity import AppStatus, AppConfigType, DEFAULT_APP_CONFIG, GENERATE_ICON_PROMPT_TEMPLATE
+from internal.core.agent.agents import FunctionCallAgent, AgentQueueManager, ReACTAgent
+from internal.core.agent.entities.agent_entity import AgentConfig
+from internal.core.agent.entities.queue_entity import QueueEvent
+from internal.core.language_model import LanguageModelManager
+from internal.core.language_model.entities.model_entity import ModelParameterType, ModelFeature
+from internal.core.memory import TokenBufferMemory
+from internal.core.tools.api_tools.providers import ApiProviderManager
+from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
+from internal.entity.ai_entity import OPTIMIZE_PROMPT_TEMPLATE
+from internal.entity.app_entity import AppStatus, AppConfigType, DEFAULT_APP_CONFIG
+from internal.entity.app_entity import GENERATE_ICON_PROMPT_TEMPLATE
+from internal.entity.conversation_entity import InvokeFrom, MessageStatus
+from internal.entity.dataset_entity import RetrievalSource
+from internal.entity.workflow_entity import WorkflowStatus
 from internal.exception import NotFoundException, ForbiddenException, ValidateErrorException, FailException
 from internal.lib.helper import remove_fields, get_value_type, generate_random_string
-from internal.model.app import AppConfigVersion, AppConfig
-from internal.schema.app_schema import (
-    CreateAppReq,
-    GetAppsWithPageReq,
-    GetPublishHistoriesWithPageReq, GetDebugConversationMessagesWithPageReq
-)
-from pkg.paginator import Paginator
-from .base_service import BaseService
-from pkg.sqlalchemy import SQLAlchemy
 from internal.model import (
     App,
     Account,
+    AppConfigVersion,
     ApiTool,
     Dataset,
+    AppConfig,
     AppDatasetJoin,
     Conversation,
     Message,
+    Workflow,
 )
-from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
-from internal.core.memory import TokenBufferMemory
-from internal.core.tools.api_tools.providers import ApiProviderManager
-from .retrieval_service import RetrievalService
-from internal.core.agent.agents import FunctionCallAgent, AgentQueueManager
-from internal.core.agent.entities.agent_entity import AgentConfig
-from internal.entity.dataset_entity import RetrievalSource
-from redis import Redis
-
-from internal.entity.conversation_entity import InvokeFrom, MessageStatus
-from internal.core.agent.entities.queue_entity import QueueEvent
-from .conversation_service import ConversationService
+from internal.schema.app_schema import (
+    CreateAppReq,
+    GetAppsWithPageReq,
+    GetPublishHistoriesWithPageReq,
+    GetDebugConversationMessagesWithPageReq, DebugChatReq,
+)
+from pkg.paginator import Paginator
+from pkg.sqlalchemy import SQLAlchemy
 from .app_config_service import AppConfigService
-from internal.entity.ai_entity import OPTIMIZE_PROMPT_TEMPLATE
+from .base_service import BaseService
+from .conversation_service import ConversationService
 from .cos_service import CosService
 from .language_model_service import LanguageModelService
-from internal.core.language_model import LanguageModelManager
-from ..core.agent.agents.react_agent import ReACTAgent
-from ..core.language_model.entities.model_entity import ModelParameterType, ModelFeature
-from ..core.workflow import Workflow
-from ..entity.workflow_entity import WorkflowStatus
-
+from .retrieval_service import RetrievalService
 
 @inject
 @dataclass
@@ -79,9 +77,9 @@ class AppService(BaseService):
     conversation_service: ConversationService
     retrieval_service: RetrievalService
     app_config_service: AppConfigService
+    language_model_service: LanguageModelService
     api_provider_manager: ApiProviderManager
     builtin_provider_manager: BuiltinProviderManager
-    language_model_service: LanguageModelService
     language_model_manager: LanguageModelManager
 
     def auto_create_app(self, name: str, description: str, account_id: UUID) -> None:
@@ -566,7 +564,7 @@ class AppService(BaseService):
 
         agent_thoughts = {}
         for agent_thought in agent.stream({
-            "messages": [HumanMessage(query)],
+            "messages": [llm.convert_to_human_message(query)],
             "history": history,
             "long_term_memory": debug_conversation.summary,
         }):
@@ -614,19 +612,15 @@ class AppService(BaseService):
             }
             yield f"event: {agent_thought.event}\ndata:{json.dumps(data)}\n\n"
 
-            # 22.将消息以及推理过程添加到数据库
-        thread = Thread(
-            target=self.conversation_service.save_agent_thoughts,
-            kwargs={
-                "account_id": account.id,
-                "app_id": app_id,
-                "app_config": draft_app_config,
-                "conversation_id": debug_conversation.id,
-                "message_id": message.id,
-                "agent_thoughts": [agent_thought for agent_thought in agent_thoughts.values()],
-            }
+        # 22.将消息以及推理过程添加到数据库
+        self.conversation_service.save_agent_thoughts(
+            account_id=UUID(account.id),
+            app_id=UUID(app.id),
+            app_config=draft_app_config,
+            conversation_id=UUID(debug_conversation.id),
+            message_id=message.id,
+            agent_thoughts=[agent_thought for agent_thought in agent_thoughts.values()],
         )
-        thread.start()
 
     def stop_debug_chat(self, app_id: UUID, task_id: UUID, account: Account) -> None:
         """根据传递的应用id+任务id+账号，停止某个要用的调试会话，中断流式事件"""

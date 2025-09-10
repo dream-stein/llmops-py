@@ -390,16 +390,16 @@ class AppConfigService(BaseService):
 
     def _process_and_validate_workflows(self, origin_workflows: list[UUID]) -> tuple[list[dict], list[UUID]]:
         """根据传递的工作流列表并返回工作流配置和校验后的数据"""
-        # 1.校验工作流配置列表，如果引用了不存在/被删除的工作流，则需要提出数据并更新，同时获取工作流的额外信息
+        # 1.校验工作流配置列表，如果引用了不存在/被删除的工作流，则需要剔除数据并更新，同时获取工作流的额外信息
         workflows = []
         workflow_records = self.db.session.query(Workflow).filter(
             Workflow.id.in_(origin_workflows),
             Workflow.status == WorkflowStatus.PUBLISHED,
         ).all()
-        workflow_dict = {str(workflow_record.id): workflow_record for workflow_record in workflow_records}
+        workflow_dict = {str(workflow_record.id) : workflow_record for workflow_record in workflow_records}
         workflow_sets = set(workflow_dict.keys())
 
-        # 2.计算存在的工作流id列表，为了保留原始顺序，使用列表循环的方式来判断
+        # 2.计算存在的工作流id列表，为了保留原始顺序，使用列表循环的方式以来判断
         validate_workflows = [workflow_id for workflow_id in origin_workflows if workflow_id in workflow_sets]
 
         # 3.循环获取工作流数据

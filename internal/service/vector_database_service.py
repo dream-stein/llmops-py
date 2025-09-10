@@ -10,11 +10,8 @@ from dataclasses import dataclass
 
 from injector import inject
 import weaviate
-from langchain_community.embeddings import OpenAIEmbeddings
-from langchain_core.documents import Document
 from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_weaviate import WeaviateVectorStore
-from mako.compat import win32
 from weaviate import WeaviateClient
 from weaviate.auth import Auth
 from weaviate.collections import Collection

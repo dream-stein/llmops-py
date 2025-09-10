@@ -7,8 +7,8 @@
 """
 from typing import Any, Optional
 
-from pkg.sqlalchemy import SQLAlchemy
 from internal.exception import FailException
+from pkg.sqlalchemy import SQLAlchemy
 
 class BaseService:
     """基础服务，完善数据库的基础增删改查功能，简化代码"""

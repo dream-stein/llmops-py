@@ -7,11 +7,13 @@
 """
 import json
 from dataclasses import dataclass
+from threading import Thread
 from typing import Generator, Any
 from uuid import UUID
 
 from flask import current_app
 from injector import inject
+from langchain_core.messages import HumanMessage
 from sqlalchemy import desc
 
 from internal.core.agent.agents import FunctionCallAgent, ReACTAgent, AgentQueueManager

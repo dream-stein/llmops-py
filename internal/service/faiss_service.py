@@ -5,16 +5,16 @@
 #Author  :Emcikem
 @File    :faiss_service.py
 """
-import os.path
+import os
 
 from injector import inject
 from langchain_community.vectorstores import FAISS
 from langchain_core.tools import BaseTool, tool
 from pydantic import BaseModel, Field
 
-from internal.lib.helper import combine_documents
-from internal.service import EmbeddingsService
 from internal.core.agent.entities.agent_entity import DATASET_RETRIEVAL_TOOL_NAME
+from internal.lib.helper import combine_documents
+from .embeddings_service import EmbeddingsService
 
 
 @inject

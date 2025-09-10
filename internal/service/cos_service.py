@@ -11,14 +11,13 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime
 
-from werkzeug.datastructures import FileStorage
-
 from injector import inject
 from qcloud_cos import CosS3Client, CosConfig
+from werkzeug.datastructures import FileStorage
 
+from internal.entity.upload_file_entity import ALLOWED_IMAGE_EXTENSION, ALLOWED_DOCUMENT_EXTENSION
 from internal.exception import FailException
 from internal.model import UploadFile, Account
-from internal.entity.upload_file_entity import ALLOWED_DOCUMENT_EXTENSION, ALLOWED_IMAGE_EXTENSION
 from .upload_file_service import UploadFileService
 
 @inject

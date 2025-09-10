@@ -12,13 +12,12 @@ from injector import inject
 from internal.core.builtin_apps import BuiltinAppManager
 from internal.core.builtin_apps.entities.builtin_app_entity import BuiltinAppEntity
 from internal.core.builtin_apps.entities.category_entity import CategoryEntity
-from internal.entity.app_entity import AppStatus, AppConfigType
+from internal.entity.app_entity import AppConfigType
+from internal.entity.app_entity import AppStatus
 from internal.exception import NotFoundException
-from internal.model import Account, App
-from internal.model.app import AppConfigVersion
-from .base_service import BaseService
+from internal.model import Account, App, AppConfigVersion
 from pkg.sqlalchemy import SQLAlchemy
-
+from .base_service import BaseService
 
 @inject
 @dataclass

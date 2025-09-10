@@ -6,21 +6,20 @@
 @File    :oauth_service.py
 """
 import os
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
-from uuid import UUID
 
-from injector import inject
-from dataclasses import dataclass
 from flask import request
-from .base_service import BaseService
-from pkg.oauth import OAuth, GithubOAuth
-from pkg.sqlalchemy import SQLAlchemy
+from injector import inject
 
 from internal.exception import NotFoundException
-from .account_service import AccountService
 from internal.model import AccountOAuth
-from internal.service import JwtService
+from pkg.oauth import OAuth, GithubOAuth
+from pkg.sqlalchemy import SQLAlchemy
+from .account_service import AccountService
+from .base_service import BaseService
+from .jwt_service import JwtService
 
 @inject
 @dataclass

@@ -185,7 +185,7 @@ class UpdateDocumentNameReq(FlaskForm):
         Length(min=1, max=100, message="文档的名称长度不能超过100"),
     ])
 
-class GetDocumentWithPageReq(PaginatorReq):
+class GetDocumentsWithPageReq(PaginatorReq):
     """获取文档分页列表请求"""
     search_word = StringField("search_word", default="", validators=[
         Optional()

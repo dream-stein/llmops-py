@@ -5,36 +5,33 @@
 #Author  :Emcikem
 @File    :conversation_service.py
 """
+from dataclasses import dataclass
 from datetime import datetime
 from threading import Thread
 from typing import Any
 from uuid import UUID
 
-from flask import Flask, current_app
+from flask import current_app
 from injector import inject
-from dataclasses import dataclass
-
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from sqlalchemy import desc
 
+from internal.core.agent.entities.queue_entity import AgentThought, QueueEvent
 from internal.entity.conversation_entity import (
     SUMMARIZER_TEMPLATE,
     CONVERSATION_NAME_TEMPLATE,
     ConversationInfo,
     SUGGESTED_QUESTIONS_TEMPLATE,
-    SuggestedQuestions, InvokeFrom, MessageStatus
+    SuggestedQuestions, InvokeFrom, MessageStatus,
 )
-from pkg.paginator import Paginator
-from internal.service.base_service import BaseService
-from pkg.sqlalchemy import SQLAlchemy
-from langchain_core.prompts import ChatPromptTemplate
-
-from internal.core.agent.entities.queue_entity import AgentThought, QueueEvent
 from internal.exception import NotFoundException
 from internal.model import Conversation, Message, MessageAgentThought, Account
 from internal.schema.conversation_schema import GetConversationMessagesWithPageReq
-
+from pkg.paginator import Paginator
+from pkg.sqlalchemy import SQLAlchemy
+from .base_service import BaseService
 
 @inject
 @dataclass

@@ -5,28 +5,28 @@
 #Author  :Emcikem
 @File    :document_service.py
 """
+import logging
 import random
 import time
+from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
 from injector import inject
-from dataclasses import dataclass
-
+from redis import Redis
 from sqlalchemy import desc, asc, func
 
 from internal.entity.cache_entity import LOCK_DOCUMENT_UPDATE_ENABLED, LOCK_EXPIRE_TIME
+from internal.entity.dataset_entity import ProcessType, DocumentStatus, SegmentStatus
 from internal.entity.upload_file_entity import ALLOWED_DOCUMENT_EXTENSION
 from internal.exception import ForbiddenException, FailException, NotFoundException
 from internal.lib.helper import datetime_to_timestamp
-from internal.model import Document, Dataset, UploadFile, ProcessRule, Segment, Account
-from internal.schema.document_schema import GetDocumentWithPageReq
-from .base_service import BaseService
+from internal.model import Dataset, Document, Segment, UploadFile, ProcessRule, Account
+from internal.schema.document_schema import GetDocumentsWithPageReq
+from internal.task.document_task import build_documents, update_document_enabled, delete_document
 from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
-from internal.entity.dataset_entity import ProcessType, SegmentStatus, DocumentStatus
-from internal.task.document_task import build_documents, update_document_enabled, delete_document
-from redis import Redis
+from .base_service import BaseService
 
 @inject
 @dataclass
@@ -237,7 +237,7 @@ class DocumentService(BaseService):
     def get_documents_with_page(
             self,
             dataset_id: UUID,
-            req: GetDocumentWithPageReq,
+            req: GetDocumentsWithPageReq,
             account: Account,
     ) -> tuple[list[Document], Paginator]:
         # 1.获取知识库并校验权限

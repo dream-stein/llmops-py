@@ -6,37 +6,34 @@
 @File    :openapi_service.py
 """
 import json
+from dataclasses import dataclass
 from threading import Thread
 from typing import Generator
 from uuid import UUID
 
 from flask import current_app
 from injector import inject
-from dataclasses import dataclass
-
 from langchain_core.messages import HumanMessage
 
-from pkg.response import Response
-from .base_service import BaseService
-from pkg.sqlalchemy import SQLAlchemy
-from internal.model import Account, EndUser, Conversation, Message
-from internal.schema.openapi_schema import OpenAPIChatReq
-from .app_config_service import AppConfigService
-from .app_service import AppService
-from internal.entity.app_entity import AppStatus
-from internal.core.memory import TokenBufferMemory
-from internal.entity.conversation_entity import InvokeFrom, MessageStatus
-from internal.exception import NotFoundException, ForbiddenException
-from .retrieval_service import RetrievalService
-from internal.core.agent.agents import FunctionCallAgent
+from internal.core.agent.agents import FunctionCallAgent, ReACTAgent
 from internal.core.agent.entities.agent_entity import AgentConfig
 from internal.core.agent.entities.queue_entity import QueueEvent
+from internal.core.language_model.entities.model_entity import ModelFeature
+from internal.core.memory import TokenBufferMemory
+from internal.entity.app_entity import AppStatus
+from internal.entity.conversation_entity import InvokeFrom, MessageStatus
 from internal.entity.dataset_entity import RetrievalSource
+from internal.exception import NotFoundException, ForbiddenException
+from internal.model import Account, EndUser, Conversation, Message
+from internal.schema.openapi_schema import OpenAPIChatReq
+from pkg.response import Response
+from pkg.sqlalchemy import SQLAlchemy
+from .app_config_service import AppConfigService
+from .app_service import AppService
+from .base_service import BaseService
 from .conversation_service import ConversationService
 from .language_model_service import LanguageModelService
-from ..core.agent.agents.react_agent import ReACTAgent
-from ..core.language_model.entities.model_entity import ModelFeature
-
+from .retrieval_service import RetrievalService
 
 @inject
 @dataclass

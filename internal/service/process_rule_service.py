@@ -6,12 +6,13 @@
 @File    :process_rule_service.py
 """
 import re
+from dataclasses import dataclass
 from typing import Callable
 
 from injector import inject
-from dataclasses import dataclass
-from internal.model import ProcessRule
 from langchain_text_splitters import TextSplitter, RecursiveCharacterTextSplitter
+
+from internal.model import ProcessRule
 
 @inject
 @dataclass

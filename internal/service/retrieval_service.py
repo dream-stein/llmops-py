@@ -12,20 +12,19 @@ from flask import Flask
 from injector import inject
 from langchain.retrievers import EnsembleRetriever
 from langchain_core.documents import Document as LCDocument
+from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool, tool
-from pydantic import BaseModel, Field
 from sqlalchemy import update
 
+from internal.core.agent.entities.agent_entity import DATASET_RETRIEVAL_TOOL_NAME
 from internal.entity.dataset_entity import RetrievalStrategy, RetrievalSource
 from internal.exception import NotFoundException
-from internal.model import Dataset, DatasetQuery, Segment, Account
+from internal.lib.helper import combine_documents
+from internal.model import Dataset, DatasetQuery, Segment
 from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
 from .jieba_service import JiebaService
 from .vector_database_service import VectorDatabaseService
-from ..core.agent.entities.agent_entity import DATASET_RETRIEVAL_TOOL_NAME
-from ..lib.helper import combine_documents
-
 
 @inject
 @dataclass

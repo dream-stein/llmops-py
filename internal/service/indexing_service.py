@@ -7,38 +7,34 @@
 """
 import re
 import uuid
+from concurrent.futures import ThreadPoolExecutor
+from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
 from flask import Flask, current_app
 from injector import inject
-from dataclasses import dataclass
-
-from sqlalchemy import func
-from concurrent.futures import ThreadPoolExecutor
-
-from weaviate.collections.classes.filters import Filter
-
-from .base_service import BaseService
-from pkg.sqlalchemy import SQLAlchemy
-from internal.model import Document, Segment, KeywordTable, DatasetQuery
-from internal.entity.dataset_entity import DocumentStatus, SegmentStatus
 from langchain_core.documents import Document as LCDocument
+from redis import Redis
+from sqlalchemy import func
+from weaviate.classes.query import Filter
 
 from internal.core.file_extractor import FileExtractor
-from .process_rule_service import ProcessRuleService
-from .embeddings_service import EmbeddingsService
+from internal.entity.cache_entity import (
+    LOCK_DOCUMENT_UPDATE_ENABLED
+)
+from internal.entity.dataset_entity import DocumentStatus, SegmentStatus
+from internal.exception import NotFoundException
 from internal.lib.helper import generate_text_hash
+from internal.model import Document, Segment, KeywordTable, DatasetQuery
+from pkg.sqlalchemy import SQLAlchemy
+from .base_service import BaseService
+from .embeddings_service import EmbeddingsService
 from .jieba_service import JiebaService
 from .keyword_table_service import KeywordTableService
+from .process_rule_service import ProcessRuleService
 from .vector_database_service import VectorDatabaseService
-from internal.entity.cache_entity import (
-    LOCK_EXPIRE_TIME,
-    LOCK_DOCUMENT_UPDATE_ENABLED,
-    LOCK_KEYWORD_TABLE_UPDATE_KEYWORD_TABLE,
-)
-from internal.exception import NotFoundException
-from redis import Redis
+
 
 
 @inject

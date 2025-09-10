@@ -5,15 +5,19 @@
 #Author  :Emcikem
 @File    :keyword_table_service.py
 """
+from dataclasses import dataclass
 from uuid import UUID
 
 from injector import inject
-from dataclasses import dataclass
-from .base_service import BaseService
-from pkg.sqlalchemy import SQLAlchemy
-from internal.model import KeywordTable, Segment
-from internal.entity.cache_entity import LOCK_KEYWORD_TABLE_UPDATE_KEYWORD_TABLE, LOCK_EXPIRE_TIME
 from redis import Redis
+
+from internal.entity.cache_entity import (
+    LOCK_KEYWORD_TABLE_UPDATE_KEYWORD_TABLE,
+    LOCK_EXPIRE_TIME,
+)
+from internal.model import Segment, KeywordTable
+from pkg.sqlalchemy import SQLAlchemy
+from .base_service import BaseService
 
 @inject
 @dataclass

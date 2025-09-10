@@ -6,36 +6,33 @@
 @File    :assistant_agent_service.py
 """
 import json
+from dataclasses import dataclass
 from datetime import datetime
-from threading import Thread
 from typing import Generator
 from uuid import UUID
 
 from flask import current_app
 from injector import inject
-from dataclasses import dataclass
-
 from langchain_core.messages import HumanMessage
+from langchain_core.pydantic_v1 import BaseModel, Field
 from langchain_core.tools import BaseTool, tool
-from langchain_openai import ChatOpenAI
-from pydantic import BaseModel, Field
 from sqlalchemy import desc
 
-from pkg.paginator import Paginator
-from .base_service import BaseService
-from pkg.sqlalchemy import SQLAlchemy
-from internal.model import Account, Message
 from internal.core.agent.agents import AgentQueueManager, FunctionCallAgent
-from internal.entity.conversation_entity import InvokeFrom, MessageStatus
 from internal.core.agent.entities.agent_entity import AgentConfig
 from internal.core.agent.entities.queue_entity import QueueEvent
+from internal.core.language_model.entities.model_entity import ModelFeature
+from internal.core.language_model.providers.openai.chat import Chat
 from internal.core.memory import TokenBufferMemory
-from internal.schema.assistant_agent_schema import GetAssistantAgentMessagesWithPageReq
+from internal.entity.conversation_entity import InvokeFrom, MessageStatus
+from internal.model import Account, Message
+from internal.schema.assistant_agent_schema import GetAssistantAgentMessagesWithPageReq, AssistantAgentChat
+from internal.task.app_task import auto_create_app
+from pkg.paginator import Paginator
+from pkg.sqlalchemy import SQLAlchemy
+from .base_service import BaseService
 from .conversation_service import ConversationService
 from .faiss_service import FaissService
-from internal.task.app_task import auto_create_app
-from ..core.language_model.entities.model_entity import ModelFeature
-from ..core.language_model.providers.openai.chat import Chat
 
 
 @inject
@@ -151,20 +148,14 @@ class AssistantAgentService(BaseService):
             yield f"event: {agent_thought.event}\ndata:{json.dumps(data)}\n\n"
 
         # 22.将消息以及推理过程添加到数据库
-        thread = Thread(
-            target=self.conversation_service.save_agent_thoughts,
-            kwargs={
-                "account_id": account.id,
-                "app_id": assistant_agent_id,
-                "app_config": {
-                    "long_term_memory": {"enable": True},
-                },
-                "conversation_id": conversation.id,
-                "message_id": message.id,
-                "agent_thoughts": [agent_thought for agent_thought in agent_thoughts.values()],
-            }
+        self.conversation_service.save_agent_thoughts(
+            account_id=UUID(account.id),
+            app_id=assistant_agent_id,
+            app_config={"long_term_memory": {"enable": True}},
+            conversation_id=UUID(conversation.id),
+            message_id=message.id,
+            agent_thoughts=[agent_thought for agent_thought in agent_thoughts.values()],
         )
-        thread.start()
 
     @classmethod
     def stop_chat(cls, task_id: UUID, account: Account) -> None:

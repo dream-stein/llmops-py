@@ -5,17 +5,14 @@
 #Author  :Emcikem
 @File    :embeddings_service.py
 """
-import os.path
+from dataclasses import dataclass
 
 import tiktoken
 from injector import inject
-from dataclasses import dataclass
+from langchain.embeddings import CacheBackedEmbeddings
 from langchain_community.storage import RedisStore
 from langchain_core.embeddings import Embeddings
-from langchain.embeddings import CacheBackedEmbeddings
 from redis import Redis
-from langchain_openai import OpenAIEmbeddings
-from langchain_huggingface import HuggingFaceEmbeddings
 
 @inject
 @dataclass
@@ -45,7 +42,7 @@ class EmbeddingsService:
 
     @classmethod
     def calculate_token_count(cls, query: str) -> int:
-        """计算传入的文本token数"""
+        """计算传入文本的token数"""
         encoding = tiktoken.encoding_for_model("gpt-3.5")
         return len(encoding.encode(query))
 
@@ -58,6 +55,6 @@ class EmbeddingsService:
         return self._embeddings
 
     @property
-    def cache_backed_embeddings(self):
+    def cache_backed_embeddings(self) -> CacheBackedEmbeddings:
         return self._cache_backed_embeddings
 

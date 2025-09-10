@@ -6,22 +6,21 @@
 @File    :ai_service.py
 """
 import json
+from dataclasses import dataclass
 from typing import Generator
 from uuid import UUID
 
+from injector import inject
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
-from transformers.convert_graph_to_onnx import optimize
 
+from internal.entity.ai_entity import OPTIMIZE_PROMPT_TEMPLATE
 from internal.exception import ForbiddenException
 from internal.model import Account, Message
-from .base_service import BaseService
-from injector import inject
-from dataclasses import dataclass
 from pkg.sqlalchemy import SQLAlchemy
+from .base_service import BaseService
 from .conversation_service import ConversationService
-from internal.entity.ai_entity import OPTIMIZE_PROMPT_TEMPLATE
 
 @inject
 @dataclass

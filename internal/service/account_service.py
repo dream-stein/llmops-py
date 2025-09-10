@@ -22,7 +22,6 @@ from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
 from .jwt_service import JwtService
 
-
 @inject
 @dataclass
 class AccountService(BaseService):

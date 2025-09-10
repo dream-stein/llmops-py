@@ -36,7 +36,7 @@ from internal.core.workflow.nodes import (
 )
 from internal.model.workflow import Workflow, WorkflowResult
 from internal.schema.workflow_schema import CreateWorkflowReq, GetWorkflowsWithPageReq
-from internal.service import BaseService
+from .base_service import BaseService
 from pkg.paginator import Paginator
 from pkg.sqlalchemy import SQLAlchemy
 from internal.core.tools.builtin_tools.providers import BuiltinProviderManager
