@@ -1,6 +1,6 @@
 - name: openai
   label: OpenAI
-  description: OpenAI提供的模型，例如GPT-4o-mini和GPT-4o
+  description: OpenAI提供的模型，例如GPT-4o-mini和GPT-4o。
   icon: icon.svg
   background: "#E5E7EB"
   supported_model_types:
@@ -8,7 +8,7 @@
     - completion
 - name: moonshot
   label: 月之暗面
-  description: Moonshot提供的模型，例如moonshot-v1-8k、moonshot-v1-32k和moonshot-v1-128k
+  description: Moonshot提供的模型，例如moonshot-v1-8k、moonshot-v1-32k和moonshot-v1-128k。
   icon: icon.png
   background: "#FFFFFF"
   supported_model_types:
