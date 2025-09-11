@@ -39,7 +39,7 @@ class Provider(BaseModel):
     def validate_provider(cls, provider: dict[str, Any]) -> dict[str, Any]:
         """服务提供者校验器，利用校验器完成该服务提供者的实体与类实例化"""
         # 1.获取服务提供商实体
-        provider_entity: ProviderEntity = provider["provider_entity"]
+        provider_entity: ProviderEntity = provider.provider_entity
 
         # 2.动态导入服务提供商的模型类
         for model_type in provider_entity.supported_model_types:
