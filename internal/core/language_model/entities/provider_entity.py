@@ -86,7 +86,7 @@ class Provider(BaseModel):
 
             # 12.修改对应模板的yaml数据，并创建ModelEntity随后传递给provider
             model_yaml_data["parameters"] = parameters
-            provider["model_entity_map"][model_name] = ModelEntity(**model_yaml_data)
+            provider.model_entity_map[model_name] = ModelEntity(**model_yaml_data)
 
         return provider
 

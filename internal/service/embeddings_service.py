@@ -12,6 +12,7 @@ from injector import inject
 from langchain.embeddings import CacheBackedEmbeddings
 from langchain_community.storage import RedisStore
 from langchain_core.embeddings import Embeddings
+from langchain_openai import OpenAIEmbeddings
 from redis import Redis
 
 @inject
@@ -33,7 +34,7 @@ class EmbeddingsService:
         #
         #     }
         # )
-        # self._embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+        self._embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
         # self._cache_backed_embeddings = CacheBackedEmbeddings.from_bytes_store(
         #     self._embeddings,
         #     self._store,
