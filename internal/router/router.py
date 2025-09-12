@@ -370,24 +370,25 @@ class Router:
             view_func=self.language_model_handler.get_language_model
         )
 
+        # 辅助Agent模块
         bp.add_url_rule(
             "/assistant-agent/chat",
             methods=["POST"],
-            view_func=self.assistant_agent_handler.assistant_agent_chat
+            view_func=self.assistant_agent_handler.assistant_agent_chat,
         )
         bp.add_url_rule(
             "/assistant-agent/chat/<uuid:task_id>/stop",
             methods=["POST"],
-            view_func=self.assistant_agent_handler.stop_assistant_agent_chat
+            view_func=self.assistant_agent_handler.stop_assistant_agent_chat,
         )
         bp.add_url_rule(
-            "/assistant-agent/chat/messages",
-            view_func=self.assistant_agent_handler.get_assistant_agent_messages_with_page
+            "/assistant-agent/messages",
+            view_func=self.assistant_agent_handler.get_assistant_agent_messages_with_page,
         )
         bp.add_url_rule(
             "/assistant-agent/delete-conversation",
             methods=["POST"],
-            view_func=self.assistant_agent_handler.delete_assistant_agent_conversation
+            view_func=self.assistant_agent_handler.delete_assistant_agent_conversation,
         )
 
         bp.add_url_rule(
