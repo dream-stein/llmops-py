@@ -91,7 +91,7 @@ class WebAppService(BaseService):
             Message,
             app_id=app.id,
             conversation_id=conversation.id,
-            invokinvoke_from=InvokeFrom.WEB_APP,
+            invoke_from=InvokeFrom.WEB_APP,
             created_by=account.id,
             query=req.query.data,
             status=MessageStatus.NORMAL,

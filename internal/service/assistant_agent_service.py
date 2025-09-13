@@ -43,7 +43,7 @@ class AssistantAgentService(BaseService):
     faiss_service: FaissService
     conversation_service: ConversationService
 
-    def chat(self, query, account: Account) -> Generator:
+    def chat(self, req: AssistantAgentChat, account: Account) -> Generator:
         """传递query与账号实现与辅助Agent进行会话"""
         # 1.获取辅助Agent对应的id
         assistant_agent_id = current_app.config.get("ASSISTANT_AGENT_ID")
@@ -56,15 +56,15 @@ class AssistantAgentService(BaseService):
             Message,
             app_id=assistant_agent_id,
             conversation_id=conversation.id,
-            invokinvoke_from=InvokeFrom.DEBUGGER,
+            invoke_from=InvokeFrom.ASSISTANT_AGENT,
             created_by=account.id,
-            query=query,
+            query=req.query.data,
             status=MessageStatus.NORMAL,
         )
 
         # 4.使用GPT模型作为辅助Agent的LLM大脑
         llm = Chat(
-            model="gpt-4o-mini",
+            model="deepseek-chat",
             temperature=0.8,
             features=[ModelFeature.TOOL_CALL, ModelFeature.AGENT_THOUGHT],
             metadata={},
@@ -82,7 +82,7 @@ class AssistantAgentService(BaseService):
 
         # 6.将草稿配置中的tools转换成LangChain工具
         tools = [
-            self.faiss_service.convert_faiss_to_tool(),
+            # self.faiss_service.convert_faiss_to_tool(),
             self.convert_create_app_to_tool(UUID(account.id)),
         ]
 
@@ -99,7 +99,7 @@ class AssistantAgentService(BaseService):
 
         agent_thoughts = {}
         for agent_thought in agent.stream({
-            "messages": [HumanMessage(query)],
+            "messages": [HumanMessage(req.query.data)],
             "history": history,
             "long_term_memory": conversation.summary,
         }):

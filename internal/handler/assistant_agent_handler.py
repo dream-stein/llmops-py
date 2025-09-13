@@ -35,8 +35,8 @@ class AssistantAgentHandler:
         if not req.validate():
             return validate_error_json(req.errors)
 
-        # 2.调页服务场景会话响应
-        response = self.assistant_agent_service.chat(req.query.data, current_user)
+        # 2.调用服务创建会话响应
+        response = self.assistant_agent_service.chat(req, current_user)
 
         return compact_generate_response(response)
 
@@ -54,14 +54,14 @@ class AssistantAgentHandler:
             return validate_error_json(req.errors)
 
         # 2.调页服务获取数据
-        message, paginator = self.assistant_agent_service.get_conversation_messages_with_page(
+        messages, paginator = self.assistant_agent_service.get_conversation_messages_with_page(
             req, current_user
         )
 
         # 3.创建响应数据结构
         resp = GetAssistantAgentMessagesWithPageResp(many=True)
 
-        return success_json(PageModel(list=resp.dumps(message), paginator=paginator))
+        return success_json(PageModel(list=resp.dump(messages), paginator=paginator))
 
     def delete_assistant_agent_conversation(self):
         """清空/删除与辅助智能体的聊天会话记录"""

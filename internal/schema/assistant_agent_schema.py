@@ -33,7 +33,7 @@ class GetAssistantAgentMessagesWithPageResp(Schema):
     id = fields.UUID(dump_default="")
     conversation_id = fields.UUID(dump_default="")
     query = fields.String(dump_default="")
-    answers = fields.String(dump_default="")
+    answer = fields.String(dump_default="")
     total_token_count = fields.Integer(dump_default=0)
     latency = fields.Float(dump_default=0)
     agent_thoughts = fields.List(fields.Dict, dump_default=[])
@@ -45,7 +45,7 @@ class GetAssistantAgentMessagesWithPageResp(Schema):
             "id": data.id,
             "conversation_id": data.conversation_id,
             "query": data.query,
-            "answers": data.answers,
+            "answer": data.answer,
             "total_token_count": data.total_token_count,
             "latency": data.latency,
             "agent_thoughts": [{
@@ -59,5 +59,5 @@ class GetAssistantAgentMessagesWithPageResp(Schema):
                 "latency": agent_thought.latency,
                 "created_at": datetime_to_timestamp(agent_thought.created_at),
             } for agent_thought in data.agent_thoughts],
-            "created_at": data.created_at,
+            "created_at": datetime_to_timestamp(data.created_at),
         }
