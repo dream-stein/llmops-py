@@ -65,7 +65,7 @@ class ModelEntity(BaseModel):
     context_window: int = 0 # 上下文窗口长度（输入+输出的总长度）
     max_output_tokens: int = 0 # 最大输出内容长度（输出）
     attributes: dict[str, Any] = Field(default_factory=dict) # 模型固定熟悉字典
-    parameters: list[Any] = Field(default_factory=list) # 模型参数字段规则列表，用于记录模型的配置参数
+    parameters: list[ModelParameter] = Field(default_factory=list) # 模型参数字段规则列表，用于记录模型的配置参数
     metadata: dict[str, Any] = Field(default_factory=dict) # 模型元数据，用于存储模型的额外数据，例如价格、词表等等信息
 
 class BaseLanguageModel(LCBaseLanguageModel, ABC):
