@@ -264,7 +264,6 @@ class FunctionCallAgent(BaseAgent):
 
         return {"messages": [gathered], "iteration": state["iteration_count"] + 1}
 
-
     def _tools_node(self, state: AgentState) -> AgentState:
         """工具执行节点"""
         # 1.将工具立本转换成字典，便于调用指定的工具

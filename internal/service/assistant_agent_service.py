@@ -90,6 +90,7 @@ class AssistantAgentService(BaseService):
         # 7.构建Agent智能体，使用FunctionCallAgent
         agent = FunctionCallAgent(
             llm=llm,
+            name="assistant_deep_seek",
             agent_config=AgentConfig(
                 user_id=UUID(account.id),
                 invoke_from=InvokeFrom.ASSISTANT_AGENT,
