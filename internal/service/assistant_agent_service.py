@@ -33,7 +33,7 @@ from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
 from .conversation_service import ConversationService
 from .faiss_service import FaissService
-from ..core.language_model.providers.deepseek.deepseekchat import DeepSeekChat
+from ..core.language_model.providers.deepseek.chat import Chat
 
 
 @inject
@@ -64,7 +64,7 @@ class AssistantAgentService(BaseService):
         )
 
         # 4.使用GPT模型作为辅助Agent的LLM大脑
-        llm = DeepSeekChat(
+        llm = Chat(
             model="deepseek-chat",
             temperature=0.8,
             features=[ModelFeature.TOOL_CALL, ModelFeature.AGENT_THOUGHT],

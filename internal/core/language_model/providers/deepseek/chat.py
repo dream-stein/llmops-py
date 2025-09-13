@@ -14,7 +14,7 @@ from langchain_openai import ChatOpenAI
 from internal.core.language_model.entities.model_entity import BaseLanguageModel
 
 
-class DeepSeekChat(ChatOpenAI, BaseLanguageModel):
+class Chat(ChatOpenAI, BaseLanguageModel):
 
     def get_num_tokens_from_messages(self, messages: list[BaseMessage], tools: Optional[
         Sequence[Union[dict[str, Any], type, Callable, BaseTool]]

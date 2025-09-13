@@ -1,3 +1,10 @@
+- name: deepseek
+  label: 深度求索
+  description: 幻方量化提供的LLM大语言模型，涵盖deepseek-chat和deepseek-reasoner等。
+  icon: icon.svg
+  background: "#FFFFF"
+  supported_model_types:
+    - chat
 - name: openai
   label: openai
   description: OpenAI提供的模型，例如GPT-4o-mini和GPT-4o。
