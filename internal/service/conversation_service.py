@@ -113,7 +113,7 @@ class ConversationService(BaseService):
         # 4.调用链并获取会话信息
         suggested_questions = chain.invoke({"histories": histories})
 
-        # 6.提取会话名称
+        # 5.提取会话名称
         questions = []
         try:
             if suggested_questions and hasattr(suggested_questions, "questions"):
