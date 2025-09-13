@@ -33,6 +33,7 @@ from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
 from .conversation_service import ConversationService
 from .faiss_service import FaissService
+from ..core.language_model.providers.deepseek.deepseekchat import DeepSeekChat
 
 
 @inject
