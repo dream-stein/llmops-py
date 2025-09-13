@@ -84,15 +84,15 @@ class LanguageModelService(BaseService):
         # 3.拼接得到提供者所在的文件夹
         provider_path = os.path.join(
             root_path,
-            "internal", "core", "language_model", "provider", provider_name,
+            "internal", "core", "language_model", "providers", provider_name,
         )
 
         # 4.拼接得到icon对应的路径
-        icon_path = os.path.join(provider_path, "_assets", provider.provider_entity.icon)
+        icon_path = os.path.join(provider_path, "_asset", provider.provider_entity.icon)
 
         # 5.检测icon是否存在
         if not os.path.exists(icon_path):
-            raise NotFoundException(f"该模型提供者_assets下未提供者图标")
+            raise NotFoundException(f"该模型提供者_asset下未提供者图标")
 
         # 6.读取icon的类型
         mimetype, _ = mimetypes.guess_type(icon_path)
