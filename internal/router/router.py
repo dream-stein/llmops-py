@@ -342,7 +342,7 @@ class Router:
         )
         bp.add_url_rule(
             "/workflows/<uuid:workflow_id>/draft-graph",
-            view_func=self.workflow_handler.get_workflow,
+            view_func=self.workflow_handler.get_draft_graph,
         )
         bp.add_url_rule(
             "/workflows/<uuid:workflow_id>/debug",

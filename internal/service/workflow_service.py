@@ -138,11 +138,11 @@ class WorkflowService(BaseService):
         # 1,根据传递的id获取工作流并校验权限
         workflow = self.get_workflow(workflow_id, account)
 
-        # 2.校验传递的草稿图配置，因为可能边有可能还未建立，啥呀需要校验关联的数据
+        # 2.校验传递的草稿图配置，因为有可能边有可能还未建立，所以需要校验关联的数据
         validate_draft_graph = self._validate_graph(draft_graph, account)
 
         # 3.更新工作流草稿图配置，每次修改都要将is_debug_passed的值充值为False，该处可以优化对比字典里除position的其他属性
-        self.update(Workflow, **{
+        self.update(workflow, **{
             "draft_graph": validate_draft_graph,
             "is_debug_passed": False,
         })
@@ -203,7 +203,7 @@ class WorkflowService(BaseService):
                     if end_nodes >= 1:
                         raise ValidateErrorException("工作流中只允许有1个结束节点")
                     end_nodes += 1
-                elif node_data.node_type == NodeType.DATASET_RETRIEVAL:
+                elif node_data.node_type == NodeType.DATASETS_RETRIEVAL:
                     # 10.剔除关联知识库列表中不属于当前账户的数据
                     datasets = self.db.session.query(Dataset).filter(
                         Dataset.id.in_(node_data.dataset_ids[:5]),

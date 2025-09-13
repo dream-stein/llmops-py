@@ -393,7 +393,7 @@ CREATE TABLE IF NOT EXISTS `workflow` (
 CREATE TABLE IF NOT EXISTS `workflow_result` (
     `id` VARCHAR(36) PRIMARY KEY COMMENT '主键UUID',
     `account_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '关联的用户id',
-    `app_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '关联的应用id',
+    `app_id` VARCHAR(36) COMMENT '关联的应用id',
     `workflow_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '结果关联的工作流id',
     `graph` JSON NOT NULL COMMENT '运行该结果的图结构',
     `state` JSON NOT NULL COMMENT '工作流的最终结果状态',

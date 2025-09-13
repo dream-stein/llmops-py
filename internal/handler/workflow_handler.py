@@ -94,7 +94,7 @@ class WorkflowHandler:
 
     def debug_workflow(self, workflow_id: UUID):
         """根据传递的应用字典+工作流id调试指定的工作流"""
-        # 1.提取医护传递的输入变量信息
+        # 1.提取用户传递的输入变量信息
         inputs = request.get_json(force=True, silent=True) or {}
 
         # 2.调用服务调试指定的API接口

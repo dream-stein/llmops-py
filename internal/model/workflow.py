@@ -47,12 +47,13 @@ class WorkflowResult(db.Model):
     )
 
     id = Column(String(36), nullable=False, default=uuid.uuid4)
-    app_id = Column(String(36), nullable=False)
+    app_id = Column(String(36), nullable=True)
     account_id = Column(String(36), nullable=False)
     workflow_id = Column(String(36), nullable=False)
     graph = Column(JSON, nullable=False, default={})
     state = Column(JSON, nullable=False, default={})  # 工作流最终状态
     latency = Column(Float, nullable=False, default=0.0)
+    status = Column(String(255), nullable=False, default="")
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)
     created_at = Column(DateTime, default=datetime.now, nullable=False)
 

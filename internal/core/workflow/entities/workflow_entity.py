@@ -292,8 +292,8 @@ class WorkflowConfig(BaseModel):
 
                         # 10.判断引用变量列表中是否存在该引用名字
                         if not any(
-                                ref_variables.name == variable.value.content.ref_var_name
-                                for variable in variables
+                                ref_variable.name == variable.value.content.ref_var_name
+                                for ref_variable in ref_variables
                         ):
                             raise ValidateErrorException(
                                 f"工作流节点[{node_data.title}]引用了不存在的节点变量，请核实后重试")
@@ -324,8 +324,8 @@ class WorkflowConfig(BaseModel):
         out_degree = defaultdict(int)
 
         for edge in edges:
-            in_degree[edge.source] += 1
-            out_degree[edge.target] += 1
+            in_degree[edge.target] += 1
+            out_degree[edge.source] += 1
 
         return in_degree, out_degree
 
