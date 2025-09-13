@@ -79,7 +79,7 @@ def convert_model_to_dict(obj: Any, *args, **kwargs):
 
     # 6.如果是字典类型，递归处理字典中的每个字段
     elif isinstance(obj, dict):
-        return {convert_model_to_dict(value, *args, **kwargs) for key, value in obj.items()}
+        return {key: convert_model_to_dict(value, *args, **kwargs) for key, value in obj.items()}
 
     # 7.对其他类型的字段，保持原样
     return obj

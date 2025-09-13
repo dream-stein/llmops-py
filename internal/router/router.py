@@ -420,15 +420,39 @@ class Router:
             methods=["POST"],
             view_func=self.web_app_handler.stop_web_app_chat
         )
-
         bp.add_url_rule(
-            "/web-apps/<string:token>/conversations>",
+            "/web-apps/<string:token>/conversations",
             view_func=self.web_app_handler.get_conversation,
         )
 
+        # 会话模块
         bp.add_url_rule(
             "/conversations/<uuid:conversation_id>/messages",
             view_func=self.conversation_handler.get_conversation_messages_with_page
+        )
+        bp.add_url_rule(
+            "/conversations/<uuid:conversation_id>/delete",
+            methods=["POST"],
+            view_func=self.conversation_handler.delete_conversation,
+        )
+        bp.add_url_rule(
+            "/conversations/<uuid:conversation_id>/messages/<uuid:message_id>/delete",
+            methods=["POST"],
+            view_func=self.conversation_handler.delete_message,
+        )
+        bp.add_url_rule(
+            "/conversations/<uuid:conversation_id>/name",
+            view_func=self.conversation_handler.get_conversation_name,
+        )
+        bp.add_url_rule(
+            "/conversations/<uuid:conversation_id>/name",
+            methods=["POST"],
+            view_func=self.conversation_handler.update_conversation_name,
+        )
+        bp.add_url_rule(
+            "/conversations/<uuid:conversation_id>/is-pinned",
+            methods=["POST"],
+            view_func=self.conversation_handler.update_conversation_is_pinned,
         )
 
 

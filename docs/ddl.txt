@@ -103,6 +103,7 @@ CREATE TABLE IF NOT EXISTS `app` (
     `debug_conversation_id` VARCHAR(36)  DEFAULT '' COMMENT '调试会话id',
     `name` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '应用名称',
     `icon` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '应用图标',
+    `token` VARCHAR(255) COMMENT '应用图标',
     `description` TEXT COMMENT '应用描述',
     `status` VARCHAR(100) NOT NULL DEFAULT '' COMMENT '应用状态',
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',

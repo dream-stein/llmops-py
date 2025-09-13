@@ -7,6 +7,7 @@
 """
 from uuid import UUID
 
+from flask import request
 from flask_login import current_user
 from injector import inject
 from dataclasses import dataclass
@@ -27,8 +28,8 @@ class ConversationHandler:
     def get_conversation_messages_with_page(self, conversation_id: UUID):
         """根据传递的回话id获取该会话的消息列表分页数据"""
         # 1.提取数据并校验
-        req = GetConversationMessagesWithPageReq()
-        if req.validate():
+        req = GetConversationMessagesWithPageReq(request.args)
+        if not req.validate():
             return validate_error_json(req.errors)
 
         # 2.调用服务获取消息列表
@@ -56,7 +57,7 @@ class ConversationHandler:
         return success_message("删除会话成功")
 
     def get_conversation_name(self, conversation_id: UUID):
-        """根据传递的回话id获取指定回话的名字"""
+        """根据传递的会话id获取指定会话的名字"""
         # 1.调用服务获取会话
         conversation = self.conversation_service.get_conversation(conversation_id, current_user)
 

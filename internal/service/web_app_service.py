@@ -220,7 +220,7 @@ class WebAppService(BaseService):
         AgentQueueManager.set_stop_flag(task_id, InvokeFrom.WEB_APP, UUID(account.id))
 
     def get_conversations(self, token: str, is_pinned: bool, account: Account) -> list[Conversation]:
-        """根据传递的token+is_pinned+account获取指定账号在该WebApp下的回话列表数据"""
+        """根据传递的token+is_pinned+account获取指定账号在该WebApp下的会话列表数据"""
         # 1.获取WebApp应用并校验应用是否发布
         app = self.get_web_app(token)
 
