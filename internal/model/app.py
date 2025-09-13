@@ -108,7 +108,7 @@ class App(db.Model):
         """获取带有默认值的token"""
         # 1.判断状态是否为已发布
         if self.status != AppStatus.PUBLISHED:
-            # 2.非发布的情况下需要请课数据，并提交更新
+            # 2.非发布的情况下需要请清数据，并提交更新
             if self.token is not None or self.token != "":
                 self.token = None
                 db.session.commit()
