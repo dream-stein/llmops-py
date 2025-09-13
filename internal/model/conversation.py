@@ -119,6 +119,7 @@ class MessageAgentThought(db.Model):
     tool = Column(Text, nullable=False, default="")
     tool_input = Column(JSON, nullable=False, default="")
 
+
     # Agent推理观察步骤使用的消息列表（传递prompt消息内容）
     message = Column(JSON, nullable=False, default="")
     message_token_count = Column(Integer, nullable=False, default=0)

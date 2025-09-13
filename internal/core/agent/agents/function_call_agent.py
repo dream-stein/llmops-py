@@ -52,7 +52,7 @@ class FunctionCallAgent(BaseAgent):
         graph.add_edge("tools", "llm")
 
         # 4.编译应用并返回
-        agent = graph.compiled()
+        agent = graph.compile()
 
         return agent
 
@@ -93,7 +93,7 @@ class FunctionCallAgent(BaseAgent):
             long_term_memory = state["long_term_memory"]
             self.agent_queue_manager.publish(state["task_id"], AgentThought(
                 id=uuid.uuid4(),
-                task_id=self.agent_queue_manager.task_id,
+                task_id=state["task_id"],
                 event=QueueEvent.LONG_TERM_MEMORY_RECALL,
                 observation=long_term_memory,
             ))

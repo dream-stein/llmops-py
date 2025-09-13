@@ -11,7 +11,7 @@ from threading import Thread
 from typing import Any
 from uuid import UUID
 
-from flask import current_app
+from flask import current_app, Flask
 from injector import inject
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
@@ -178,7 +178,9 @@ class ConversationService(BaseService):
                     message_price_unit=agent_thought.message_price_unit,
                     # 答案相关字段
                     answer=agent_thought.answer,
-                    answer_token_count=agent_thought.answer_token_count,
+                    # todo:
+                    answer_token_count=0,
+                    # answer_token_count=agent_thought.answer_token_count,
                     answer_unit_price=agent_thought.answer_unit_price,
                     answer_price_unit=agent_thought.answer_price_unit,
                     # Agent推理统计相关
@@ -199,7 +201,9 @@ class ConversationService(BaseService):
                     message_price_unit=agent_thought.message_price_unit,
                     # 答案相关字段
                     answer=agent_thought.answer,
-                    answer_token_count=agent_thought.answer_token_count,
+                    # todo
+                    answer_token_count=0,
+                    # answer_token_count=agent_thought.answer_token_count,
                     answer_unit_price=agent_thought.answer_unit_price,
                     answer_price_unit=agent_thought.answer_price_unit,
                     # Agent推理统计相关
@@ -239,6 +243,50 @@ class ConversationService(BaseService):
                     error=agent_thought.observation,
                 )
                 break
+
+    def _generate_summary_and_update(
+            self,
+            flask_app: Flask,
+            conversation_id: UUID,
+            query: str,
+            answer: str,
+    ):
+        with flask_app.app_context():
+            # 1.根据id获取会话
+            conversation = self.get(Conversation, conversation_id)
+
+            # 2.计算会话新摘要信息
+            new_summary = self.summary(
+                query,
+                answer,
+                conversation.summary
+            )
+
+            # 3.更新会话的摘要信息
+            self.update(
+                conversation,
+                summary=new_summary,
+            )
+
+    def _generate_conversation_name_and_update(
+            self,
+            flask_app: Flask,
+            conversation_id: UUID,
+            query: str
+    ) -> None:
+        """生成会话名字并更新"""
+        with flask_app.app_context():
+            # 1.根据会话id获取会话
+            conversation = self.get(Conversation, conversation_id)
+
+            # 2.计算获取新会话名字
+            new_conversation_name = self.generate_conversation_name(query)
+
+            # 3.调用更新服务更新会话名称
+            self.update(
+                conversation,
+                name=new_conversation_name,
+            )
 
     def get_conversation(self, conversation_id: UUID, account: Account) -> Conversation:
         """根据传递的会话id+account，获取制定的会话消息"""

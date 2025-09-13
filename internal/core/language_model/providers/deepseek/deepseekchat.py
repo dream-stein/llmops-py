@@ -19,4 +19,8 @@ class DeepSeekChat(ChatOpenAI, BaseLanguageModel):
     def get_num_tokens_from_messages(self, messages: list[BaseMessage], tools: Optional[
         Sequence[Union[dict[str, Any], type, Callable, BaseTool]]
     ] = None) -> int:
-        return sum(len(message.content) for message in messages)
+        mySum = 0
+        for message in messages:
+            if hasattr(message, "content"):
+                mySum += len(message.content)
+        return mySum

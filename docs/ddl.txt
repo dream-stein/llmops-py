@@ -322,8 +322,6 @@ CREATE TABLE IF NOT EXISTS `message_agent_thought` (
     `thought` TEXT NOT NULL COMMENT '推理内容',
     `observation` TEXT NOT NULL COMMENT '观察内容',
     `tool` TEXT NOT NULL COMMENT '工具名称',
-    `tool_label` TEXT NOT NULL COMMENT '工具标签',
-    `tool_params` JSON NOT NULL COMMENT '工具配置参数',
     `tool_input` JSON NOT NULL COMMENT '工具LLM输入',
     `message` JSON NOT NULL COMMENT '推理的消息列表',
     `message_token_count` INT NOT NULL DEFAULT 0 COMMENT 'token数',

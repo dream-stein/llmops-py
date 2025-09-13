@@ -64,7 +64,7 @@ class AssistantAgentService(BaseService):
         )
 
         # 4.使用GPT模型作为辅助Agent的LLM大脑
-        llm = Chat(
+        llm = DeepSeekChat(
             model="deepseek-chat",
             temperature=0.8,
             features=[ModelFeature.TOOL_CALL, ModelFeature.AGENT_THOUGHT],
@@ -148,6 +148,8 @@ class AssistantAgentService(BaseService):
                 "task_id": str(agent_thought.task_id),
             }
             yield f"event: {agent_thought.event}\ndata:{json.dumps(data)}\n\n"
+
+
 
         # 22.将消息以及推理过程添加到数据库
         self.conversation_service.save_agent_thoughts(
