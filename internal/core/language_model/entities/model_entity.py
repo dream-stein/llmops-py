@@ -9,6 +9,7 @@ from abc import ABC
 from enum import Enum
 from typing import Any, Optional
 
+from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, Field
 from langchain_core.language_models import BaseLanguageModel as LCBaseLanguageModel
 

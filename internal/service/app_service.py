@@ -16,6 +16,7 @@ import requests
 from flask import current_app
 from injector import inject
 from langchain_community.utilities.dalle_image_generator import DallEAPIWrapper
+from langchain_core.messages import HumanMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnableParallel
@@ -552,6 +553,7 @@ class AppService(BaseService):
         agent_class = FunctionCallAgent if ModelFeature.TOOL_CALL in llm.features else ReACTAgent
         agent = agent_class(
             llm=llm,
+            name=draft_app_config["model_config"]["model"],
             agent_config=AgentConfig(
                 user_id=UUID(account.id),
                 invoke_from=InvokeFrom.DEBUGGER,
@@ -564,7 +566,7 @@ class AppService(BaseService):
 
         agent_thoughts = {}
         for agent_thought in agent.stream({
-            "messages": [llm.convert_to_human_message(query)],
+            "messages": [HumanMessage(query)],
             "history": history,
             "long_term_memory": debug_conversation.summary,
         }):

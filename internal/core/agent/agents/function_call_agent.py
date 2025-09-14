@@ -63,7 +63,7 @@ class FunctionCallAgent(BaseAgent):
         query = state["messages"][-1].content
 
         # 2.检测是否开启审核配置
-        if review_config["enable"] and review_config["inputs_config"]["enabled"]:
+        if review_config["enable"] and review_config["inputs_config"]["enable"]:
             contains_keyword = any(keyword in query for keyword in review_config["keywords"])
             # 3.如果包含敏感词则执行后续步骤
             if contains_keyword:

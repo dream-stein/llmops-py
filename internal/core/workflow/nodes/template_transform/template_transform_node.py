@@ -34,7 +34,7 @@ class TemplateTransformNode(BaseNode):
         template_value = template.render(**inputs_dict)
 
         # 3.提取并构建输出数据结构
-        outputs = {"outputs": template_value}
+        outputs = {"output": template_value}
 
         # 4.构建响应状态并返回
         return {
@@ -44,7 +44,7 @@ class TemplateTransformNode(BaseNode):
                     status=NodeStatus.SUCCEEDED,
                     inputs=inputs_dict,
                     outputs=outputs,
-                    latency=time.perf_counter() - start_at,
+                    latency=(time.perf_counter() - start_at),
                 )
             ]
         }

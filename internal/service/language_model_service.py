@@ -107,7 +107,7 @@ class LanguageModelService(BaseService):
         """根据传递的模型配置加载大语言模型，并返回其实例"""
         try:
             # 1.从model_config中提取出provider、model、parameters
-            provider_name = model_config.get("provide", "")
+            provider_name = model_config.get("provider", "")
             model_name = model_config.get("model", "")
             parameters = model_config.get("parameters", {})
 
