@@ -127,7 +127,7 @@ class WebAppService(BaseService):
 
         # 11.检索是否关联工作流，如果关联工作流则将工作流关联成根据添加到tools中
         if app_config["workflows"]:
-            workflow_tools = self.app_config_service.get_langchain_tools_by_workflows_ids(
+            workflow_tools = self.app_config_service.get_langchain_tools_by_workflow_ids(
                 [workflow["id"] for workflow in app_config["workflows"]]
             )
             tools.extend(workflow_tools)
@@ -136,6 +136,7 @@ class WebAppService(BaseService):
         agent_class = FunctionCallAgent if ModelFeature.TOOL_CALL in llm.features else ReACTAgent
         agent = agent_class(
             llm=llm,
+            name=app_config["model_config"]["model"],
             agent_config=AgentConfig(
                 user_id=UUID(account.id),
                 invoke_from=InvokeFrom.WEB_APP,
@@ -198,18 +199,14 @@ class WebAppService(BaseService):
             yield f"event: {agent_thought.event}\ndata:{json.dumps(data)}\n\n"
 
         # 20.将消息以及推理过程添加到数据库
-        thread = Thread(
-            target=self.conversation_service.save_agent_thoughts,
-            kwargs={
-                "account_id": account.id,
-                "app_id": app.id,
-                "app_config": app_config,
-                "conversation_id": conversation.id,
-                "message_id": message.id,
-                "agent_thoughts": [agent_thought for agent_thought in agent_thoughts.values()],
-            }
+        self.conversation_service.save_agent_thoughts(
+            account_id=UUID(account.id),
+            app_id=UUID(app.id),
+            app_config=app_config,
+            conversation_id=UUID(conversation.id),
+            message_id=message.id,
+            agent_thoughts=[agent_thought for agent_thought in agent_thoughts.values()],
         )
-        thread.start()
 
     def stop_web_app_chat(self, token: str, task_id: UUID, account: Account):
         """根据传递的token+task_id停止与制定webApp对话"""
