@@ -306,7 +306,7 @@ class FunctionCallAgent(BaseAgent):
                 event=event,
                 observation=json.dumps(tool_result),
                 tool=tool_call["name"],
-                tool_input=tool_call["name"],
+                tool_input=tool_call["args"],
                 latency=(time.perf_counter() - start_at),
             ))
 
