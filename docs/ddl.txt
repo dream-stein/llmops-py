@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS `llmops_keyword_table` (
     INDEX `idx_dataset_id` (`dataset_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='关键词配置表';
 
-CREATE TABLE IF NOT EXISTS `llmops_process_rule` (
+CREATE TABLE IF NOT EXISTS `process_rule` (
     `id` VARCHAR(36) PRIMARY KEY COMMENT '主键UUID',
     `account_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '关联的用户id',
     `dataset_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '归属的知识库id',

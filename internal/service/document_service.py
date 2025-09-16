@@ -38,8 +38,8 @@ class DocumentService(BaseService):
     def create_documents(
             self,
             dataset_id: UUID,
-            upload_file_ids: list[UUID],
             account: Account,
+            upload_file_ids: list[UUID],
             process_type: str = ProcessType.AUTOMATIC,
             rule: dict = None
     ) -> tuple[list[Document], str]:
@@ -52,7 +52,7 @@ class DocumentService(BaseService):
         # 2.提取维基并校验文件权限与文件扩展
         upload_files = self.db.session.query(UploadFile).filter(
             UploadFile.account_id == account.id,
-            UploadFile.id in upload_file_ids,
+            UploadFile.id.in_(upload_file_ids),
         ).all()
         upload_files = [
             upload_file for upload_file in upload_files

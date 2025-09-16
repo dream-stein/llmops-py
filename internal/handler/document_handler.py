@@ -32,7 +32,7 @@ class DocumentHandler:
             return validate_error_json(req.errors)
 
         # 2.调用服务并创建文档，返回文档列表信息+处理批次
-        documents, batch = self.document_service.create_documents(dataset_id, **req.data)
+        documents, batch = self.document_service.create_documents(dataset_id, current_user, **req.data)
 
         # 3.生成响应结构并返回
         resp = CreateDocumentsResp()
