@@ -105,7 +105,10 @@ class ConversationService(BaseService):
 
         # 2.构建大语言模型实例，并且将大语言模型的温度降低，降低幻觉的概率
         llm = ChatOpenAI(model="deepseek-chat", temperature=0)
-        structured_llm = llm.with_structured_output(SuggestedQuestions)
+        structured_llm = llm.with_structured_output(
+            SuggestedQuestions,
+            method="json_schema",
+        )
 
         # 3.构建链应用
         chain = prompt | structured_llm

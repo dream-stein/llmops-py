@@ -33,11 +33,11 @@ class BaseNodeData(BaseModel):
     class Config:
         allow_population_by_field_name = True  # 允许通过字段名进行赋值
 
-    id: UUID # 节点id，数值必须唯一
-    node_type: NodeType # 节点类型
-    title: str = "" # 节点标题，数据也必须唯一
-    description: str = "" # 节点描述信息
-    position: Position = Field(default_factory=lambda: {"x": 0, "y": 0}) # 节点对应的坐标信息
+    id: UUID  # 节点id，数值必须唯一
+    node_type: NodeType  # 节点类型
+    title: str = ""  # 节点标题，数据也必须唯一
+    description: str = ""  # 节点描述信息
+    position: Position = Field(default_factory=lambda: {"x": 0, "y": 0})  # 节点对应的坐标信息
 
 class NodeStatus(str, Enum):
     """节点状态"""

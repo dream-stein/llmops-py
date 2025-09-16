@@ -6,8 +6,9 @@
 @File    :http_request_entity.py
 """
 from enum import Enum
+from typing import Optional
 
-from pydantic import Field, HttpUrl, field_validator
+from pydantic import Field, HttpUrl, field_validator, validator
 
 from internal.core.workflow.entities.node_entity import BaseNodeData
 from internal.core.workflow.entities.variable_entity import VariableEntity, VariableType, VariableValueType
@@ -46,6 +47,21 @@ class HttpRequestNodeData(BaseNodeData):
             VariableEntity(name="text", value={"type": VariableValueType.GENERATED}),
         ],
     )
+
+    @field_validator("url", mode="before")
+    def validate_url(cls, url: Optional[HttpUrl]):
+        return url if url != "" else None
+
+    @field_validator("outputs", mode="before")
+    def validate_outputs(cls, outputs: list[VariableEntity]):
+        return [
+            VariableEntity(
+                name="status_code",
+                type=VariableType.INT,
+                value={"type": VariableValueType.GENERATED, "content": 0},
+            ),
+            VariableEntity(name="text", value={"type": VariableValueType.GENERATED}),
+        ]
 
     @field_validator("inputs")
     def validate_inputs(cls, inputs: list[VariableEntity]):

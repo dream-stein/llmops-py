@@ -17,6 +17,8 @@ from sqlalchemy import (
     Index,
     text, Boolean, JSON, Integer, Numeric, Float, func, asc,
 )
+from sqlalchemy.orm import relationship
+
 from internal.extension.database_extension import db
 
 class Conversation(db.Model):
@@ -91,6 +93,18 @@ class Message(db.Model):
         return db.session.query(MessageAgentThought).filter(
             MessageAgentThought.message_id == self.id
         ).order_by(asc("position")).all()
+
+    # 智能体推理列表，创建表关联
+    agent_thoughts = relationship(
+        "MessageAgentThought",
+        backref="msg",
+        lazy="selectin",
+        passive_deletes="all",
+        uselist=True,
+        foreign_keys=[id],
+        primaryjoin="MessageAgentThought.message_id == Message.id",
+
+    )
 
 class MessageAgentThought(db.Model):
     """消息智能体观察表，用于记录Agent生成最终消息答案时"""
