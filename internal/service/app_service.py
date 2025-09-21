@@ -511,7 +511,7 @@ class AppService(BaseService):
             invoke_from=InvokeFrom.DEBUGGER,
             created_by=account.id,
             query=req.query.data,
-            image_urls=req.query.image_urls,
+            image_urls=req.image_urls.data,
             status=MessageStatus.NORMAL,
         )
 
