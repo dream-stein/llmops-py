@@ -198,6 +198,7 @@ class ConversationService(BaseService):
                 self.update(
                     message,
                     # 消息相关字段
+                    # todo:短期记忆时，如果是base64的消息，会在这里把消息弄坏的，所以要特殊处理，只有和llm对话时，数据才是base64，其他时候都是url链接
                     message=agent_thought.message,
                     message_token_count=agent_thought.message_token_count,
                     message_unit_price=agent_thought.message_unit_price,
