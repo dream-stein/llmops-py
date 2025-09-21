@@ -60,6 +60,7 @@ class AssistantAgentService(BaseService):
             invoke_from=InvokeFrom.ASSISTANT_AGENT,
             created_by=account.id,
             query=req.query.data,
+            image_urls=req.image_urls.data,
             status=MessageStatus.NORMAL,
         )
 
@@ -101,7 +102,7 @@ class AssistantAgentService(BaseService):
 
         agent_thoughts = {}
         for agent_thought in agent.stream({
-            "messages": [HumanMessage(req.query.data)],
+            "messages": [llm.convert_to_human_message(req.query.data, req.image_urls.data)],
             "history": history,
             "long_term_memory": conversation.summary,
         }):
