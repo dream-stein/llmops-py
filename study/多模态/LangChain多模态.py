@@ -22,7 +22,7 @@ llm = ChatOpenAI(
 )
 
 # 图片来源（可以是本地路径或网络URL）
-image_source = "https://inews.gtimg.com/om_bt/ORGPk28hA-V-WHa7XTwJbWYmb-IzAqnlUh2h9YFWvM7GIAA/641"  # 网络URL
+image_source = "https://img1.baidu.com/it/u=2172818577,3783888802&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=1422"  # 网络URL
 # image_source = "/path/to/local/image.png"  # 本地路径
 
 # 转为Base64
@@ -37,7 +37,7 @@ messages = [
     SystemMessage(content="你是一个多模态助手，能理解图像并回答问题。"),
     HumanMessage(
         content=[
-            {"type": "image_url", "image_url": {"url": image_base64}},
+            {"type": "image_url", "image_url": {"url": image_source}},
             {"type": "text", "text": "详细描述下这个图片"}
         ]
     )

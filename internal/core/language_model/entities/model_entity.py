@@ -97,5 +97,5 @@ class BaseLanguageModel(LCBaseLanguageModel, ABC):
         #   链接: https://python.langchain.com/docs/how_to/multimodal_inputs/
         return HumanMessage(content=[
             {"type": "text", "text": query},
-            *[{"type": "image_url", "image_url": {"url" : image_to_base64(image_url)}} for image_url in image_urls],
+            *[{"type": "image_url", "image_url": {"url" : image_url}} for image_url in image_urls],
         ])

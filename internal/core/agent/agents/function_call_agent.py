@@ -16,7 +16,7 @@ from langchain_core.messages import (
     SystemMessage,
     ToolMessage,
     RemoveMessage,
-    messages_to_dict, AIMessage
+    messages_to_dict, AIMessage, AIMessageChunk
 )
 from langgraph.constants import END
 from langgraph.graph import StateGraph
@@ -169,7 +169,7 @@ class FunctionCallAgent(BaseAgent):
                     gathered = chunk
                     is_first_chunk = False
                 else:
-                    gathered += chunk
+                    gathered = gathered + chunk
 
                 # 5.检测生成类型是根据参数还是文本生成
                 if not generation_type:
@@ -203,7 +203,7 @@ class FunctionCallAgent(BaseAgent):
 
         # 8.计算LLM的输入+输出token总数
         input_token_count = self.llm.get_num_tokens_from_messages(state["messages"])
-        output_token_count = self.llm.get_num_tokens_from_messages(gathered)
+        output_token_count = self.llm.get_num_tokens_from_messages([gathered])
 
         # 9.获取输入/输出价格和单位
         input_price, output_price, unit = self.llm.get_pricing()

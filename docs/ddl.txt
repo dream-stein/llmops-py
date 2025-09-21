@@ -290,6 +290,7 @@ CREATE TABLE IF NOT EXISTS `message` (
     `invoke_from` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '调用来源',
     `created_by` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '创建账号id',
     `query` TEXT NOT NULL COMMENT '消息的原始问题',
+    `image_urls` JSON NOT NULL COMMENT '问题的图片',
     `message` JSON NOT NULL COMMENT '最终消息列表',
     `message_token_count` INT NOT NULL DEFAULT 0 COMMENT 'token数',
     `message_unit_price` FLOAT NOT NULL DEFAULT 0 COMMENT '单价',

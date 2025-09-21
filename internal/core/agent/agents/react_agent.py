@@ -123,7 +123,7 @@ class ReACTAgent(FunctionCallAgent):
                 gathered = chunk
                 is_first_chunk = False
             else:
-                gathered += chunk
+                gathered = gathered + chunk
 
             # 7.如果生成的是消息则提交智能体消息事件
             if generation_type == "message":
@@ -165,7 +165,7 @@ class ReACTAgent(FunctionCallAgent):
 
         # 计算LLM的输入+输出token总数
         input_token_count = self.llm.get_num_tokens_from_messages(state["messages"])
-        output_token_count = self.llm.get_num_tokens_from_messages(gathered)
+        output_token_count = self.llm.get_num_tokens_from_messages([gathered])
 
         # 9.获取输入/输出价格和单位
         input_price, output_price, unit = self.llm.get_pricing()

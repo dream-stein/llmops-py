@@ -64,9 +64,9 @@ class AssistantAgentService(BaseService):
 
         # 4.使用GPT模型作为辅助Agent的LLM大脑
         llm = Chat(
-            model="moonshot-v1-8k",
+            model="moonshot-v1-8k-vision-preview",
             temperature=0.8,
-            features=[ModelFeature.TOOL_CALL, ModelFeature.AGENT_THOUGHT],
+            features=[ModelFeature.TOOL_CALL, ModelFeature.AGENT_THOUGHT, ModelFeature.IMAGE_INPUT],
             metadata={},
         )
 
@@ -147,8 +147,6 @@ class AssistantAgentService(BaseService):
                 "task_id": str(agent_thought.task_id),
             }
             yield f"event: {agent_thought.event}\ndata:{json.dumps(data)}\n\n"
-
-
 
         # 22.将消息以及推理过程添加到数据库
         self.conversation_service.save_agent_thoughts(
