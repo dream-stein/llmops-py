@@ -26,7 +26,7 @@ class WebAppHandler:
     def get_web_app(self, token: str):
         """根据传递的token凭证标识或取WebApp基础信息"""
         # 1.调用服务根据传递的token获取应用服务
-        app = self.web_app_service.get_web_app(token)
+        app = self.web_app_service.get_web_app_info(token)
 
         # 2.构建响应结构并返回
         resp = GetWebAppResp()
