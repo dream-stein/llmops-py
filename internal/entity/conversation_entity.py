@@ -90,8 +90,12 @@ class ConversationInfo(BaseModel):
 
 
 # 建议问题提示词模板
-SUGGESTED_QUESTIONS_TEMPLATE = """请根据传递的历史信息预测人类最后可能会问的三个问题"""
-
+SUGGESTED_QUESTIONS_TEMPLATE = """请根据传递的历史信息预测人类最后可能会问的三个问题。
+要求：
+1. 每个问题不超过50个字符
+2. 输出必须符合以下JSON格式（由模型定义）：
+{format_instructions}
+3. 问题需与用户输入内容紧密相关"""
 
 class SuggestedQuestions(BaseModel):
     """请帮我预测人类最可能会问的三个问题，并且每个问题都保持在50个字符以内。
