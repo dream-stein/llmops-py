@@ -13,7 +13,6 @@ from uuid import UUID
 
 from flask import current_app
 from injector import inject
-from langchain_core.messages import HumanMessage
 from langchain_core.tools import BaseTool, tool
 from pydantic import BaseModel, Field
 from sqlalchemy import desc
@@ -22,7 +21,6 @@ from internal.core.agent.agents import AgentQueueManager, FunctionCallAgent
 from internal.core.agent.entities.agent_entity import AgentConfig
 from internal.core.agent.entities.queue_entity import QueueEvent
 from internal.core.language_model.entities.model_entity import ModelFeature
-from internal.core.language_model.providers.openai.chat import Chat
 from internal.core.memory import TokenBufferMemory
 from internal.entity.conversation_entity import InvokeFrom, MessageStatus
 from internal.model import Account, Message
@@ -33,7 +31,7 @@ from pkg.sqlalchemy import SQLAlchemy
 from .base_service import BaseService
 from .conversation_service import ConversationService
 from .faiss_service import FaissService
-from ..core.language_model.providers.deepseek.chat import Chat
+from ..core.language_model.providers.moonshot.chat import Chat
 
 
 @inject
@@ -66,7 +64,7 @@ class AssistantAgentService(BaseService):
 
         # 4.使用GPT模型作为辅助Agent的LLM大脑
         llm = Chat(
-            model="deepseek-chat",
+            model="moonshot-v1-8k",
             temperature=0.8,
             features=[ModelFeature.TOOL_CALL, ModelFeature.AGENT_THOUGHT],
             metadata={},
@@ -85,7 +83,7 @@ class AssistantAgentService(BaseService):
         # 6.将草稿配置中的tools转换成LangChain工具
         tools = [
             # self.faiss_service.convert_faiss_to_tool(),
-            self.convert_create_app_to_tool(UUID(account.id)),
+            # self.convert_create_app_to_tool(UUID(account.id)),
         ]
 
         # 7.构建Agent智能体，使用FunctionCallAgent

@@ -86,7 +86,7 @@ class AppService(BaseService):
     def auto_create_app(self, name: str, description: str, account_id: UUID) -> None:
         """根据传递的应用名称、描述、账号id利用AI创建一个Agent智能体"""
         # 1.创建LLM，用于生成icon提示语预设提示词
-        llm = ChatOpenAI(model="gpt-40-mini", temperature=0.8)
+        llm = ChatOpenAI(model="deepseek-chat", temperature=0.8)
 
         # 2.创建DalleApiWrapper包装器
         dalle_api_wrapper = DallEAPIWrapper(model="dall-e-3", size="1024*1024")

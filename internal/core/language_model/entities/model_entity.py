@@ -13,6 +13,9 @@ from langchain_core.messages import HumanMessage
 from pydantic import BaseModel, Field
 from langchain_core.language_models import BaseLanguageModel as LCBaseLanguageModel
 
+from internal.lib.helper import image_to_base64
+
+
 class DefaultModelParameterName(str, Enum):
     """默认的参数名字，一般是所有LLM都有的一些参数"""
     TEMPERATURE = "temperature" # 温度
@@ -94,5 +97,5 @@ class BaseLanguageModel(LCBaseLanguageModel, ABC):
         #   链接: https://python.langchain.com/docs/how_to/multimodal_inputs/
         return HumanMessage(content=[
             {"type": "text", "text": query},
-            *[{"type": "image_url", "image_url": {"ur;" : image_url}} for image_url in image_urls],
+            *[{"type": "image_url", "image_url": {"url" : image_to_base64(image_url)}} for image_url in image_urls],
         ])

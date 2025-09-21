@@ -5,6 +5,8 @@
 #Author  :Emcikem
 @File    :helper.py
 """
+import base64
+import os
 import random
 import string
 from datetime import datetime
@@ -14,6 +16,7 @@ import importlib
 from typing import Any
 from uuid import UUID
 
+import requests
 from langchain_core.documents import Document
 from pydantic import BaseModel
 
@@ -106,3 +109,23 @@ def generate_random_string(length: int = 16) -> str:
     random_str = ''.join(random.choices(chars, k=length))
 
     return random_str
+
+def image_to_base64(source):
+    """通用函数：将图片（本地路径或网络URL）转为Base64"""
+    # 1.处理本地图片
+    if os.path.exists(source):
+        with open(source, "rb") as f:
+            image_data = f.read()
+        ext = os.path.splitext(source)[1].strip(".")
+    # 2.处理网络图片（先下载再编码）
+    else:
+        try:
+            response = requests.get(source, timeout=10)
+            response.raise_for_status()  # 检查请求是否成功
+            image_data = response.content
+            # 3.从响应头获取文件格式（如无则默认jpeg）
+            ext = response.headers.get("Content-Type", "image/jpeg").split("/")[-1]
+        except Exception as e:
+            raise ValueError(f"网络图片下载失败：{str(e)}")
+
+    return f"data:image/{ext};base64,{base64.b64encode(image_data).decode('utf-8')}"
