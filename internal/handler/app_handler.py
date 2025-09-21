@@ -5,6 +5,7 @@
 #Author  :Emcikem
 @File    :app_handler.py
 """
+import uuid
 from dataclasses import dataclass
 from uuid import UUID
 
@@ -30,6 +31,7 @@ from internal.service import AppService
 from pkg.paginator import PageModel
 from pkg.response import validate_error_json, success_json, success_message, compact_generate_response
 
+from internal.task.demo_task import demo_task
 
 @inject
 @dataclass
@@ -177,7 +179,7 @@ class AppHandler:
             return validate_error_json(req.errors)
 
         # 2.调用服务发起会话调试
-        response = self.app_service.debug_chat(app_id, req.query.data, current_user)
+        response = self.app_service.debug_chat(app_id, req, current_user)
 
         return compact_generate_response(response)
 
@@ -212,4 +214,5 @@ class AppHandler:
         return success_json({"token": token})
 
     def ping(self):
-        pass
+        demo_task.delay(uuid.uuid4())
+        return success_json("aaa")

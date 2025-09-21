@@ -492,7 +492,7 @@ class AppService(BaseService):
 
         return app
 
-    def debug_chat(self, app_id: UUID, query: str, account: Account) -> Generator:
+    def debug_chat(self, app_id: UUID, req: DebugChatReq, account: Account) -> Generator:
         """根据传递的应用id+提问query向特定的应用发起会话调试"""
         # 1.获取应用信息并校验权限
         app = self.get_app(app_id, account)
@@ -510,7 +510,8 @@ class AppService(BaseService):
             conversation_id=debug_conversation.id,
             invoke_from=InvokeFrom.DEBUGGER,
             created_by=account.id,
-            query=query,
+            query=req.query.data,
+            image_urls=req.query.image_urls,
             status=MessageStatus.NORMAL,
         )
 
@@ -566,7 +567,7 @@ class AppService(BaseService):
 
         agent_thoughts = {}
         for agent_thought in agent.stream({
-            "messages": [HumanMessage(query)],
+            "messages": [llm.convert_to_human_message(req.query.data, req.image_urls.data)],
             "history": history,
             "long_term_memory": debug_conversation.summary,
         }):

@@ -64,6 +64,7 @@ class Message(db.Model):
 
     # 消息关联的原始问题
     query = Column(Text, nullable=False, default="")
+    image_urls = Column(JSON, nullable=False, default=[])
     message = Column(JSON, nullable=False, default="")
     message_token_count = Column(Integer, nullable=False, default=0)
     message_unit_price = Column(Numeric(10, 7), nullable=False, default=0)

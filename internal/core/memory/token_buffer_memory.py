@@ -12,12 +12,10 @@ from sqlalchemy import desc
 from internal.entity.conversation_entity import MessageStatus
 from internal.model import Conversation, Message
 from pkg.sqlalchemy import SQLAlchemy
-from langchain_core.language_models import BaseLanguageModel
+from internal.core.language_model.entities.model_entity import BaseLanguageModel
 from langchain_core.messages import (
     AnyMessage,
-    HumanMessage,
     AIMessage,
-    trim_messages,
     get_buffer_string
 )
 
@@ -51,7 +49,7 @@ class TokenBufferMemory:
         prompt_messages = []
         for message in messages:
             prompt_messages.extend([
-                HumanMessage(content=message.query),
+                self.model_instance.convert_to_human_message(message.query, message.image_urls),
                 AIMessage(content=message.answer),
             ])
 
