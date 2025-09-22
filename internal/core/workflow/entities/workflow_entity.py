@@ -86,7 +86,7 @@ class WorkflowConfig(BaseModel):
             NodeType.END: EndNodeData,
             NodeType.LLM: LLMNodeData,
             NodeType.TEMPLATE_TRANSFORM: TemplateTransformNodeData,
-            NodeType.DATASETS_RETRIEVAL: DatasetRetrievalNodeData,
+            NodeType.DATASET_RETRIEVAL: DatasetRetrievalNodeData,
             NodeType.CODE: CodeNodeData,
             NodeType.TOOL: ToolNodeData,
             NodeType.HTTP_REQUEST: HttpRequestNodeData,

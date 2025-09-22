@@ -161,7 +161,7 @@ class WorkflowService(BaseService):
             NodeType.END: EndNodeData,
             NodeType.LLM: LLMNodeData,
             NodeType.TEMPLATE_TRANSFORM: TemplateTransformNodeData,
-            NodeType.DATASETS_RETRIEVAL: DatasetRetrievalNodeData,
+            NodeType.DATASET_RETRIEVAL: DatasetRetrievalNodeData,
             NodeType.CODE: CodeNodeData,
             NodeType.TOOL: ToolNodeData,
             NodeType.HTTP_REQUEST: HttpRequestNodeData,
@@ -203,7 +203,7 @@ class WorkflowService(BaseService):
                     if end_nodes >= 1:
                         raise ValidateErrorException("工作流中只允许有1个结束节点")
                     end_nodes += 1
-                elif node_data.node_type == NodeType.DATASETS_RETRIEVAL:
+                elif node_data.node_type == NodeType.DATASET_RETRIEVAL:
                     # 10.剔除关联知识库列表中不属于当前账户的数据
                     datasets = self.db.session.query(Dataset).filter(
                         Dataset.id.in_(node_data.dataset_ids[:5]),
@@ -213,7 +213,8 @@ class WorkflowService(BaseService):
 
                 # 11.将数据添加到node_data_dict中
                 node_data_dict[node_data.id] = node_data
-            except Exception:
+            except Exception as e:
+                print(node, e)
                 continue
 
         # 14.循环校验edges中各个节点对应的数据
@@ -355,7 +356,7 @@ class WorkflowService(BaseService):
                             "params": {},
                         },
                     }
-            elif node.get("tool_type") == NodeType.DATASETS_RETRIEVAL:
+            elif node.get("tool_type") == NodeType.DATASET_RETRIEVAL:
                 # 5.节点类型为知识库检索，需要附加知识库的名称、图标等信息
                 datasets = self.db.session.query(Dataset).filter(
                     Dataset.id.in_(node.get("datasets_ids", [])),
@@ -380,7 +381,7 @@ class WorkflowService(BaseService):
         # 2.创建工作流工具
         workflow_tool = WorkflowTool(workflow_config=WorkflowConfig(
             account_id=UUID(account.id),
-            name=workflow.name,
+            name=workflow.tool_call_name,
             description=workflow.description,
             nodes=workflow.draft_graph.get("nodes", []),
             edges=workflow.draft_graph.get("edges", []),

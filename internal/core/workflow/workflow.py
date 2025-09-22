@@ -17,7 +17,8 @@ from pydantic import PrivateAttr, BaseModel, Field, create_model
 from .entities.node_entity import NodeType
 from .entities.variable_entity import VARIABLE_TYPE_MAP
 from .entities.workflow_entity import WorkflowConfig, WorkflowState
-from .nodes import StartNode, EndNode, LLMNode, TemplateTransformNode, DatasetRetrievalNode, CodeNode
+from .nodes import StartNode, EndNode, LLMNode, TemplateTransformNode, DatasetRetrievalNode, CodeNode, ToolNode, \
+    HttpRequestNode
 from ...exception import ValidateErrorException
 
 # 节点类映射
@@ -26,8 +27,10 @@ NodeClasses = {
     NodeType.END: EndNode,
     NodeType.LLM: LLMNode,
     NodeType.TEMPLATE_TRANSFORM: TemplateTransformNode,
-    NodeType.DATASETS_RETRIEVAL: DatasetRetrievalNode,
+    NodeType.DATASET_RETRIEVAL: DatasetRetrievalNode,
     NodeType.CODE: CodeNode,
+    NodeType.TOOL: ToolNode,
+    NodeType.HTTP_REQUEST: HttpRequestNode,
 }
 
 class Workflow(BaseTool):
@@ -101,10 +104,10 @@ class Workflow(BaseTool):
                     node_flag,
                     NodeClasses[NodeType.TEMPLATE_TRANSFORM](node_data=node),
                 )
-            elif node.node_type == NodeType.DATASETS_RETRIEVAL:
+            elif node.node_type == NodeType.DATASET_RETRIEVAL:
                 graph.add_node(
                     node_flag,
-                    NodeClasses[NodeType.DATASETS_RETRIEVAL](
+                    NodeClasses[NodeType.DATASET_RETRIEVAL](
                         flask_app=current_app._get_current_object(),
                         account_id=self._workflow_config.account_id,
                         node_data=node,

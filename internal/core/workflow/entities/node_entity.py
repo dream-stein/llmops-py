@@ -17,7 +17,7 @@ class NodeType(str, Enum):
     LLM = "llm"
     TOOL = "tool"
     CODE = "code"
-    DATASETS_RETRIEVAL = "datasets_retrieval"
+    DATASET_RETRIEVAL = "dataset_retrieval"
     HTTP_REQUEST = "http_request"
     TEMPLATE_TRANSFORM = "template_transform"
     END = "end"

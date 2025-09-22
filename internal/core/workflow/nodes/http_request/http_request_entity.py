@@ -8,7 +8,7 @@
 from enum import Enum
 from typing import Optional
 
-from pydantic import Field, HttpUrl, field_validator, validator
+from pydantic import Field, field_validator, validator
 
 from internal.core.workflow.entities.node_entity import BaseNodeData
 from internal.core.workflow.entities.variable_entity import VariableEntity, VariableType, VariableValueType
@@ -33,11 +33,10 @@ class HttpRequestInputType(str, Enum):
 
 class HttpRequestNodeData(BaseNodeData):
     """HTTP请求节点数据"""
-    url: HttpUrl = "" # 请求URL地址
-    method: HttpRequestMethod = HttpRequestMethod.GET # API请求方法
-    inputs: list[VariableEntity] = Field(default_factory=list) # 输入变量列表
+    url: Optional[str] = None # 请求URL地址
+    method: HttpRequestMethod = HttpRequestMethod.GET  # API请求方法
+    inputs: list[VariableEntity] = Field(default_factory=list)  # 输入变量列表
     outputs: list[VariableEntity] = Field(
-        exclude=True,
         default_factory=lambda: [
             VariableEntity(
                 name="status_code",
@@ -49,7 +48,7 @@ class HttpRequestNodeData(BaseNodeData):
     )
 
     @field_validator("url", mode="before")
-    def validate_url(cls, url: Optional[HttpUrl]):
+    def validate_url(cls, url: Optional[str]):
         return url if url != "" else None
 
     @field_validator("outputs", mode="before")
