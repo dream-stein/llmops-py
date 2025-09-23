@@ -20,7 +20,7 @@ def main(params):
     md5_hash = hashlib.md5(combined_data.encode("utf-8")).hexdigest()
 
     # 3.Base64编码
-    base64_encoded = base64.b16encode(md5_hash.encode("utf-8")).decode("utf-8")
+    base64_encoded = base64.b64encode(md5_hash.encode("utf-8")).decode("utf-8")
 
     # 4.URL编码
     url_encoded = urllib.parse.quote(base64_encoded)
