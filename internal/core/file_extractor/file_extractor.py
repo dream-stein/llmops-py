@@ -5,18 +5,14 @@
 #Author  :Emcikem
 @File    :file_extractor.py
 """
-import os
+import os.path
 import tempfile
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Union
 
 import requests
 from injector import inject
-from dataclasses import dataclass
-
-from internal.model import UploadFile
-from internal.service import CosService
-from langchain_core.documents import Document as LCDocument
 from langchain_community.document_loaders import (
     UnstructuredExcelLoader,
     UnstructuredPDFLoader,
@@ -28,6 +24,11 @@ from langchain_community.document_loaders import (
     UnstructuredFileLoader,
     TextLoader,
 )
+from langchain_core.documents import Document as LCDocument
+
+from internal.model import UploadFile
+from internal.service import CosService
+
 
 @inject
 @dataclass
@@ -77,9 +78,9 @@ class FileExtractor:
             cls,
             file_path: str,
             return_text: bool = False,
-            is_unstructured: bool = True
+            is_unstructured: bool = True,
     ) -> Union[list[LCDocument], str]:
-        """从本地中加载数据，返回Langchain文档列表或者字符串"""
+        """从本地文件中加载数据，返回LangChain文档列表或者字符串"""
         # 1.获取文件的扩展名
         delimiter = "\n\n"
         file_extension = Path(file_path).suffix.lower()
@@ -87,17 +88,17 @@ class FileExtractor:
         # 2.根据不同的文件扩展名去加载不同的加载器
         if file_extension in [".xlsx", ".xls"]:
             loader = UnstructuredExcelLoader(file_path)
-        elif file_extension == '.pdf':
+        elif file_extension == ".pdf":
             loader = UnstructuredPDFLoader(file_path)
-        elif file_extension == [".md", ".markdown"]:
+        elif file_extension in [".md", ".markdown"]:
             loader = UnstructuredMarkdownLoader(file_path)
         elif file_extension in [".htm", ".html"]:
             loader = UnstructuredHTMLLoader(file_path)
-        elif file_extension == '.csv':
+        elif file_extension == ".csv":
             loader = UnstructuredCSVLoader(file_path)
-        elif file_extension in [".ppt", ".pptx"]:
+        elif file_extension in [".ppt", "pptx"]:
             loader = UnstructuredPowerPointLoader(file_path)
-        elif file_extension == '.xml':
+        elif file_extension == ".xml":
             loader = UnstructuredXMLLoader(file_path)
         else:
             loader = UnstructuredFileLoader(file_path) if is_unstructured else TextLoader(file_path)

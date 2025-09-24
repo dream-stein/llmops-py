@@ -70,7 +70,7 @@ class IndexingService(BaseService):
                 lc_segments = self._splitting(document, lc_documents)
 
                 # 6.执行文档索引构建，涵盖关键词提取、向量，并更新数据状态
-                self._indexing(document, lc_documents)
+                self._indexing(document, lc_segments)
 
                 # 7.存储操作，涵盖文档状态更新，以及向量数据库的存储
                 self._completed(document, lc_segments)
@@ -208,15 +208,15 @@ class IndexingService(BaseService):
         lc_documents = self.file_extractor.load(upload_file, False, True)
 
         # 2.循环处理LangChain文档，并删除多余的空白字符串
-        for lc_documents in lc_documents:
-            lc_documents.page_content = self._clean_extra_text(lc_documents.page_content)
+        for lc_document in lc_documents:
+            lc_document.page_content = self._clean_extra_text(lc_document.page_content)
 
         # 3.更新文档状态并记录时间
         self.update(
             document,
-            character_count=sum([len(lc_documents.page_content) for lc_documents in lc_documents]),
+            character_count=sum([len(lc_document.page_content) for lc_document in lc_documents]),
             status=DocumentStatus.SPLITTING,
-            parsing_cpmpleted_at=datetime.now(),
+            parsing_completed_at=datetime.now(),
         )
 
         return lc_documents
@@ -245,7 +245,7 @@ class IndexingService(BaseService):
             Segment.document_id == document.id,
         ).scalar()
 
-        # 5.循环处理片段数据并添加有数据，他是村粗到MySQL数据库中
+        # 5.循环处理片段数据并添加有数据，他是存储到MySQL数据库中
         segments = []
         for lc_segment in lc_segments:
             position += 1
@@ -265,7 +265,7 @@ class IndexingService(BaseService):
             )
             lc_segment.metadata = {
                 "account_id": str(document.account_id),
-                "dataset_id": document.dataset_id,
+                "dataset_id": str(document.dataset_id),
                 "document_id": str(document.id),
                 "segment_id": str(segment.id),
                 "node": str(segment.node_id),
@@ -277,9 +277,9 @@ class IndexingService(BaseService):
         # 6.更新文档的数据，涵盖状态、token数等内容
         self.update(
             document,
-            token_count=sum([len(segment.token_count) for segment in segments]),
+            token_count=sum([segment.token_count for segment in segments]),
             status=DocumentStatus.INDEXING,
-            splitting_cpmpleted_at=datetime.now(),
+            splitting_completed_at=datetime.now(),
         )
 
         return lc_segments
@@ -290,7 +290,7 @@ class IndexingService(BaseService):
             # 1.提取每一个片段对应的关键词，关键词的梳理最多不超过10个
             keywords = self.jieba_service.extract_keywords(lc_segment.page_content, 10)
 
-            # 2.逐条更新文档片段的关键词
+            # 2.逐条更新文档片段的关键词todo:没有更新成功
             self.db.session.query(Segment).filter(
                 Segment.id == lc_segment.metadata['segment_id'],
             ).update({

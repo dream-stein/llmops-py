@@ -29,7 +29,7 @@ from internal.handler import (
     AnalysisHandler,
     WebAppHandler,
     ConversationHandler,
-    WorkflowHandler, workflow_handler,
+    WorkflowHandler,
 )
 
 @inject
