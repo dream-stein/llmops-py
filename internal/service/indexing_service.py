@@ -292,7 +292,7 @@ class IndexingService(BaseService):
 
             # 2.逐条更新文档片段的关键词todo:没有更新成功
             self.db.session.query(Segment).filter(
-                Segment.id == lc_segment.metadata['segment_id'],
+                Segment.id == lc_segment.metadata["segment_id"]
             ).update({
                 "keywords": keywords,
                 "status": SegmentStatus.INDEXING,
