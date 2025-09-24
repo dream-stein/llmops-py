@@ -29,7 +29,7 @@ class KeywordTableService(BaseService):
     def get_keyword_table_from_dataset_id(self, dataset_id: UUID) -> KeywordTable:
         """根据传递的知识库id获取关键词表"""
         keyword_table = self.db.session.query(KeywordTable).filter(
-            KeywordTable.dataset_id == dataset_id,
+            KeywordTable.dataset_id == str(dataset_id),
         ).one_or_none()
         if keyword_table is None:
             keyword_table = self.create(KeywordTable, dataset_id=dataset_id, keyword_table={})
