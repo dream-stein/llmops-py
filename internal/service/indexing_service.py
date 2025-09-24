@@ -290,7 +290,7 @@ class IndexingService(BaseService):
             # 1.提取每一个片段对应的关键词，关键词的梳理最多不超过10个
             keywords = self.jieba_service.extract_keywords(lc_segment.page_content, 10)
 
-            # 2.逐条更新文档片段的关键词todo:没有更新成功
+            # 2.逐条更新文档片段的关键词
             self.db.session.query(Segment).filter(
                 Segment.id == lc_segment.metadata["segment_id"]
             ).update({
