@@ -52,7 +52,7 @@ class DocumentService(BaseService):
         # 2.提取维基并校验文件权限与文件扩展
         upload_files = self.db.session.query(UploadFile).filter(
             UploadFile.account_id == account.id,
-            UploadFile.id.in_(upload_file_ids),
+            UploadFile.id.in_([str(upload_file_id) for upload_file_id in upload_file_ids]),
         ).all()
         upload_files = [
             upload_file for upload_file in upload_files
@@ -66,7 +66,7 @@ class DocumentService(BaseService):
         process_rule = self.create(
             ProcessRule,
             account_id=account.id,
-            dataset_id=dataset_id,
+            dataset_id=str(dataset_id),
             mode=process_type,
             rule=rule,
         )
@@ -81,7 +81,7 @@ class DocumentService(BaseService):
             document = self.create(
                 Document,
                 account_id=account.id,
-                dataset_id=dataset_id,
+                dataset_id=str(dataset_id),
                 upload_file_id=upload_file.id,
                 process_rule_id=process_rule.id,
                 batch=batch,
@@ -106,7 +106,7 @@ class DocumentService(BaseService):
 
         # 2.查询当前知识库下该批次的文档列表
         documents = self.db.session.query(Document).filter(
-            Document.dataset_id == dataset.id,
+            Document.dataset_id == str(dataset.id),
             Document.batch == batch,
         ).order_by(asc("position")).all()
         if documents is None or len(documents) == 0:
@@ -153,7 +153,7 @@ class DocumentService(BaseService):
         document = self.get(Document, document_id)
         if document is None:
             raise NotFoundException("该文档不存在，请核实后重试")
-        if document.dataset_id != dataset_id or str(document.account_id) != account.id:
+        if document.dataset_id != str(dataset_id) or str(document.account_id) != str(account.id):
             raise ForbiddenException("当前用户无权获取该文档，请核实后重试")
 
         return document
@@ -168,7 +168,7 @@ class DocumentService(BaseService):
         document = self.get(Document, document_id)
         if document is None:
             raise NotFoundException("该文档不存在，请核实后重试")
-        if document.dataset_id != dataset_id or str(document.account_id) != account.id:
+        if document.dataset_id != str(dataset_id) or str(document.account_id) != str(account.id):
             raise ForbiddenException("当前用户无权限修改该文档，请核实后重试")
 
         return self.update(document, **kwargs)
@@ -185,7 +185,7 @@ class DocumentService(BaseService):
         document = self.get(Document, document_id)
         if document is None:
             raise NotFoundException("该文档不存在，请核实后重试")
-        if document.dataset_id != dataset_id or document.account_id != account.id:
+        if document.dataset_id != str(dataset_id) or document.account_id != str(account.id):
             raise ForbiddenException("当前用户无权限修改该知识库下的文档，请核实后重试")
 
         # 2.判断文档是否处于可以修改的状态，只有构建完成才可以修改enabled
@@ -220,7 +220,7 @@ class DocumentService(BaseService):
         document = self.get(Document, document_id)
         if document is None:
             raise NotFoundException("该文档不存在，请核实后重试")
-        if document.dataset_id != dataset_id or document.account_id != account.id:
+        if document.dataset_id != str(dataset_id) or document.account_id != str(account.id):
             raise ForbiddenException("当前用户无权限修改该知识库下的文档，请核实后重试")
 
         # 2.判断文档是否处于可删除状态，只有构建完成/出错的时候才可以删除，其他情况需要等待构建完成
@@ -251,7 +251,7 @@ class DocumentService(BaseService):
 
         # 3.构建筛选器
         filters = [
-            Document.account_id == account.id,
+            Document.account_id == str(account.id),
             Document.dataset_id == str(dataset_id),
         ]
         if req.search_word.data:
@@ -267,6 +267,6 @@ class DocumentService(BaseService):
     def get_latest_document_position(self, dataset_id: UUID) -> int:
         """根据传递的知识库id获取最新文档位置"""
         document = self.db.session.query(Document).filter(
-            Document.dataset_id == dataset_id,
+            Document.dataset_id == str(dataset_id),
         ).order_by(desc("position")).first()
         return document.position if document else 0

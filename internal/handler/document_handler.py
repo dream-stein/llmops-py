@@ -82,7 +82,6 @@ class DocumentHandler:
     def get_documents_with_page(self, dataset_id: UUID):
         """根据传递的知识库id获取文档分页列表数据"""
         # 1.提取请求数据并校验
-        # todo:查询有问题
         req = GetDocumentsWithPageReq(request.args)
         if not req.validate():
             return validate_error_json(req.errors)
