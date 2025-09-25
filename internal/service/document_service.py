@@ -255,7 +255,7 @@ class DocumentService(BaseService):
             Document.dataset_id == str(dataset_id),
         ]
         if req.search_word.data:
-            filters.append([Document.name.ilike(f"%{req.search_word.data}%")])
+            filters.append(Document.name.ilike(f"%{req.search_word.data}%"))
 
         # 4.执行分页并获取数据
         documents = paginator.paginate(

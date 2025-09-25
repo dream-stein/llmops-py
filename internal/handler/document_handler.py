@@ -7,6 +7,7 @@
 """
 from dataclasses import dataclass
 
+from flask import request
 from flask_login import current_user
 from injector import inject
 from uuid import UUID
@@ -82,7 +83,7 @@ class DocumentHandler:
         """根据传递的知识库id获取文档分页列表数据"""
         # 1.提取请求数据并校验
         # todo:查询有问题
-        req = GetDocumentsWithPageReq()
+        req = GetDocumentsWithPageReq(request.args)
         if not req.validate():
             return validate_error_json(req.errors)
 
