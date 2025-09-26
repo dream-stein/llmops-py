@@ -63,7 +63,7 @@ class SegmentService(BaseService):
         if (
             document is None
             or document.account_id != account.id
-            or document.dataset_id != dataset_id
+            or document.dataset_id != str(dataset_id)
         ):
             raise NotFoundException("该知识库文档不存在，或无权限新增，请核实后重试")
 
@@ -73,7 +73,7 @@ class SegmentService(BaseService):
 
         # 4.提取文档片段的最大的位置
         position = self.db.session.query(func.coalesce(func.max(Segment.position), 0)).filter(
-            Segment.document_id == document_id
+            Segment.document_id == str(document_id)
         ).scalar()
 
         # 5.检测是否传递了keywords，如果没有传递的话，调用jieba服务生成关键词
@@ -165,8 +165,8 @@ class SegmentService(BaseService):
         if (
                 segment is None
                 or segment.account_id != account.id
-                or segment.dataset_id != dataset_id
-                or segment.document_id != document_id
+                or segment.dataset_id != str(dataset_id)
+                or segment.document_id != str(document_id)
         ):
             raise NotFoundException("该文档片段不存在，或无权限修改，请核实后重试")
 
@@ -236,14 +236,14 @@ class SegmentService(BaseService):
         """根据传递的信息获取片段列表分页数据"""
         # 1.获取文档并校验权限
         document = self.get(Document, document_id)
-        if document is None or document.dataset_id != dataset_id or document.account_id != account.id:
+        if document is None or document.dataset_id != str(dataset_id) or document.account_id != account.id:
             raise NotFoundException("该知识库文档不存在，或无权限查看，请核实后重试")
 
         # 2.构建分页查询器
         paginator = Paginator(db=self.db, req=req)
 
         # 3.构建筛选器
-        filters = [Segment.document_id == document_id]
+        filters = [Segment.document_id == str(document_id)]
         if req.search_word.data:
             filters.append(Segment.content.ilike(f"%{req.search_word.data}%"))
 
@@ -267,8 +267,8 @@ class SegmentService(BaseService):
         if (
             segment is None
             or segment.account_id != account.id
-            or segment.dataset_id != dataset_id
-            or segment.document_id != document_id
+            or segment.dataset_id != str(dataset_id)
+            or segment.document_id != str(document_id)
         ):
             raise NotFoundException("该文档片段不存在，或无权限查看，请核实后重试")
 
@@ -288,8 +288,8 @@ class SegmentService(BaseService):
         if (
                 segment is None
                 or segment.account_id != account.id
-                or segment.dataset_id != dataset_id
-                or segment.document_id != document_id
+                or segment.dataset_id != str(dataset_id)
+                or segment.document_id != str(document_id)
         ):
             raise NotFoundException("该文档片段不存在，或无权限查看，请核实后重试")
 
@@ -354,8 +354,8 @@ class SegmentService(BaseService):
         if (
                 segment is None
                 or segment.account_id != account.id
-                or segment.dataset_id != dataset_id
-                or segment.document_id != document_id
+                or segment.dataset_id != str(dataset_id)
+                or segment.document_id != str(document_id)
         ):
             raise NotFoundException("该文档片段不存在，或无权限查看，请核实后重试")
 
