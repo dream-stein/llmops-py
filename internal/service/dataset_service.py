@@ -201,7 +201,9 @@ class DatasetService(BaseService):
                 ).delete()
 
             # 3.调用异步任务执行后续的操作
-            delete_dataset.delay(dataset_id)
+            # todo: 异步
+            # delete_dataset.delay(dataset_id)
+            delete_dataset(dataset)
         except Exception as e:
             raise FailException("删除知识库失败，请稍后重试")
 
