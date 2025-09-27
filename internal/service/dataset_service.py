@@ -67,8 +67,8 @@ class DatasetService(BaseService):
 
         # 2.调用知识库查询模型查找最近的10条记录
         dataset_queries = self.db.session.query(DatasetQuery).filter(
-            DatasetQuery.dataset_id == dataset_id,
-        ).order_by(desc("created_at")).limit(10)
+            DatasetQuery.dataset_id == str(dataset_id),
+        ).order_by(desc("created_at")).limit(10).all()
 
         return dataset_queries
 
@@ -128,7 +128,7 @@ class DatasetService(BaseService):
         return datasets, paginator
 
     def hit(self, dataset_id: UUID, req: HitReq, account: Account) -> list[dict]:
-        """根据传递的知识库"""
+        """根据传递的知识库id+请求执行召回测试"""
         # 1.检测知识库是否存在并校验
         dataset = self.get(Dataset, dataset_id)
         if dataset is None or dataset.account_id != account.id:
@@ -142,6 +142,7 @@ class DatasetService(BaseService):
         )
         lc_document_dict = {str(lc_document.metadata["segment_id"]): lc_document for lc_document in lc_documents}
 
+        # 3.根据检索到的数据查询对应的片段信息
         segments = self.db.session.query(Segment).filter(
             Segment.id.in_([str(lc_document.metadata["segment_id"]) for lc_document in lc_documents])
         ).all()
@@ -154,7 +155,7 @@ class DatasetService(BaseService):
             if str(lc_document.metadata["segment_id"]) in segment_dict
         ]
 
-        # 5.组装相应数据
+        # 5.组装响应数据
         hit_result = []
         for segment in sorted_segments:
             document = segment.document
@@ -179,7 +180,7 @@ class DatasetService(BaseService):
                 "disabled_at": datetime_to_timestamp(segment.disabled_at),
                 "status": segment.status,
                 "error": segment.error,
-                "update_at": datetime_to_timestamp(segment.update_at),
+                "updated_at": datetime_to_timestamp(segment.updated_at),
                 "created_at": datetime_to_timestamp(segment.created_at),
             })
 

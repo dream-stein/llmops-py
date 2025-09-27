@@ -145,7 +145,7 @@ class HitReq(FlaskForm):
     ])
 
 class GetDatasetQueriesResp(Schema):
-    """获取知识库最佳查询响应结构"""
+    """获取知识库最近查询响应结构"""
     id = fields.UUID(dump_default="")
     dataset_id = fields.UUID(dump_default="")
     query = fields.String(dump_default="")

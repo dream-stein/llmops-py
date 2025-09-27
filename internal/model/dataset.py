@@ -178,7 +178,7 @@ class DatasetQuery(db.Model):
     id = Column(String(36), nullable=False, default=uuid.uuid4)
     dataset_id = Column(String(36), nullable=False)
     query = Column(Text, nullable=False, default="")
-    status = Column(String(255), nullable=False, default="HitTesting")
+    source = Column(String(255), nullable=False, default="HitTesting")
     source_app_id = Column(String(36), nullable=True)
     created_by = Column(String(36), nullable=True)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now, nullable=False)

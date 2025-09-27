@@ -47,8 +47,8 @@ class RetrievalService(BaseService):
         """根据传递的query+知识库列表执行检索，并返回检索的文档+得分数据（如果检索策略为全文检索，则得分为0）"""
         # 1.提取知识库列表并校验权限同时更新知识库id
         datasets = self.db.session.query(Dataset).filter(
-            Dataset.id.in_(dataset_ids),
-            Dataset.account_id == account_id,
+            Dataset.id.in_([str(dataset_id) for dataset_id in dataset_ids]),
+            Dataset.account_id == str(account_id),
         ).all()
         if datasets is None or len(datasets) == 0:
             raise NotFoundException("当前无知识库可执行检索")

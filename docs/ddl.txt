@@ -137,12 +137,13 @@ CREATE TABLE IF NOT EXISTS `llmops_dataset` (
     UNIQUE INDEX `idx_account_name` (`account_id`, `name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='知识库';
 
-CREATE TABLE IF NOT EXISTS `llmops_dataset_query` (
+CREATE TABLE IF NOT EXISTS `dataset_query` (
     `id` VARCHAR(36) PRIMARY KEY COMMENT '主键UUID',
     `dataset_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '关联的知识库id',
     `query` TEXT COMMENT '查询query语句',
     `source` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '查询的来源',
     `source_app_id` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '查询关联的应用id',
+    `created_by` VARCHAR(36) NOT NULL DEFAULT '' COMMENT '来源',
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     INDEX `idx_dataset_id` (`dataset_id`),

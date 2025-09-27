@@ -40,16 +40,6 @@ class DatasetHandler:
     vector_database_service: VectorDatabaseService
     db: SQLAlchemy
 
-
-    def embeddings_query(self):
-        upload_file = self.db.session.query(UploadFile).get("321c56bc-8cc9-4630-8447-b2b036ad89eb")
-        content = self.file_extractor.load(upload_file, True)
-        return success_json({"content": content})
-
-        # query = request.args.get("query")
-        # keywords = self.jieba_service.extract_keywords(query)
-        # return success_json({"keywords": keywords})
-
     def hit(self, dataset_id: UUID):
         """根据传递的知识库id+检索参数执行召回测试"""
         # 1.提取数据并校验
