@@ -38,7 +38,7 @@ class VectorDatabaseService:
         #     cluster_url=os.getenv("WEAVIATE_URL"),
         #     auth_credentials=Auth.api_key(os.getenv("WEAVIATE_API_KEY")),
         # )
-        self.client = None
+        # self.client = None
 
         # 3.创建LangChain向量数据库
         # self.vector_store = WeaviateVectorStore(

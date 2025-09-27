@@ -62,7 +62,7 @@ class CosService:
         # 6.创建upload_file记录
         return self.upload_file_service.create_upload_file(
             account_id=account.id,
-            name=random_filename,
+            name=filename,
             key=upload_filename,
             size=len(file_content),
             extension=extension,

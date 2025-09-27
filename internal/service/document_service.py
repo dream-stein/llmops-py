@@ -211,7 +211,9 @@ class DocumentService(BaseService):
         self.redis_client.setex(cache_key, LOCK_EXPIRE_TIME, 1)
 
         # 6.启用异步任务完成后续操作
-        update_document_enabled.delay(document.id)
+        # todo: 异步
+        # update_document_enabled.delay(document.id)
+        update_document_enabled(document.id)
         return document
 
     def delete_document(self, dataset_id: UUID, document_id: UUID, account: Account) -> Document:
@@ -231,7 +233,9 @@ class DocumentService(BaseService):
         self.delete(document)
 
         # 4.调用异步任务执行后续操作，涵盖：关键词表更新、片段数据删除、weaviate记录删除等
-        delete_document.delay(dataset_id, document.id)
+        # todo: 异步
+        # delete_document.delay(dataset_id, document.id)
+        delete_document(dataset_id, document.id)
 
         return document
 

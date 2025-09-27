@@ -104,15 +104,18 @@ class IndexingService(BaseService):
 
         try:
             # 4.执行循环遍历所有node_ids并更新向量数据
-            collection = self.vector_database_service.collection
+            # todo: 向量数据库
+            # collection = self.vector_database_service.collection
             for node_id in node_ids:
                 try:
-                    collection.data.update(
-                        uuid=node_id,
-                        properties={
-                            "document_enabled": document.enabled,
-                        }
-                    )
+                    # todo: 向量数据库
+                    print(1)
+                    # collection.data.update(
+                    #     uuid=node_id,
+                    #     properties={
+                    #         "document_enabled": document.enabled,
+                    #     }
+                    # )
                 except Exception as e:
                     with self.db.auto_commit():
                         self.db.session.query(Segment).filter(
@@ -151,20 +154,21 @@ class IndexingService(BaseService):
         # 1.查找该文档下的所有片段id列表
         segment_ids = [
             id for id, in self.db.session.query(Segment).with_entities(Segment.id).filter(
-                Segment.document_id == document_id,
+                Segment.document_id == str(document_id),
             ).all()
         ]
 
         # 2.调用向量数据库删除其关联数据
-        collection = self.vector_database_service.collection
-        collection.data.delete_many(
-            where=Filter.by_property("document_id").equal(document_id),
-        )
+        # todo:向量数据库
+        # collection = self.vector_database_service.collection
+        # collection.data.delete_many(
+        #     where=Filter.by_property("document_id").equal(document_id),
+        # )
 
         # 3.删除MySQL关联的segment记录
         with self.db.auto_commit():
             self.db.session.query(Segment).filter(
-                Segment.document_id == document_id,
+                Segment.document_id == str(document_id),
             ).delete()
 
         # 4.删除片段id对应的关键词记录
@@ -176,28 +180,29 @@ class IndexingService(BaseService):
             with self.db.auto_commit():
                 # 1.删除关联的文档列表
                 self.db.session.query(Document).filter(
-                    Document.dataset_id == dataset_id,
+                    Document.dataset_id == str(dataset_id),
                 ).delete()
 
                 # 2.删除关联的片段记录
                 self.db.session.query(Segment).filter(
-                    Segment.document_id == dataset_id,
+                    Segment.document_id == str(dataset_id),
                 ).delete()
 
                 # 3.删除关联的关键词表
                 self.db.session.query(KeywordTable).filter(
-                    KeywordTable.dataset_id == dataset_id,
+                    KeywordTable.dataset_id == str(dataset_id),
                 ).delete()
 
                 # 4.删除知识库查询记录
                 self.db.session.query(DatasetQuery).filter(
-                    DatasetQuery.dataset_id == dataset_id,
+                    DatasetQuery.dataset_id == str(dataset_id),
                 ).delete()
 
             # 5.调用向量数据库删除知识库的关联记录
-            self.vector_database_service.collection.data.delete_many(
-                where=Filter.by_property("dataset_id").equal(str(dataset_id)),
-            )
+            # todo: 向量数据库
+            # self.vector_database_service.collection.data.delete_many(
+            #     where=Filter.by_property("dataset_id").equal(str(dataset_id)),
+            # )
         except Exception as e:
             print()
 
@@ -268,7 +273,7 @@ class IndexingService(BaseService):
                 "dataset_id": str(document.dataset_id),
                 "document_id": str(document.id),
                 "segment_id": str(segment.id),
-                "node": str(segment.node_id),
+                "node_id": str(segment.node_id),
                 "document_enabled": False,
                 "segment_enabled": False,
             }
@@ -335,10 +340,11 @@ class IndexingService(BaseService):
             """线程函数，执行向量数据库与MySQL的存储"""
             with flask_app.app_context():
                 try:
-                    # 4.调用向量数据库村粗对应的数据
-                    self.vector_database_service.vector_store.add_documents(
-                        chunks, ids=ids,
-                    )
+                    # 4.调用向量数据库存储对应的数据
+                    # todo: 存入向量数据库
+                    # self.vector_database_service.vector_store.add_documents(
+                    #     chunks, ids=ids,
+                    # )
 
                     # 5.更新关联片段的状态以及完成时间
                     with self.db.auto_commit():

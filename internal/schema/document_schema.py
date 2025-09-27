@@ -56,23 +56,26 @@ class CreateDocumentsReq(FlaskForm):
 
     def validate_rule(self, field: DictField) -> None:
         """校验上传处理规则"""
-        # 1.校验处理模型，如果为自动，则为rule赋值默认值
+        # 1.校验处理模式，如果为自动，则为rule赋值默认值
         if self.process_type.data == ProcessType.AUTOMATIC:
             field.data = DEFAULT_PROCESS_RULE["rule"]
         else:
-            # 2.检测自定义处理类型下是否传递rule
+            # 2.检测自定义处理类型下是否传递了rule
             if not isinstance(field.data, dict) or len(field.data) == 0:
                 raise ValidationError("自定义处理模式下，rule不能为空")
 
             # 3.校验pre_process_rules，涵盖：非空、列表类型
-            if "pre_process_rules" in field.data or not isinstance(field.data["pre_process_rules"], list):
+            if "pre_process_rules" not in field.data or not isinstance(field.data["pre_process_rules"], list):
                 raise ValidationError("pre_process_rules必须为列表")
 
             # 4.提取pre_process_rules中唯一的处理规则，避免重复处理
             unique_pre_process_rule_dict = {}
             for pre_process_rule in field.data["pre_process_rules"]:
-                # 5.校验id参数、非空、id规范
-                if "id" not in pre_process_rule or pre_process_rule["id"] not in ["remove_url_and_email", "remove_url_and_email"]:
+                # 5.校验id参数，非空、id规范
+                if (
+                        "id" not in pre_process_rule
+                        or pre_process_rule["id"] not in ["remove_extra_space", "remove_url_and_email"]
+                ):
                     raise ValidationError("预处理id格式错误")
 
                 # 6.校验enabled参数，涵盖：非空、布尔值
@@ -87,7 +90,7 @@ class CreateDocumentsReq(FlaskForm):
 
             # 8.判断一下是否传递了两个处理规则
             if len(unique_pre_process_rule_dict) != 2:
-                raise ValidationError("预处理规则格式错误，请重新尝试")
+                raise ValidationError("预处理规则格式错误，请重试尝试")
 
             # 9.将处理后的数据转换成列表并覆盖与处理规则
             field.data["pre_process_rules"] = list(unique_pre_process_rule_dict.values())
@@ -96,7 +99,7 @@ class CreateDocumentsReq(FlaskForm):
             if "segment" not in field.data or not isinstance(field.data["segment"], dict):
                 raise ValidationError("分段设置不能为空且为字典")
 
-            # 11.校验分段
+            # 11.校验分隔符separators，涵盖：非空、列表、子元素为字符串
             if "separators" not in field.data["segment"] or not isinstance(field.data["segment"]["separators"], list):
                 raise ValidationError("分隔符列表不能为空且为列表")
             for separator in field.data["segment"]["separators"]:
@@ -105,19 +108,22 @@ class CreateDocumentsReq(FlaskForm):
             if len(field.data["segment"]["separators"]) == 0:
                 raise ValidationError("分隔符列表不能为空列表")
 
-            # 12.校验分块大小chunk_size，涵盖：非空、数字、范围
-            if "chunk_size" not in field.data["segment"] or not isinstance(field.data["segment"]["chunks_size"], int):
-                raise ValidationError("分块大小不能为空且为整数")
-            if field.data["segment"]["chunks_size"] < 100 or field.data["segment"]["chunks_size"] > 1000:
-                raise ValidationError("分块大小在100-1000")
+            # 12.校验分块大小chunk_size，涵盖了：非空、数字、范围
+            if "chunk_size" not in field.data["segment"] or not isinstance(field.data["segment"]["chunk_size"], int):
+                raise ValidationError("分割块大小不能为空且为整数")
+            if field.data["segment"]["chunk_size"] < 100 or field.data["segment"]["chunk_size"] > 1000:
+                raise ValidationError("分割块大小在100-1000")
 
-            # 13.校验快重叠大小chunk_overlap，涵盖：非空、数字、范围
-            if "chunk_overlap" not in field.data["segment"] or not isinstance(field.data["segment"]["chunk_overlap"], int):
-                raise ValidationError("快重叠大小不能为空且为整数")
-            if not(0 <= field.data["segment"]["chunk_overlap"] <= field.data["segment"]["chunk_size"] * 0.5):
-                raise ValidationError(f"快重叠大小在0-{int(field.data['segment']['chunk_size'] * 0.5)}")
+            # 13.校验块重叠大小chunk_overlap，涵盖：非空、数字、范围
+            if (
+                    "chunk_overlap" not in field.data["segment"]
+                    or not isinstance(field.data["segment"]["chunk_overlap"], int)
+            ):
+                raise ValidationError("块重叠大小不能为空且为整数")
+            if not (0 <= field.data["segment"]["chunk_overlap"] <= field.data["segment"]["chunk_size"] * 0.5):
+                raise ValidationError(f"块重叠大小在0-{int(field.data['segment']['chunk_size'] * 0.5)}")
 
-            # 14.更新并剔除多余数据
+            # 14.更新并提出多余数据
             field.data = {
                 "pre_process_rules": field.data["pre_process_rules"],
                 "segment": {
