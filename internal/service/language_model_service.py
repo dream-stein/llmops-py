@@ -14,7 +14,6 @@ from flask import current_app
 from importlib_metadata import metadata
 from injector import inject
 from langchain_openai import ChatOpenAI
-from sympy.physics.units import temperature
 
 from internal.core.language_model import LanguageModelManager
 from internal.core.language_model.entities.model_entity import BaseLanguageModel
