@@ -9,6 +9,7 @@ import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any
+from uuid import UUID
 
 from flask import request
 from injector import inject
