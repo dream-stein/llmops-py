@@ -1,6 +1,6 @@
 # llmops-py
 
-A Python implementation of the LLMOps (Large Language Model Operations) toolkit, designed to simplify the lifecycle management of large language model applications, including model deployment, application configuration, knowledge base management, plugin integration, and more.
+A Python implementation of the LLMOps (Large Language Model Operations) toolkit, designed to simplify the lifecycle management of large language model applications, including model deployment, application configuration, knowledge base management, plugin integration, and more. 
 
 
 ## Project Overview
