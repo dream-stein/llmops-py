@@ -12,7 +12,6 @@ from injector import inject
 from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_weaviate import WeaviateVectorStore
 from weaviate import WeaviateClient
-from weaviate.auth import Auth
 from weaviate.collections import Collection
 
 from .embeddings_service import EmbeddingsService

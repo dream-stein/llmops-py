@@ -17,7 +17,6 @@ from injector import inject
 from langchain_core.documents import Document as LCDocument
 from redis import Redis
 from sqlalchemy import func
-from weaviate.classes.query import Filter
 
 from internal.core.file_extractor import FileExtractor
 from internal.entity.cache_entity import (
@@ -34,6 +33,7 @@ from .jieba_service import JiebaService
 from .keyword_table_service import KeywordTableService
 from .process_rule_service import ProcessRuleService
 from .vector_database_service import VectorDatabaseService
+from .local_vector_dataset_service import LocalVectorDatabaseService
 
 
 
@@ -49,6 +49,7 @@ class IndexingService(BaseService):
     jieba_service: JiebaService
     keyword_table_service: KeywordTableService
     vector_database_service: VectorDatabaseService
+    local_vector_database_service: LocalVectorDatabaseService
 
     def build_documents(self, document_ids: list[UUID]) -> None:
         """根据传递的文档id列表构建知识库，涵盖了加兹安、分割、索引构建、数据"""
@@ -345,6 +346,9 @@ class IndexingService(BaseService):
                     # self.vector_database_service.vector_store.add_documents(
                     #     chunks, ids=ids,
                     # )
+                    self.local_vector_database_service.add_documents(
+                        chunks, ids=ids,
+                    )
 
                     # 5.更新关联片段的状态以及完成时间
                     with self.db.auto_commit():
