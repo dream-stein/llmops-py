@@ -155,7 +155,7 @@ class Segment(db.Model):
 
     @property
     def document(self) -> "Document":
-        return db.session.query(Document).get(self.document_id)
+        return db.session.get(Document, self.document_id)
 
 class KeywordTable(db.Model):
     """"关键词表模型"""

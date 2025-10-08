@@ -12,6 +12,7 @@ from injector import inject
 from langchain_core.vectorstores import VectorStoreRetriever
 from langchain_weaviate import WeaviateVectorStore
 from weaviate import WeaviateClient
+from weaviate.auth import Auth, AuthApiKey
 from weaviate.collections import Collection
 
 from .embeddings_service import EmbeddingsService
@@ -33,20 +34,18 @@ class VectorDatabaseService:
         self.embeddings_service = embeddings_services
 
         # 2.创建/连接weaviate向量数据库
-        # self.client = weaviate.connect_to_weaviate_cloud(
-        #     cluster_url=os.getenv("WEAVIATE_URL"),
-        #     auth_credentials=Auth.api_key(os.getenv("WEAVIATE_API_KEY")),
-        # )
-        # self.client = None
+        self.client = weaviate.connect_to_weaviate_cloud(
+            cluster_url=os.getenv("WEAVIATE_URL"),
+            auth_credentials=AuthApiKey(os.getenv("WEAVIATE_API_KEY")),
+        )
 
         # 3.创建LangChain向量数据库
-        # self.vector_store = WeaviateVectorStore(
-        #     client=self.client,
-        #     index_name=COLLECTION_NAME,
-        #     text_key="text",
-        #     # embedding=self.embeddings_service.cache_backed_embeddings
-        #     embedding=self.embeddings_service.embeddings,
-        # )
+        self.vector_store = WeaviateVectorStore(
+            client=self.client,
+            index_name=COLLECTION_NAME,
+            text_key="text",
+            embedding=self.embeddings_service.embeddings,
+        )
 
     def get_retriever(self) -> VectorStoreRetriever:
         """获取检索器"""

@@ -53,7 +53,7 @@ class GetAssistantAgentMessagesWithPageResp(Schema):
     id = fields.UUID(dump_default="")
     conversation_id = fields.UUID(dump_default="")
     query = fields.String(dump_default="")
-    image_urls = fields.List(fields.String, default=[])
+    image_urls = fields.List(fields.String, dump_default=[])
     answer = fields.String(dump_default="")
     total_token_count = fields.Integer(dump_default=0)
     latency = fields.Float(dump_default=0)
