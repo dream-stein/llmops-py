@@ -34,7 +34,6 @@ from .jieba_service import JiebaService
 from .keyword_table_service import KeywordTableService
 from .process_rule_service import ProcessRuleService
 from .vector_database_service import VectorDatabaseService
-from .local_vector_dataset_service import LocalVectorDatabaseService
 
 
 
@@ -50,7 +49,6 @@ class IndexingService(BaseService):
     jieba_service: JiebaService
     keyword_table_service: KeywordTableService
     vector_database_service: VectorDatabaseService
-    local_vector_database_service: LocalVectorDatabaseService
 
     def build_documents(self, document_ids: list[UUID]) -> None:
         """根据传递的文档id列表构建知识库，涵盖了加兹安、分割、索引构建、数据"""
