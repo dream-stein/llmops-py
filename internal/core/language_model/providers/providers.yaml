@@ -5,14 +5,6 @@
   background: "#FFFFF"
   supported_model_types:
     - chat
-- name: openai
-  label: openai
-  description: OpenAI提供的模型，例如GPT-4o-mini和GPT-4o。
-  icon: icon.svg
-  background: "#E5E7EB"
-  supported_model_types:
-    - chat
-    - completion
 - name: moonshot
   label: 月之暗面
   description: Moonshot提供的模型，例如moonshot-v1-8k、moonshot-v1-32k和moonshot-v1-128k。
