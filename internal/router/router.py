@@ -13,8 +13,8 @@ from injector import inject
 from internal.handler import APPHandler
 
 
-@dataclass
 @inject
+@dataclass
 class Router:
     """路由"""
     app_handler: APPHandler
