@@ -8,13 +8,13 @@
 from dataclasses import dataclass
 
 from flask import Flask, Blueprint
-from injector import Injector
+from injector import inject
 
 from internal.handler import APPHandler
 
 
 @dataclass
-@Injector
+@inject
 class Router:
     """路由"""
     app_handler: APPHandler
