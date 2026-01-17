@@ -5,6 +5,8 @@
 @Author  : yps302@163.com
 @File    : app_handler.py
 """
+import os
+
 from flask import request
 from openai import OpenAI
 
@@ -22,10 +24,9 @@ class APPHandler:
         query = request.json.get("query")
 
         # 2.构建OPENAI客户端，并发起请求
-        client = OpenAI(
-            api_key="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",
-            base_url="https://openrouter.ai/api/v1",
-        )
+        # apikey写入环境变量 client会自动读取 但是base_url不会
+        client = OpenAI(base_url=os.getenv("OPENAI_KEY_BASE")
+                        )
         # 3.得到请求响应，将OPENAI的响应传给前端
         completion = client.chat.completions.create(
             model="xiaomi/mimo-v2-flash:free",
