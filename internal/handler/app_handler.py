@@ -10,6 +10,8 @@ import os
 from flask import request
 from openai import OpenAI
 
+from internal.schema.app_schema import CompletionReq
+
 
 class APPHandler:
     """应用控制器"""
@@ -21,6 +23,11 @@ class APPHandler:
         """聊天接口"""
 
         # 1.提取从接口中获取的输入，POST
+
+        # 声明式验证校验输入
+        req = CompletionReq()
+        if not req.validate():
+            return req.errors
         query = request.json.get("query")
 
         # 2.构建OPENAI客户端，并发起请求
