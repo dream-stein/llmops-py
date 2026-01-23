@@ -10,6 +10,7 @@ import os
 from flask import request
 from openai import OpenAI
 
+from internal.excepiton import FailException
 from internal.schema.app_schema import CompletionReq
 from pkg.response import success_json, validate_error_json
 
@@ -18,7 +19,8 @@ class APPHandler:
     """应用控制器"""
 
     def ping(self):
-        return {"ping": "pong"}
+        raise FailException("114514")
+        # return {"ping": "pong"}
 
     def completion(self):
         """聊天接口"""

@@ -5,3 +5,20 @@
 @Author  : yps302@163.com
 @File    : __init__.py.py
 """
+from .exception import (
+    CustomException,
+    FailException,
+    NotFoundException,
+    UnauthorizedException,
+    ForbiddenException,
+    ValidationException,
+)
+
+__all__ = [
+    "CustomException",
+    "FailException",
+    "NotFoundException",
+    "UnauthorizedException",
+    "ForbiddenException",
+    "ValidationException",
+]
