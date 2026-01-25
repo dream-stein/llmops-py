@@ -6,8 +6,10 @@
 @File    : app.py
 """
 import dotenv
+from flask_sqlalchemy import SQLAlchemy
 from injector import Injector
 
+from app.http.module import ExtensionModule
 from config import Config
 from internal.router import Router
 from internal.server import Http
@@ -17,9 +19,9 @@ dotenv.load_dotenv()
 
 config = Config()
 
-injector = Injector()
+injector = Injector([ExtensionModule])
 
-app = Http(__name__, conf=config, router=injector.get(Router))
+app = Http(__name__, conf=config, db=injector.get(SQLAlchemy), router=injector.get(Router))
 
 if __name__ == "__main__":
     app.run(debug=True)
