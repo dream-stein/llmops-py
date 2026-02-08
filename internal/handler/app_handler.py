@@ -63,7 +63,7 @@ class APPHandler:
                         )
         # 3.得到请求响应，将OPENAI的响应传给前端
         completion = client.chat.completions.create(
-            model="xiaomi/mimo-v2-flash:free",
+            model="LongCat-Flash-Lite",
             messages=[
                 {"role": "system", "content": "你是OpenAI开发的聊天机器人，请根据用户的输入回复对应的信息"},
                 {"role": "user", "content": query},
