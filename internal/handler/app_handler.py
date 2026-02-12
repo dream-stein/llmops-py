@@ -59,7 +59,7 @@ class APPHandler:
 
         # 2.构建OPENAI客户端，并发起请求
         # apikey写入环境变量 client会自动读取 但是base_url不会
-        client = OpenAI(base_url=os.getenv("OPENAI_KEY_BASE")
+        client = OpenAI(base_url=os.getenv("OPENAI_API_BASE")
                         )
         # 3.得到请求响应，将OPENAI的响应传给前端
         completion = client.chat.completions.create(
