@@ -5,13 +5,13 @@
 @Author  : yps302@163.com
 @File    : app_handler.py
 """
-import os
 import uuid
 from dataclasses import dataclass
 
-from flask import request
 from injector import inject
-from openai import OpenAI
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
 
 from internal.excepiton import FailException
 from internal.schema.app_schema import CompletionReq
@@ -55,20 +55,17 @@ class APPHandler:
         req = CompletionReq()
         if not req.validate():
             return validate_error_json(req.errors)
-        query = request.json.get("query")
+        # query = request.json.get("query")
 
+        prompt = ChatPromptTemplate.from_template("{query}")
         # 2.构建OPENAI客户端，并发起请求
-        # apikey写入环境变量 client会自动读取 但是base_url不会
-        client = OpenAI(base_url=os.getenv("OPENAI_API_BASE")
-                        )
+        llm = ChatOpenAI(model="LongCat-Flash-Lite")
         # 3.得到请求响应，将OPENAI的响应传给前端
-        completion = client.chat.completions.create(
-            model="LongCat-Flash-Lite",
-            messages=[
-                {"role": "system", "content": "你是OpenAI开发的聊天机器人，请根据用户的输入回复对应的信息"},
-                {"role": "user", "content": query},
-            ]
-        )
-        content = completion.choices[0].message.content
+        ai_message = llm.invoke(prompt.invoke({"query": req.query.data}))
+
+        parser = StrOutputParser()
+
+        # 4.解析响应内容
+        content = parser.invoke(ai_message)
 
         return success_json({"content": content})
