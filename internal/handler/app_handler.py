@@ -50,22 +50,21 @@ class APPHandler:
         """聊天接口"""
 
         # 1.提取从接口中获取的输入，POST
-
         # 声明式验证校验输入
         req = CompletionReq()
         if not req.validate():
             return validate_error_json(req.errors)
         # query = request.json.get("query")
 
+        # 2.构建组件
         prompt = ChatPromptTemplate.from_template("{query}")
-        # 2.构建OPENAI客户端，并发起请求
         llm = ChatOpenAI(model="LongCat-Flash-Lite")
-        # 3.得到请求响应，将OPENAI的响应传给前端
-        ai_message = llm.invoke(prompt.invoke({"query": req.query.data}))
-
         parser = StrOutputParser()
 
-        # 4.解析响应内容
-        content = parser.invoke(ai_message)
+        # 3.构建链
+        chain = prompt | llm | parser
+
+        # 4.调用链得到结果
+        content = chain.invoke({"query": req.query.data})
 
         return success_json({"content": content})
