@@ -46,7 +46,7 @@ class APPHandler:
         raise FailException("114514")
         # return {"ping": "pong"}
 
-    def completion(self):
+    def debug(self, app_id: uuid.UUID):
         """聊天接口"""
 
         # 1.提取从接口中获取的输入，POST
