@@ -10,4 +10,5 @@ openai==1.109.1
 pytest==9.0.2
 python-dotenv==1.2.1
 WTForms==3.2.1
-psycopg2-binary==2.9.11
+psycopg2==2.9.11
+flask-cors==6.0.2
