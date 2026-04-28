@@ -7,4 +7,4 @@
 """
 from flask_migrate import Migrate
 
-migrate = Migrate()
+migrate = Migrate(compare_server_default=True)
