@@ -41,15 +41,14 @@ metadatas = [
     {"page": 9},
     {"page": 10},
 ]
-
 # 1.连接向量数据库
-client= weaviate.connect_to_wcs(
-    cluster_url="1zbpy1imtp8vrbpdkpzfg.c0.asia-southeast1.gcp.weaviate.cloud",
-    auth_credentials=AuthApiKey("THg0RmM3Vy9WdmtWRXFNT182citCZTNobXZYQy94V0V1ZTZwS3ZWRy9kN3l2bDdXNDVXSW00Q0lyWlR3PV92MjAw"),
+client = weaviate.connect_to_wcs(
+    cluster_url=os.getenv("WEAVIATE_CLUSTER_URL"),
+    auth_credentials=AuthApiKey(os.getenv("WEAVIATE_API_KEY")),
 )
 
 embedding = OpenAIEmbeddings(
-    model="BAAI/bge-m3",
+    model="Qwen/Qwen3-Embedding-8B",
     # 使用 os.getenv 读取，即使源码要求 SecretStr，这里直接传字符串即可
     api_key=os.getenv("SILICONFLOW_API_KEY"),
     base_url=os.getenv("SILICONFLOW_BASE_URL")
@@ -58,7 +57,7 @@ embedding = OpenAIEmbeddings(
 # 2.创建向量数据库实例
 db = WeaviateVectorStore(
     client=client,
-    index_name="DatasetDemo",
+    index_name="DatasetDemoQwen",
     text_key="text",
     embedding=embedding,
 )
@@ -68,20 +67,6 @@ db = WeaviateVectorStore(
 # print(ids)
 
 # 4.执行搜索
-# filters = Filter.by_property("page").greater_or_equal(5)
-# print(db.similarity_search_with_score("笨笨是一只猫咪",filters=filters))
-# print(db.similarity_search(
-# query="笨笨是一只很喜欢睡觉的猫咪", # 有些模型加前缀效果更好
-#     k=3,
-#     alpha=0 # 0.5 表示语义和字面各占一半权重
-# ))
-#
-# collection = client.collections.get("DatasetDemo")
-# # 直接按顺序查前 10 条，不带向量搜索
-# objs = collection.query.fetch_objects(limit=10)
-# for o in objs.objects:
-#     print(f"ID: {o.uuid}, Content: {o.properties.get('text')}")
-#
-
-retriever =db.as_retriever()
-print(retriever.invoke(("笨笨")))
+filters = Filter.by_property("page").greater_or_equal(0)
+# 这里返回的 score 是 Weaviate hybrid 检索分数，不是余弦相似度，所以不同结果都可能出现 0.75
+print(db.similarity_search_with_score("笨笨是一只猫咪", filters=filters))

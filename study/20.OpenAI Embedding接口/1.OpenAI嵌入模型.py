@@ -27,7 +27,7 @@ def cosine_similarity(vec1:list,vec2:list)->float:
 
 # 1.创建文本嵌入模型
 embeddings = OpenAIEmbeddings(
-    model="BAAI/bge-m3",
+    model="Qwen/Qwen3-Embedding-8B",
     # 使用 os.getenv 读取，即使源码要求 SecretStr，这里直接传字符串即可
     api_key=os.getenv("SILICONFLOW_API_KEY"),
     base_url=os.getenv("SILICONFLOW_BASE_URL")
