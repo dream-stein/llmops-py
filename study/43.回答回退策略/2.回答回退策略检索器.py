@@ -72,17 +72,17 @@ client = weaviate.connect_to_wcs(
 )
 
 embedding = OpenAIEmbeddings(
-model="Qwen/Qwen3-Embedding-8B",
-# 使用 os.getenv 读取，即使源码要求 SecretStr，这里直接传字符串即可
-api_key=os.getenv("SILICONFLOW_API_KEY"),
-base_url=os.getenv("SILICONFLOW_BASE_URL")
+    model="Qwen/Qwen3-Embedding-8B",
+    # 使用 os.getenv 读取，即使源码要求 SecretStr，这里直接传字符串即可
+    api_key=os.getenv("SILICONFLOW_API_KEY"),
+    base_url=os.getenv("SILICONFLOW_BASE_URL")
 )
 
 db = WeaviateVectorStore(
-client=client,
-index_name="DatasetDemoQwen1",
-text_key="text",
-embedding=embedding,
+    client=client,
+    index_name="DatasetDemoQwen1",
+    text_key="text",
+    embedding=embedding,
 )
 retriever = db.as_retriever(search_type="mmr")
 
