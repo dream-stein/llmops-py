@@ -25,3 +25,5 @@ weaviate-client==4.21.0
 WTForms==3.2.1
 psycopg2==2.9.11
 flask-cors==6.0.2
+
+langchain-pinecone
